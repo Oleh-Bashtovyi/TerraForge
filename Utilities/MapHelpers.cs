@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Godot;
 
 namespace TerrainGenerationApp.Utilities;
 
@@ -95,6 +97,50 @@ public static class MapHelpers
                 map[y, x] = Math.Clamp(map[y, x] * value, lowerBound, upperBound);
             }
         }
+    }
+
+    public static List<Vector2> GenerateDots(int count, float minX, float maxX, float minY, float maxY, ulong seed)
+    {
+        var rng = new RandomNumberGenerator();
+        var dots = new List<Vector2>(count);
+        rng.Seed = seed;
+
+        for (int i = 0; i < count; i++)
+        {
+            var x = rng.RandfRange(minX, maxX);
+            var y = rng.RandfRange(minY, maxY);
+            dots.Add(new(x, y));
+        }
+
+        return dots;
+    }
+
+
+    public static Vector2 FindNearestPoint(Vector2 from, List<Vector2> dots)
+    {
+        if (dots == null || dots.Count == 0)
+        {
+            return from;
+        }
+
+        var nearest = dots[0];
+        var minDist = float.MaxValue;
+
+        // Check distance to each feature point
+        foreach (var dot in dots)
+        {
+            // Calculate Euclidean distance
+            var dist = MathF.Sqrt((from.X - dot.X) * (from.X - dot.X) + (from.Y - dot.Y) * (from.Y - dot.Y));
+
+            // Keep track of minimum distance found
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = dot;
+            }
+        }
+
+        return nearest;
     }
 }
 

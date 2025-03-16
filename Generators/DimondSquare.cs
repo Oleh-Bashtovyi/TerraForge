@@ -30,7 +30,7 @@ public static class DiamondSquare
         var chunkSize = mapSize - 1;
         var curRoughness = roughness;
         while (chunkSize > 1)
-        {
+        { 
             var halfSize = chunkSize / 2;
             // DIAMOND STEP
             for (int y = halfSize; y < mapSize; y += chunkSize)

@@ -1,0 +1,133 @@
+[gd_scene load_steps=2 format=3 uid="uid://c2fscxswvxfxo"]
+
+[ext_resource type="Script" path="res://Scenes/GeneratorOptions/Scripts/DiamondSquareOptions.cs" id="1_yfloh"]
+
+[node name="DiamondSquareOptions" type="VBoxContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_yfloh")
+
+[node name="TerrainPower" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="TerrainPower"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Terrain power:"
+
+[node name="TerrainPowerLabel" type="Label" parent="TerrainPower"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "8"
+horizontal_alignment = 2
+
+[node name="TerrainPowerSlider" type="HSlider" parent="TerrainPower"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+tooltip_text = "Size of map (2^terrain_power + 1). Curently: 257x257"
+min_value = 1.0
+max_value = 11.0
+value = 8.0
+rounded = true
+
+[node name="Roughness" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="Roughness"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Roughness:"
+
+[node name="RoughnessLabel" type="Label" parent="Roughness"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "5"
+horizontal_alignment = 2
+
+[node name="RoughnessSlider" type="HSlider" parent="Roughness"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 0.1
+max_value = 10.0
+step = 0.1
+value = 5.0
+
+[node name="Seed" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="Seed"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Seed:"
+
+[node name="SeedL" type="Label" parent="Seed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 2
+
+[node name="SeedS" type="HSlider" parent="Seed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = -10000.0
+max_value = 10000.0
+rounded = true
+
+[node name="NoiseInfluence" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="NoiseInfluence"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Noise influence:"
+
+[node name="NoiseInfluenceL" type="Label" parent="NoiseInfluence"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "1.0"
+horizontal_alignment = 2
+
+[node name="NoiseInfluenceS" type="HSlider" parent="NoiseInfluence"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = -3.0
+max_value = 3.0
+step = 0.01
+value = 1.0
+
+[connection signal="value_changed" from="TerrainPower/TerrainPowerSlider" to="." method="OnTerrainPowerValueChanged"]
+[connection signal="value_changed" from="Roughness/RoughnessSlider" to="." method="OnRoughnessValueChanged"]
+[connection signal="value_changed" from="Seed/SeedS" to="." method="OnSeedValueChanged"]
+[connection signal="value_changed" from="NoiseInfluence/NoiseInfluenceS" to="." method="OnNoiseInfluenceValueChanged"]
