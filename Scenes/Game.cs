@@ -41,10 +41,10 @@ public partial class Game : Node3D
 
     private float[,] _curDisplayMap = new float[1, 1];
     private float[,] _curSlopesMap = new float[1, 1];
-    private float[,] _originalMap = new float[1, 1];
     private float _curChangeMapHeightLevel = 0.01f;
     private float _curSlopeThreshold = 0.2f;
     private float _curWaterLevel = 0.3f;
+    private float _curNoiseInfluence = 1.0f;
     private int _curSmoothCycles = 0;
 
     private bool _enableIslands = false;
@@ -89,6 +89,7 @@ public partial class Game : Node3D
 	private Label _smoothCyclesLabel;
 	private Label _mapChangeValueLabel;
 	private Label _slopeThresholdLabel;
+    private Label _noiseInfluenceLabel;
 
 	// Other
 	private CanvasLayer _generationLayer;
@@ -145,7 +146,24 @@ public partial class Game : Node3D
 		}
 	}
 
-	public float CurSlopeThreshold
+    public float CurNoiseInfluence
+    {
+        get => _curNoiseInfluence;
+        set
+        {
+            if (!Mathf.IsEqualApprox(value, _curNoiseInfluence))
+            {
+				//GD.Print("INFLUENCE CHANGED");
+                _curNoiseInfluence = value;
+                if (IsNodeReady())
+                {
+                    _generateMap();
+                }
+            }
+        }
+    }
+
+public float CurSlopeThreshold
 	{
 		get => _curSlopeThreshold;
 		set
@@ -250,9 +268,10 @@ public partial class Game : Node3D
 		_smoothCyclesLabel = GetNode<Label>("%SmoothCyclesLabel");
 		_mapChangeValueLabel = GetNode<Label>("%MapChangeValueL");
 		_slopeThresholdLabel = GetNode<Label>("%SlopeThresholdL");
+        _noiseInfluenceLabel = GetNode<Label>("%NoiseInfluenceLabel");
 
-		// Other
-		_waterMesh = GetNode<MeshInstance3D>("%WaterMesh");
+        // Other
+        _waterMesh = GetNode<MeshInstance3D>("%WaterMesh");
 		_generationLayer = GetNode<CanvasLayer>("%Generation_Layer");
 		_3dLayer = GetNode<CanvasLayer>("%3D_Layer");
 		_domainWarpingOptions = GetNode<DomainWarpingOptions>("%DomainWarpingOptions");
@@ -368,13 +387,7 @@ public partial class Game : Node3D
 
         var map = _curGenerator.GenerateMap();
 
-        //var influence = _curGenerator.NoiseInfluence;
-        var influence = 1.0f;
-
-        // APPLY NOISE INFLUENCE
-        MapHelpers.MultiplyHeight(map, influence);
-
-        _originalMap = map;
+        MapHelpers.MultiplyHeight(map, CurNoiseInfluence);
 
         for (int i = 0; i < CurSmoothCycles; i++)
         {
@@ -420,17 +433,6 @@ public partial class Game : Node3D
 
 
 
-	private void _on_water_level_slider_value_changed(float value)
-	{
-		CurWaterLevel = value;
-		_waterLevelLabel.Text = value.ToString();
-	}
-
-	private void _on_smooth_cycles_slider_value_changed(float value)
-	{
-		CurSmoothCycles = Mathf.RoundToInt(value);
-		_smoothCyclesLabel.Text = CurSmoothCycles.ToString();
-	}
 
 	private void _onGeneratorDropdownMenuItemSelected(int index)
 	{
@@ -519,7 +521,7 @@ public partial class Game : Node3D
 
 
 
-private void _hideAllOptions()
+    private void _hideAllOptions()
 	{
 		_diamondSquareOptions.Visible = false;
 		_worleyOptions.Visible = false;
@@ -669,17 +671,32 @@ private void _hideAllOptions()
 		_cellInfoLabel.Text = "";
 	}
 
-	private void _on_slope_threshold_s_value_changed(float value)
+
+
+
+    private void _on_water_level_slider_value_changed(float value)
+    {
+        CurWaterLevel = value;
+        _waterLevelLabel.Text = value.ToString();
+    }
+
+    private void _on_smooth_cycles_slider_value_changed(float value)
+    {
+        CurSmoothCycles = Mathf.RoundToInt(value);
+        _smoothCyclesLabel.Text = CurSmoothCycles.ToString();
+    }
+
+    private void _on_noise_influence_slider_value_changed(float value)
+    {
+        CurNoiseInfluence = value;
+        _noiseInfluenceLabel.Text = CurNoiseInfluence.ToString();
+    }
+
+    private void _on_slope_threshold_slider_value_changed(float value)
 	{
 		CurSlopeThreshold = value;
 		_slopeThresholdLabel.Text = CurSlopeThreshold.ToString();
 	}
-
-
-
-
-
-
 
     private void _on_domain_warping_check_box_toggled(bool toggledOn)
     {

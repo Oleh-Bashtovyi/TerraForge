@@ -167,40 +167,9 @@ min_value = -10000.0
 max_value = 10000.0
 rounded = true
 
-[node name="NoiseInfluence" type="HBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="L" type="Label" parent="NoiseInfluence"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-size_flags_stretch_ratio = 3.0
-text = "Noise influence:"
-
-[node name="NoiseInfluenceL" type="Label" parent="NoiseInfluence"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "1.0"
-horizontal_alignment = 2
-
-[node name="NoiseInfluenceS" type="HSlider" parent="NoiseInfluence"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 7.0
-min_value = -3.0
-max_value = 3.0
-step = 0.01
-value = 1.0
-
 [connection signal="value_changed" from="MapHeight/MapHeightSlider" to="." method="OnMapHeightValueChanged"]
 [connection signal="value_changed" from="MapWidth/MapWidthSlider" to="." method="OnMapWidthValueChanged"]
 [connection signal="value_changed" from="DotsCount/DotsCountSlider" to="." method="OnDotsCountValueChanged"]
 [connection signal="value_changed" from="MaxIntensity/MaxIntensitySlider" to="." method="OnMaxIntensityValueChanged"]
 [connection signal="toggled" from="Invert/InvertCheckButton" to="." method="OnInvertToggled"]
 [connection signal="value_changed" from="Seed/SeedS" to="." method="OnSeedValueChanged"]
-[connection signal="value_changed" from="NoiseInfluence/NoiseInfluenceS" to="." method="OnNoiseInfluenceValueChanged"]

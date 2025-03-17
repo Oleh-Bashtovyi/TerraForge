@@ -17,7 +17,6 @@ public partial class WorleyOptions : Scripts.BaseGeneratorOptions
 	private Label _dotsCountLabel;
 	private Label _maxIntensityLabel;
 	private Label _seedLabel;
-	private Label _noiseInfluenceLabel;
 
 	public override void _Ready()
 	{
@@ -25,7 +24,6 @@ public partial class WorleyOptions : Scripts.BaseGeneratorOptions
 		_mapWidthLabel = GetNode<Label>("%MapWidthLabel");
 		_dotsCountLabel = GetNode<Label>("%DotsCountLabel");
 		_maxIntensityLabel = GetNode<Label>("%MaxIntensityLabel");
-		_noiseInfluenceLabel = GetNode<Label>("%NoiseInfluenceL");
 		_seedLabel = GetNode<Label>("%SeedL");
 	}
 

@@ -47,7 +47,7 @@ domain_warp_fractal_gain = 14.725
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_r34pj"]
 noise = SubResource("FastNoiseLite_mxk2f")
 
-[sub_resource type="Image" id="Image_uunrx"]
+[sub_resource type="Image" id="Image_f3cig"]
 data = {
 "data": PackedByteArray(0, 0, 0),
 "format": "RGB8",
@@ -57,7 +57,7 @@ data = {
 }
 
 [sub_resource type="ImageTexture" id="ImageTexture_ic0em"]
-image = SubResource("Image_uunrx")
+image = SubResource("Image_f3cig")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ujnl"]
 bg_color = Color(0.187176, 0.187176, 0.187176, 1)
@@ -269,6 +269,36 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="NoiseInfluence" type="HBoxContainer" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Noise influence:"
+
+[node name="NoiseInfluenceLabel" type="Label" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "1"
+horizontal_alignment = 2
+
+[node name="NoiseInfluenceSlider" type="HSlider" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = -3.0
+max_value = 3.0
+step = 0.01
+value = 1.0
+
 [node name="SmoothCycles" type="HBoxContainer" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions"]
 layout_mode = 2
 theme_override_constants/separation = 10
@@ -289,6 +319,7 @@ text = "0"
 horizontal_alignment = 2
 
 [node name="SmoothCyclesSlider" type="HSlider" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -413,7 +444,7 @@ text = "0.2"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="SlopeThresholdS" type="HSlider" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/SlopeThreshold"]
+[node name="SlopeThresholdSlider" type="HSlider" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/SlopeThreshold"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -698,12 +729,13 @@ text = "Back"
 [connection signal="gui_input" from="Generation_Layer/ColorRect2/MapContainer/MapTextureRect" to="." method="_on_map_texture_rect_gui_input"]
 [connection signal="mouse_exited" from="Generation_Layer/ColorRect2/MapContainer/MapTextureRect" to="." method="_on_map_texture_rect_mouse_exited"]
 [connection signal="item_selected" from="Generation_Layer/ColorRect/GeneratorsCountSelection/HBoxContainer/GeneratorDropdownMenu" to="." method="_onGeneratorDropdownMenuItemSelected"]
+[connection signal="value_changed" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence/NoiseInfluenceSlider" to="." method="_on_noise_influence_slider_value_changed"]
 [connection signal="value_changed" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles/SmoothCyclesSlider" to="." method="_on_smooth_cycles_slider_value_changed"]
 [connection signal="toggled" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/DomainWarpingCheckBox" to="." method="_on_domain_warping_check_box_toggled"]
 [connection signal="toggled" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/WaterErosionCheckBox" to="." method="_on_water_erosion_check_box_toggled"]
 [connection signal="toggled" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/IslandOptionsCheckBox" to="." method="_on_island_options_check_box_toggled"]
 [connection signal="value_changed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/WaterLevel/WaterLevelSlider" to="." method="_on_water_level_slider_value_changed"]
-[connection signal="value_changed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/SlopeThreshold/SlopeThresholdS" to="." method="_on_slope_threshold_s_value_changed"]
+[connection signal="value_changed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/SlopeThreshold/SlopeThresholdSlider" to="." method="_on_slope_threshold_slider_value_changed"]
 [connection signal="pressed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise/RaiseMapButton" to="." method="_on_raise_map_button_pressed"]
 [connection signal="pressed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise/LowerMapButton" to="." method="_on_lower_map_button_pressed"]
 [connection signal="value_changed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise/MapChangeValueS" to="." method="_on_map_change_value_s_value_changed"]

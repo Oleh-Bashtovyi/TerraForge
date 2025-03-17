@@ -20,7 +20,6 @@ public partial class PerlinOptions : Scripts.BaseGeneratorOptions
 	private Label _seedLabel;
 	private Label _warpingStrengthLabel;
 	private Label _warpingSizeLabel;
-	private Label _noiseInfluenceLabel;
 	private CheckButton _useWarpingCheckButton;
 
 	public PerlinNoise Generator
@@ -49,7 +48,6 @@ public partial class PerlinOptions : Scripts.BaseGeneratorOptions
 		_warpingStrengthLabel = GetNode<Label>("%WarpingStrengthL");
 		_warpingSizeLabel = GetNode<Label>("%WarpingSizeL");
 		_useWarpingCheckButton = GetNode<CheckButton>("%UseWarpingCheckButton");
-		_noiseInfluenceLabel = GetNode<Label>("%NoiseInfluenceL");
 	}
 
 
