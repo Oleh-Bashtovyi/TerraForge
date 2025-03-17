@@ -1,15 +1,11 @@
-[gd_scene load_steps=27 format=3 uid="uid://dhk7rgiforkic"]
+[gd_scene load_steps=17 format=3 uid="uid://dhk7rgiforkic"]
 
-[ext_resource type="Script" path="res://Scenes/Game.cs" id="1_h4tgm"]
+[ext_resource type="Script" path="res://Scenes/Game.cs" id="1_ug855"]
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://Scenes/rtscam.tscn" id="2_al3ws"]
 [ext_resource type="Shader" uid="uid://ckpj7iuljx3gj" path="res://Resources/water.tres" id="3_3w3g2"]
-[ext_resource type="PackedScene" uid="uid://qs7cvr1k61r1" path="res://Scenes/GeneratorOptions/Scenes/WorleyOptions.tscn" id="3_h7rit"]
-[ext_resource type="PackedScene" uid="uid://c2fscxswvxfxo" path="res://Scenes/GeneratorOptions/Scenes/DiamondSquareOptions.tscn" id="4_bjm1j"]
-[ext_resource type="ButtonGroup" uid="uid://cq8skvodilixs" path="res://Resources/button_group_noise_display_type.tres" id="4_dmpn2"]
-[ext_resource type="PackedScene" uid="uid://dibwtw2cnl4pf" path="res://Scenes/GeneratorOptions/Scenes/PerlinOptions.tscn" id="4_xafq6"]
-[ext_resource type="PackedScene" uid="uid://bagl6klwbcex2" path="res://Scenes/GeneratorOptions/Scenes/DomainWarpingOptions.tscn" id="7_b47el"]
-[ext_resource type="PackedScene" uid="uid://ds5ici2o3bfy0" path="res://Scenes/GeneratorOptions/Scenes/WaterErosionOptions.tscn" id="8_iqr33"]
-[ext_resource type="PackedScene" uid="uid://cs3qk4i5r62mw" path="res://Scenes/GeneratorOptions/Scenes/IslandOptions.tscn" id="9_0sm4c"]
+[ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/TerrainScene2D.tscn" id="3_bauv2"]
+[ext_resource type="PackedScene" uid="uid://ckgwmiiux24bu" path="res://Scenes/MapGenerationMenu.tscn" id="4_2ko6c"]
+[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/MapDisplayOptions.tscn" id="6_kwpie"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_g7g4g"]
 
@@ -47,44 +43,7 @@ domain_warp_fractal_gain = 14.725
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_r34pj"]
 noise = SubResource("FastNoiseLite_mxk2f")
 
-[sub_resource type="Image" id="Image_f3cig"]
-data = {
-"data": PackedByteArray(0, 0, 0),
-"format": "RGB8",
-"height": 1,
-"mipmaps": false,
-"width": 1
-}
-
-[sub_resource type="ImageTexture" id="ImageTexture_ic0em"]
-image = SubResource("Image_f3cig")
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ujnl"]
-bg_color = Color(0.187176, 0.187176, 0.187176, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7ufcx"]
-bg_color = Color(0.348987, 0.604271, 0.274128, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0lpg1"]
-bg_color = Color(0.669651, 0.334897, 0.282751, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mx2hp"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4s4h6"]
 resource_local_to_scene = true
 bg_color = Color(0.258824, 0.6, 0.286275, 1)
 border_width_left = 1
@@ -96,7 +55,7 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cewcb"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_61sx6"]
 bg_color = Color(0.744475, 0.541759, 0.523234, 1)
 border_width_left = 1
 border_width_top = 1
@@ -107,7 +66,7 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3xix4"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wap7x"]
 bg_color = Color(0.862745, 0.815686, 0.337255, 1)
 border_width_left = 1
 border_width_top = 1
@@ -118,11 +77,8 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[sub_resource type="LabelSettings" id="LabelSettings_ib36l"]
-font_size = 25
-
 [node name="Game" type="Node3D"]
-script = ExtResource("1_h4tgm")
+script = ExtResource("1_ug855")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_v1dd2")
@@ -144,560 +100,75 @@ texture = SubResource("NoiseTexture2D_r34pj")
 [node name="Generation_Layer" type="CanvasLayer" parent="."]
 unique_name_in_owner = true
 
-[node name="ColorRect2" type="ColorRect" parent="Generation_Layer"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-color = Color(0.393086, 0.393086, 0.393085, 1)
-
-[node name="MapContainer" type="MarginContainer" parent="Generation_Layer/ColorRect2"]
-layout_mode = 0
-offset_right = 652.0
-offset_bottom = 648.0
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 40
-
-[node name="MapTextureRect" type="TextureRect" parent="Generation_Layer/ColorRect2/MapContainer"]
+[node name="TerrainScene2D" parent="Generation_Layer" instance=ExtResource("3_bauv2")]
 unique_name_in_owner = true
-texture_filter = 1
-layout_mode = 2
-texture = SubResource("ImageTexture_ic0em")
-expand_mode = 2
+offset_right = -501.0
 
-[node name="CellInfoLabel" type="Label" parent="Generation_Layer/ColorRect2"]
-unique_name_in_owner = true
-layout_mode = 0
-offset_left = 40.0
-offset_top = 617.0
-offset_right = 80.0
-offset_bottom = 640.0
-text = "Cell: "
-
-[node name="ColorRect" type="ColorRect" parent="Generation_Layer"]
-layout_direction = 2
+[node name="RightPannel" type="ColorRect" parent="Generation_Layer"]
 anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -500.0
+offset_left = -501.0
 grow_horizontal = 0
 grow_vertical = 2
-color = Color(0.140447, 0.140447, 0.140447, 1)
+color = Color(0.141176, 0.141176, 0.141176, 1)
 
-[node name="Label" type="Label" parent="Generation_Layer/ColorRect"]
-layout_mode = 2
-offset_top = 20.0
-offset_right = 500.0
-offset_bottom = 43.0
-text = "Generation control"
-horizontal_alignment = 1
-
-[node name="GeneratorsCountSelection" type="MarginContainer" parent="Generation_Layer/ColorRect"]
-layout_mode = 0
-offset_top = 47.0
-offset_right = 500.0
-offset_bottom = 98.0
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 10
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Generation_Layer/ColorRect/GeneratorsCountSelection"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="GeneratorDropdownMenu" type="OptionButton" parent="Generation_Layer/ColorRect/GeneratorsCountSelection/HBoxContainer"]
+[node name="MapGenerationMenu" parent="Generation_Layer/RightPannel" instance=ExtResource("4_2ko6c")]
 unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 5.0
-selected = 0
-item_count = 3
-popup/item_0/text = "Dimond square"
-popup/item_0/id = 1
-popup/item_1/text = "Perlin noise"
-popup/item_1/id = 2
-popup/item_2/text = "Warley noise"
-popup/item_2/id = 3
+layout_mode = 1
+offset_bottom = -252.0
 
-[node name="GenerationOptions" type="MarginContainer" parent="Generation_Layer/ColorRect"]
-layout_mode = 0
-offset_top = 95.0
-offset_right = 498.0
-offset_bottom = 336.0
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 10
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Generation_Layer/ColorRect/GenerationOptions"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_8ujnl")
-horizontal_scroll_mode = 0
-
-[node name="MarginContainer" type="MarginContainer" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_right = 5
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer"]
-layout_mode = 2
-
-[node name="DiamondSquareOptions" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("4_bjm1j")]
+[node name="MapDisplayOptions" parent="Generation_Layer/RightPannel" instance=ExtResource("6_kwpie")]
 unique_name_in_owner = true
-visible = false
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+offset_top = -260.0
+offset_bottom = -78.0
+grow_vertical = 0
 
-[node name="WorleyOptions" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("3_h7rit")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="PerlinOptions" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("4_xafq6")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="GeneralOptions" type="VBoxContainer" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="NoiseInfluence" type="HBoxContainer" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="L" type="Label" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-size_flags_stretch_ratio = 3.0
-text = "Noise influence:"
-
-[node name="NoiseInfluenceLabel" type="Label" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "1"
-horizontal_alignment = 2
-
-[node name="NoiseInfluenceSlider" type="HSlider" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 7.0
-min_value = -3.0
-max_value = 3.0
-step = 0.01
-value = 1.0
-
-[node name="SmoothCycles" type="HBoxContainer" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="L" type="Label" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-size_flags_stretch_ratio = 3.0
-text = "Smooth cycles:"
-
-[node name="SmoothCyclesLabel" type="Label" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "0"
-horizontal_alignment = 2
-
-[node name="SmoothCyclesSlider" type="HSlider" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 7.0
-max_value = 12.0
-rounded = true
-
-[node name="RedrawOnParametersChanged" type="HBoxContainer" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions"]
-visible = false
-layout_mode = 2
-
-[node name="DomainWarpingCheckBox" type="CheckBox" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Domain warping"
-
-[node name="DomainWarpingOptions" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("7_b47el")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="WaterErosionCheckBox" type="CheckBox" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Water erosion"
-
-[node name="WaterErosionOptions" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("8_iqr33")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="IslandOptionsCheckBox" type="CheckBox" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Islands"
-
-[node name="IslandOptions" parent="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("9_0sm4c")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="MapDisplayOptions" type="MarginContainer" parent="Generation_Layer/ColorRect"]
-layout_mode = 0
-offset_top = 333.0
-offset_right = 500.0
-offset_bottom = 587.0
+[node name="ButtonsContainer" type="MarginContainer" parent="Generation_Layer/RightPannel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -49.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_right = 20
 
-[node name="MapDisplayView" type="VBoxContainer" parent="Generation_Layer/ColorRect/MapDisplayOptions"]
+[node name="CenterContainer" type="CenterContainer" parent="Generation_Layer/RightPannel/ButtonsContainer"]
 layout_mode = 2
-theme_override_constants/separation = 2
 
-[node name="Label" type="Label" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView"]
-layout_mode = 2
-text = "Map display format:"
-
-[node name="DisplayGrey" type="CheckBox" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView"]
-unique_name_in_owner = true
-layout_mode = 2
-button_group = ExtResource("4_dmpn2")
-text = "Grey"
-
-[node name="DisplayColors" type="CheckBox" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView"]
-unique_name_in_owner = true
-layout_mode = 2
-button_pressed = true
-button_group = ExtResource("4_dmpn2")
-text = "Colors"
-
-[node name="DisplayGradient" type="CheckBox" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView"]
-unique_name_in_owner = true
-layout_mode = 2
-button_group = ExtResource("4_dmpn2")
-text = "Gradient"
-
-[node name="WaterLevel" type="HBoxContainer" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="L" type="Label" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/WaterLevel"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
-text = "Water level:"
-
-[node name="WaterLevelLabel" type="Label" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/WaterLevel"]
+[node name="GenerateMapButton" type="Button" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
 unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "0.3"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="WaterLevelSlider" type="HSlider" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/WaterLevel"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 7.0
-max_value = 1.0
-step = 0.01
-value = 0.3
-
-[node name="SlopeThreshold" type="HBoxContainer" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="L" type="Label" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/SlopeThreshold"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
-text = "Slope threshold:"
-
-[node name="SlopeThresholdL" type="Label" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/SlopeThreshold"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "0.2"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="SlopeThresholdSlider" type="HSlider" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/SlopeThreshold"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 7.0
-max_value = 1.0
-step = 0.01
-value = 0.2
-
-[node name="IncreaseDecreaseNoise" type="HBoxContainer" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="RaiseMapButton" type="Button" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_stretch_ratio = 2.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_7ufcx")
-text = "Raise map"
-
-[node name="LowerMapButton" type="Button" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_stretch_ratio = 2.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_0lpg1")
-text = "Lower map"
-
-[node name="MapChangeValueL" type="Label" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 1
-text = "0.01"
-
-[node name="MapChangeValueS" type="HSlider" parent="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-size_flags_stretch_ratio = 5.0
-min_value = 0.01
-max_value = 0.2
-step = 0.01
-value = 0.01
-
-[node name="ButtonsContainer" type="MarginContainer" parent="Generation_Layer/ColorRect"]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 587.0
-offset_right = 498.0
-offset_bottom = 639.0
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_right = 20
-
-[node name="CenterContainer" type="CenterContainer" parent="Generation_Layer/ColorRect/ButtonsContainer"]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Generation_Layer/ColorRect/ButtonsContainer/CenterContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="GenerateButton" type="Button" parent="Generation_Layer/ColorRect/ButtonsContainer/CenterContainer/HBoxContainer"]
 custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_mx2hp")
+theme_override_styles/normal = SubResource("StyleBoxFlat_4s4h6")
 text = "Generate"
 
-[node name="ErosionSimulationButton" type="Button" parent="Generation_Layer/ColorRect/ButtonsContainer/CenterContainer/HBoxContainer"]
+[node name="ErosionSimulationButton" type="Button" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
 custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_cewcb")
+theme_override_styles/normal = SubResource("StyleBoxFlat_61sx6")
 text = "Erosion simulation"
 
-[node name="ShowIn3dButton" type="Button" parent="Generation_Layer/ColorRect/ButtonsContainer/CenterContainer/HBoxContainer"]
+[node name="ShowIn3dButton" type="Button" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
 custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_3xix4")
+theme_override_styles/normal = SubResource("StyleBoxFlat_wap7x")
 text = "Show in 3d"
-
-[node name="ColorsOverrideContainer" type="MarginContainer" parent="Generation_Layer/ColorRect"]
-visible = false
-layout_mode = 0
-offset_left = 1.0
-offset_top = 408.0
-offset_right = 499.0
-offset_bottom = 604.0
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 10
-
-[node name="ScrollContainer" type="ScrollContainer" parent="Generation_Layer/ColorRect/ColorsOverrideContainer"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 10
-
-[node name="ColorRect" type="ColorRect" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-color = Color(0.521141, 0.521141, 0.521141, 1)
-
-[node name="ColorPickerButton" type="ColorPickerButton" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 5.0
-offset_top = -15.0
-offset_right = 35.0
-offset_bottom = 15.0
-grow_vertical = 2
-color = Color(0.460789, 0.344315, 0.147333, 1)
-
-[node name="Label" type="Label" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 40.0
-offset_top = -19.0
-offset_right = 279.0
-offset_bottom = 16.0
-grow_vertical = 2
-text = "Ground"
-label_settings = SubResource("LabelSettings_ib36l")
-vertical_alignment = 1
-
-[node name="Label2" type="Label" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect"]
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -113.0
-offset_top = -11.5
-offset_right = -72.0
-offset_bottom = 11.5
-grow_horizontal = 0
-grow_vertical = 2
-text = ">= 32"
-
-[node name="Button" type="Button" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect"]
-layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -63.0
-offset_top = -15.5
-offset_right = -4.0
-offset_bottom = 15.5
-grow_horizontal = 0
-grow_vertical = 2
-text = "Delete"
-
-[node name="ColorRect2" type="ColorRect" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-color = Color(0.521141, 0.521141, 0.521141, 1)
-
-[node name="ColorPickerButton" type="ColorPickerButton" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect2"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 5.0
-offset_top = -15.0
-offset_right = 35.0
-offset_bottom = 15.0
-grow_vertical = 2
-
-[node name="Label" type="Label" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect2"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 40.0
-offset_top = -19.0
-offset_right = 136.0
-offset_bottom = 16.0
-grow_vertical = 2
-text = "Ground"
-label_settings = SubResource("LabelSettings_ib36l")
-vertical_alignment = 1
-
-[node name="ColorRect3" type="ColorRect" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-color = Color(0.521141, 0.521141, 0.521141, 1)
-
-[node name="ColorPickerButton" type="ColorPickerButton" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect3"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 5.0
-offset_top = -15.0
-offset_right = 35.0
-offset_bottom = 15.0
-grow_vertical = 2
-
-[node name="Label" type="Label" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect3"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 40.0
-offset_top = -19.0
-offset_right = 136.0
-offset_bottom = 16.0
-grow_vertical = 2
-text = "Ground"
-label_settings = SubResource("LabelSettings_ib36l")
-vertical_alignment = 1
-
-[node name="ColorRect4" type="ColorRect" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-color = Color(0.521141, 0.521141, 0.521141, 1)
-
-[node name="ColorPickerButton" type="ColorPickerButton" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect4"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 5.0
-offset_top = -15.0
-offset_right = 35.0
-offset_bottom = 15.0
-grow_vertical = 2
-
-[node name="Label" type="Label" parent="Generation_Layer/ColorRect/ColorsOverrideContainer/ScrollContainer/VBoxContainer/ColorRect4"]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_left = 40.0
-offset_top = -19.0
-offset_right = 136.0
-offset_bottom = 16.0
-grow_vertical = 2
-text = "Ground"
-label_settings = SubResource("LabelSettings_ib36l")
-vertical_alignment = 1
 
 [node name="3D_Layer" type="CanvasLayer" parent="."]
 unique_name_in_owner = true
@@ -726,20 +197,4 @@ grow_horizontal = 2
 grow_vertical = 0
 text = "Back"
 
-[connection signal="gui_input" from="Generation_Layer/ColorRect2/MapContainer/MapTextureRect" to="." method="_on_map_texture_rect_gui_input"]
-[connection signal="mouse_exited" from="Generation_Layer/ColorRect2/MapContainer/MapTextureRect" to="." method="_on_map_texture_rect_mouse_exited"]
-[connection signal="item_selected" from="Generation_Layer/ColorRect/GeneratorsCountSelection/HBoxContainer/GeneratorDropdownMenu" to="." method="_onGeneratorDropdownMenuItemSelected"]
-[connection signal="value_changed" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence/NoiseInfluenceSlider" to="." method="_on_noise_influence_slider_value_changed"]
-[connection signal="value_changed" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles/SmoothCyclesSlider" to="." method="_on_smooth_cycles_slider_value_changed"]
-[connection signal="toggled" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/DomainWarpingCheckBox" to="." method="_on_domain_warping_check_box_toggled"]
-[connection signal="toggled" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/WaterErosionCheckBox" to="." method="_on_water_erosion_check_box_toggled"]
-[connection signal="toggled" from="Generation_Layer/ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/IslandOptionsCheckBox" to="." method="_on_island_options_check_box_toggled"]
-[connection signal="value_changed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/WaterLevel/WaterLevelSlider" to="." method="_on_water_level_slider_value_changed"]
-[connection signal="value_changed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/SlopeThreshold/SlopeThresholdSlider" to="." method="_on_slope_threshold_slider_value_changed"]
-[connection signal="pressed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise/RaiseMapButton" to="." method="_on_raise_map_button_pressed"]
-[connection signal="pressed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise/LowerMapButton" to="." method="_on_lower_map_button_pressed"]
-[connection signal="value_changed" from="Generation_Layer/ColorRect/MapDisplayOptions/MapDisplayView/IncreaseDecreaseNoise/MapChangeValueS" to="." method="_on_map_change_value_s_value_changed"]
-[connection signal="pressed" from="Generation_Layer/ColorRect/ButtonsContainer/CenterContainer/HBoxContainer/GenerateButton" to="." method="_onGenerateButtonPressed"]
-[connection signal="pressed" from="Generation_Layer/ColorRect/ButtonsContainer/CenterContainer/HBoxContainer/ErosionSimulationButton" to="." method="_on_erosion_simulation_button_pressed"]
-[connection signal="pressed" from="Generation_Layer/ColorRect/ButtonsContainer/CenterContainer/HBoxContainer/ShowIn3dButton" to="." method="_on_show_in_3d_button_pressed"]
 [connection signal="pressed" from="3D_Layer/Control/BackButton" to="." method="_on_back_button_pressed"]

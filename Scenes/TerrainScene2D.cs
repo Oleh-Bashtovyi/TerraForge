@@ -1,0 +1,467 @@
+using Godot;
+using System;
+using TerrainGenerationApp.Utilities;
+
+namespace TerrainGenerationApp.Scenes;
+
+public partial class TerrainScene2D : Control
+{
+    private MapGenerationMenu _generationMenu;
+    private MapDisplayOptions _displayOptions;
+
+    private Image _texture;
+    private ImageTexture _mapTexture;
+    private Gradient _terrainGradient;
+    private Gradient _waterGradient;
+
+    // NODES REFERENCED WITH "%" IN SCENE
+    private Label _cellInfoLabel;
+    private TextureRect _mapTextureRect;
+
+
+    public override void _Ready()
+    {
+        _mapTextureRect = GetNode<TextureRect>("%MapTextureRect");
+        _cellInfoLabel = GetNode<Label>("%CellInfoLabel");
+
+        // GENERATE GRADIENTS FOR 2D MAPS
+        _terrainGradient = new Gradient();
+        _waterGradient = new Gradient();
+        _terrainGradient.RemovePoint(1);
+        _waterGradient.RemovePoint(1);
+        foreach (var heightColor in ColorPallets.DefaultTerrainColors)
+        {
+            var gradOffset = heightColor.Key;
+            _terrainGradient.AddPoint(gradOffset, heightColor.Value);
+        }
+
+        foreach (var heightColor in ColorPallets.DefaultWaterColors)
+        {
+            var gradOffset = heightColor.Key;
+            _waterGradient.AddPoint(gradOffset, heightColor.Value);
+        }
+
+        // INIT 2D MAP TEXTURE
+        _texture = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
+        _mapTexture = ImageTexture.CreateFromImage(_texture);
+        _mapTextureRect.Texture = _mapTexture;
+    }
+
+
+
+    public void RedrawMap()
+    {
+        var displayFormat = _displayOptions.CurDisplayFormat;
+        var slopesThreshold = _displayOptions.CurSlopeThreshold;
+        var waterLevel = _displayOptions.CurWaterLevel;
+        var slopes = _generationMenu.CurSlopesMap;
+		var trees = _generationMenu.CurTreesMap;
+        var map = _generationMenu.CurTerrainMap;
+        var h = map.GetLength(0);
+        var w = map.GetLength(1);
+
+        if (displayFormat == MapDisplayFormat.Grey)
+        {
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    var v = map[y, x];
+                    _texture.SetPixel(x, y, new Color(v, v, v, 1.0f));
+                }
+            }
+        }
+        else
+        {
+            if (displayFormat == MapDisplayFormat.Colors)
+            {
+                _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+                _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+            }
+            else
+            {
+                _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
+                _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
+            }
+
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    // Display water
+                    if (map[y, x] < waterLevel)
+                    {
+                        _texture.SetPixel(x, y, _waterGradient.Sample(waterLevel - map[y, x]));
+                    }
+                    else
+                    {
+                        var baseColor = _terrainGradient.Sample(map[y, x] - waterLevel);
+                        var slopeBaseColor =
+                            GetSlopeColor(baseColor, slopes[y, x], map[y, x], slopesThreshold);
+
+                        _texture.SetPixel(x, y, slopeBaseColor);
+                    }
+                }
+            }
+        }
+        _mapTexture.Update(_texture);
+    }
+
+
+
+
+    public void SetGenerationMenu(MapGenerationMenu menu)
+    {
+        if (_generationMenu != null)
+        {
+            _generationMenu.OnMapGenerated -= _handleOnMapGenerated;
+        }
+		_generationMenu = menu;
+        if (_generationMenu != null)
+        {
+			_generationMenu.OnMapGenerated += _handleOnMapGenerated;
+        }
+    }
+
+
+    public void SetDisplayOptions(MapDisplayOptions menu)
+    {
+        if (_displayOptions != null)
+        {
+            _displayOptions.OnDisplayOptionsChanged -= _handleDisplayOptionsChanged;
+        }
+        _displayOptions = menu;
+        if (_displayOptions != null)
+        {
+            _displayOptions.OnDisplayOptionsChanged += _handleDisplayOptionsChanged;
+        }
+    }
+
+
+
+    private void _handleOnMapGenerated(MapGenerationResult result)
+    {
+        var map = _generationMenu.CurTerrainMap;
+        var h = map.GetLength(0);
+        var w = map.GetLength(1);
+        if (_texture.GetSize() != new Vector2I(h, w))
+        {
+            _texture.Resize(w, h);
+            _mapTexture.SetImage(_texture);
+        }
+        RedrawMap();
+    }
+
+
+    private void _handleDisplayOptionsChanged()
+    {
+        RedrawMap();
+    }
+
+
+
+
+
+
+    private Color GetSlopeColor(Color baseColor, float slope, float elevation, float slopeThreshold)
+    {
+        // Нормалізація значення ухилу (щоб вписатись у межі 0-1)
+        float slopeFactor = MathF.Min(slope * slopeThreshold, 1.0f);
+
+        // Затемнення залежно від крутизни
+        float r = baseColor.R * (1.0f - slopeFactor);
+        float g = baseColor.G * (1.0f - slopeFactor);
+        float b = baseColor.B * (1.0f - slopeFactor);
+
+        // Корекція яскравості (на великих висотах трохи висвітлюємо)
+        float brightnessFactor = 1.0f + (elevation * 0.2f);
+        r = Math.Clamp(r * brightnessFactor, 0, 1.0f);
+        g = Math.Clamp(g * brightnessFactor, 0, 1.0f);
+        b = Math.Clamp(b * brightnessFactor, 0, 1.0f);
+
+        return new Color(r, g, b);
+    }
+
+
+
+
+    private void _on_map_texture_rect_gui_input(InputEvent @event)
+    {
+        /*        if (@event is InputEventMouseMotion)
+                {
+                    Vector2 localPosition = _mapTextureRect.GetLocalMousePosition();
+                    int h = _curTerrainMap.GetLength(0);
+                    int w = _curTerrainMap.GetLength(1);
+
+                    // Convert coordinates to map grid coordinates
+                    int cellX = (int)(localPosition.X / _mapTextureRect.Size.X * w);
+                    int cellY = (int)(localPosition.Y / _mapTextureRect.Size.Y * h);
+
+                    // Check boundaries
+                    if (cellX >= 0 && cellX < w && cellY >= 0 && cellY < h)
+                    {
+                        float height = _curTerrainMap[cellY, cellX];  // Get height from the heat map
+                        float slope = _curSlopesMap[cellY, cellX];
+                        _cellInfoLabel.Text = string.Format("Cell: [ {0} ; {1} ] <---> Value: {2} <---> Slope: {3}", cellX, cellY, height, slope);
+                    }
+                }*/
+    }
+
+    private void _on_map_texture_rect_mouse_exited()
+    {
+        //_cellInfoLabel.Text = "";
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*using Godot;
+using System;
+using TerrainGenerationApp.Generators;
+using TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
+using TerrainGenerationApp.Utilities;
+
+namespace TerrainGenerationApp.Scenes;
+
+public partial class TerrainScene2D : Control
+{
+	// TODO:
+	//
+	// REWORK THIS, IT MUST USE GenerationMenu and DisplayMenu
+	// AND TAKE THEIR PROPERTIES AS DISPLAY CONTENT
+
+
+
+	private float[,] _curTerrainMap = new float[1, 1];
+	private float[,] _curSlopesMap = new float[1, 1];
+	private bool[,] _curTreesMap = new bool[1, 1];
+	private uint _curHeight = 1;
+	private uint _curWidth = 1;
+	private float _curWaterLevel;
+	private float _curSlopeThreshold;
+
+
+	private MapGenerationMenu _generationMenu;
+
+
+	private Image _texture;
+	private ImageTexture _mapTexture;
+	private Gradient _terrainGradient;
+	private Gradient _waterGradient;
+	private MapDisplayFormat _displayFormat;
+
+	// NODES REFERENCED WITH "%" IN SCENE
+	private Label _cellInfoLabel;
+	private TextureRect _mapTextureRect;
+
+
+	public MapDisplayFormat CurDisplayFormat
+	{
+		get => _displayFormat;
+		set
+		{
+			_displayFormat = value;
+            if (value == MapDisplayFormat.Colors)
+            {
+                _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+                _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+            }
+            else if (value == MapDisplayFormat.GradientColors)
+            {
+                _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
+                _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
+            }
+            RedrawMap();
+		}
+	}
+
+	public float CurWaterLevel
+	{
+		get => _curWaterLevel;
+		set
+		{
+			_curWaterLevel = Mathf.Clamp(value, 0.0f, 1.0f);
+			RedrawMap();
+		}
+	}
+
+	public float CurSlopeThreshold
+	{
+		get => _curSlopeThreshold;
+		set
+		{
+			_curSlopeThreshold = Mathf.Clamp(value, 0.0f, 1.0f);
+			RedrawMap();
+		}
+	}
+
+	public override void _Ready()
+	{
+		_mapTextureRect = GetNode<TextureRect>("%MapTextureRect");
+		_cellInfoLabel = GetNode<Label>("%CellInfoLabel");
+
+		// GENERATE GRADIENTS FOR 2D MAPS
+		_terrainGradient = new Gradient();
+		_waterGradient = new Gradient();
+		_terrainGradient.RemovePoint(1);
+		_waterGradient.RemovePoint(1);
+		foreach (var heightColor in ColorPallets.DefaultTerrainColors)
+		{
+			var gradOffset = heightColor.Key;
+			_terrainGradient.AddPoint(gradOffset, heightColor.Value);
+		}
+
+		foreach (var heightColor in ColorPallets.DefaultWaterColors)
+		{
+			var gradOffset = heightColor.Key;
+			_waterGradient.AddPoint(gradOffset, heightColor.Value);
+		}
+
+		// INIT 2D MAP TEXTURE
+		_texture = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
+		_mapTexture = ImageTexture.CreateFromImage(_texture);
+		_mapTextureRect.Texture = _mapTexture;
+		CurDisplayFormat = MapDisplayFormat.Colors;
+	}
+
+
+
+	public void RedrawMap()
+	{
+        GD.Print("REDRAWING MAP");
+    var h = _curTerrainMap.GetLength(0);
+		var w = _curTerrainMap.GetLength(1);
+		var map = _curTerrainMap;
+
+		if (CurDisplayFormat == MapDisplayFormat.Grey)
+		{
+			for (int y = 0; y < h; y++)
+			{
+				for (int x = 0; x < w; x++)
+				{
+					var v = map[y, x];
+					_texture.SetPixel(x, y, new Color(v, v, v, 1.0f));
+				}
+			}
+		}
+		else
+		{
+			for (int y = 0; y < h; y++)
+			{
+				for (int x = 0; x < w; x++)
+				{
+					// Display water
+					if (map[y, x] < CurWaterLevel)
+					{
+						_texture.SetPixel(x, y, _waterGradient.Sample(CurWaterLevel - map[y, x]));
+					}
+					else
+					{
+						var baseColor = _terrainGradient.Sample(map[y, x] - CurWaterLevel);
+						var slopeBaseColor =
+							GetSlopeColor(baseColor, _curSlopesMap[y, x], map[y, x], CurSlopeThreshold);
+
+						_texture.SetPixel(x, y, slopeBaseColor);
+					}
+				}
+			}
+		}
+		_mapTexture.Update(_texture);
+	}
+
+
+	public void SetTerrainResult(MapGenerationResult result)
+	{
+		_curTerrainMap = result.TerrainMap;
+		_curSlopesMap = result.SlopesMap;
+		_curTreesMap = result.TreesPlacement;
+		var h = _curTerrainMap.GetLength(0);
+		var w = _curTerrainMap.GetLength(1);
+		GD.Print("SET - MAP GENERATION RESULT");
+
+		// Якщо розміри старої та нової мапи різні, то треба ресайзнути текстуру
+		if (h != _curHeight || w != _curWidth)
+		{
+			_curHeight = (uint)h;
+			_curWidth = (uint)w;
+            //_mapTexture.GetImage().Resize(w, h);
+            _texture.Resize(w, h);
+            _mapTexture.SetImage(_texture);
+            GD.Print("CHANGE TEXTURE SIZE");
+		}
+
+		RedrawMap();
+	}
+
+
+
+
+	private Color GetSlopeColor(Color baseColor, float slope, float elevation, float slopeThreshold)
+	{
+		// Нормалізація значення ухилу (щоб вписатись у межі 0-1)
+		float slopeFactor = MathF.Min(slope * slopeThreshold, 1.0f);
+
+		// Затемнення залежно від крутизни
+		float r = baseColor.R * (1.0f - slopeFactor);
+		float g = baseColor.G * (1.0f - slopeFactor);
+		float b = baseColor.B * (1.0f - slopeFactor);
+
+		// Корекція яскравості (на великих висотах трохи висвітлюємо)
+		float brightnessFactor = 1.0f + (elevation * 0.2f);
+		r = Math.Clamp(r * brightnessFactor, 0, 1.0f);
+		g = Math.Clamp(g * brightnessFactor, 0, 1.0f);
+		b = Math.Clamp(b * brightnessFactor, 0, 1.0f);
+
+		return new Color(r, g, b);
+	}
+
+
+
+
+	private void _on_map_texture_rect_gui_input(InputEvent @event)
+	{
+*//*        if (@event is InputEventMouseMotion)
+		{
+			Vector2 localPosition = _mapTextureRect.GetLocalMousePosition();
+			int h = _curTerrainMap.GetLength(0);
+			int w = _curTerrainMap.GetLength(1);
+
+			// Convert coordinates to map grid coordinates
+			int cellX = (int)(localPosition.X / _mapTextureRect.Size.X * w);
+			int cellY = (int)(localPosition.Y / _mapTextureRect.Size.Y * h);
+
+			// Check boundaries
+			if (cellX >= 0 && cellX < w && cellY >= 0 && cellY < h)
+			{
+				float height = _curTerrainMap[cellY, cellX];  // Get height from the heat map
+				float slope = _curSlopesMap[cellY, cellX];
+				_cellInfoLabel.Text = string.Format("Cell: [ {0} ; {1} ] <---> Value: {2} <---> Slope: {3}", cellX, cellY, height, slope);
+			}
+		}*//*
+	}
+
+	private void _on_map_texture_rect_mouse_exited()
+	{
+		//_cellInfoLabel.Text = "";
+	}
+
+}
+*/

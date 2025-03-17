@@ -1,0 +1,67 @@
+[gd_scene load_steps=3 format=3 uid="uid://cpg2jy1sloek"]
+
+[ext_resource type="Script" path="res://Scenes/TerrainScene2D.cs" id="1_ldp85"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_p2mk5"]
+
+[node name="TerrainScene2D" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ldp85")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+color = Color(0.393086, 0.393086, 0.393085, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="Background"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="Background/MarginContainer"]
+layout_mode = 2
+stretch_mode = 1
+
+[node name="MapTextureRect" type="TextureRect" parent="Background/MarginContainer/AspectRatioContainer"]
+unique_name_in_owner = true
+texture_filter = 1
+layout_mode = 2
+texture = SubResource("CanvasTexture_p2mk5")
+expand_mode = 1
+
+[node name="CellInfoLabel" type="Label" parent="Background"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -33.0
+offset_right = 20.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "<Cell: >"
+
+[connection signal="gui_input" from="Background/MarginContainer/AspectRatioContainer/MapTextureRect" to="." method="_on_map_texture_rect_gui_input"]
+[connection signal="mouse_exited" from="Background/MarginContainer/AspectRatioContainer/MapTextureRect" to="." method="_on_map_texture_rect_mouse_exited"]
