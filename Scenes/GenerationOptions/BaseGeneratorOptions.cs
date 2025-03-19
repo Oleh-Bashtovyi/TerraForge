@@ -1,7 +1,7 @@
 using System;
 using Godot;
 
-namespace TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
+namespace TerrainGenerationApp.Scenes.GenerationOptions;
 
 public partial class BaseGeneratorOptions : VBoxContainer
 {

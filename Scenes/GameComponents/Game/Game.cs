@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using TerrainGenerationApp.Scenes;
+using MapGenerationMenu = TerrainGenerationApp.Scenes.GameComponents.GenerationMenu.MapGenerationMenu;
 
 public partial class Game : Node3D
 {

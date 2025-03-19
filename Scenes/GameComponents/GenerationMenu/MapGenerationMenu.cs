@@ -2,14 +2,15 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using TerrainGenerationApp.Generators;
-using TerrainGenerationApp.Generators.TreePlacement.CanPlaceTreeRules;
-using TerrainGenerationApp.Generators.TreePlacement.TreeRadiusRules;
 using TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
 using TerrainGenerationApp.Utilities;
+using BaseGeneratorOptions = TerrainGenerationApp.Scenes.GenerationOptions.BaseGeneratorOptions;
+using DomainWarpingOptions = TerrainGenerationApp.Scenes.GenerationOptions.DomainWarpingOptions.DomainWarpingOptions;
+using IslandOptions = TerrainGenerationApp.Scenes.GenerationOptions.IslandOptions.IslandOptions;
 
-namespace TerrainGenerationApp.Scenes;
+namespace TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
 
-public partial class MapGenerationMenu : Control, ICurTerrainInfo
+public partial class MapGenerationMenu : Control
 {
 	private const int MaxSmoothCycles = 10;
 
@@ -131,7 +132,7 @@ public partial class MapGenerationMenu : Control, ICurTerrainInfo
 		get => _enableTrees;
 		private set
 		{
-			_enableIslands = value;
+            _enableTrees = value;
 			_handleParametersChanged();
 		}
 	}
@@ -145,6 +146,9 @@ public partial class MapGenerationMenu : Control, ICurTerrainInfo
 			_handleParametersChanged();
 		}
 	}
+
+
+
 
 
 	public override void _Ready()
@@ -257,31 +261,11 @@ public partial class MapGenerationMenu : Control, ICurTerrainInfo
 			map = _domainWarpingApplier.ApplyWarping(map);
 		}
 
-		var rules = new TreesPlacementRule[]
-		{
-			new TreesPlacementRule(
-				"Palm",
-				new AboveSeaLevelRule(0.0f, 0.1f),
-				new ConstantRadiusRule(8.0f)
-			),
-			new TreesPlacementRule(
-				"Oak",
-				new AboveSeaLevelRule(0.1f, 0.4f),
-				new ConstantRadiusRule(4.0f)
-				),
-            new TreesPlacementRule(
-                "Pine",
-                new AboveSeaLevelRule(0.4f, 0.55f),
-                new ConstantRadiusRule(5.0f)
-            ),
-};
-
-
 
 		CurTerrainMap = map;
 		CurSlopesMap = MapHelpers.GetSlopes(map);
 
-		TreesMaps= TreesApplier.GenerateTreesMapsFromRules(CurTerrainMap, this, rules);
+		//TreesMaps= TreesApplier.GenerateTreesMapsFromRules(CurTerrainMap, this, rules);
 
 
 		//CurTreesMap = TreesApplier.GenerateTreesMap(map, 30, canPlaceFunction, minDistanceFunction);
@@ -343,32 +327,7 @@ public partial class MapGenerationMenu : Control, ICurTerrainInfo
 		_waterErosionOptions.MakeAllOptionsAvailable();
 	}
 
-	private void _on_lower_map_button_pressed()
-	{
-		//MapHelpers.AddHeight(_curTerrainMap, -_curChangeMapHeightLevel);
-		//_redraw2dMap();
-	}
 
-	private void _on_raise_map_button_pressed()
-	{
-		//MapHelpers.AddHeight(_curTerrainMap, _curChangeMapHeightLevel);
-		//_redraw2dMap();
-	}
-
-
-	private void _onGeneratorDropdownMenuItemSelected(long index)
-	{
-		_hideAllOptions();
-
-		int id = _generatorDropdownMenu.GetItemId((int)index);
-		var cur = _generators[id];
-
-		if (cur != null)
-		{
-			cur.Visible = true;
-		}
-		_curGenerator = cur;
-	}
 	private void _handleParametersChanged()
 	{
 		if (RegenerateOnParametersChanged)
@@ -376,7 +335,33 @@ public partial class MapGenerationMenu : Control, ICurTerrainInfo
 			GenerateMap();
 		}
 	}
-	private void _on_map_change_value_slider_value_changed(double value)
+
+
+    #region EventsHandling
+    private void _on_lower_map_button_pressed()
+    {
+        //MapHelpers.AddHeight(_curTerrainMap, -_curChangeMapHeightLevel);
+        //_redraw2dMap();
+    }
+    private void _on_raise_map_button_pressed()
+    {
+        //MapHelpers.AddHeight(_curTerrainMap, _curChangeMapHeightLevel);
+        //_redraw2dMap();
+    }
+    private void _onGeneratorDropdownMenuItemSelected(long index)
+    {
+        _hideAllOptions();
+
+        int id = _generatorDropdownMenu.GetItemId((int)index);
+        var cur = _generators[id];
+
+        if (cur != null)
+        {
+            cur.Visible = true;
+        }
+        _curGenerator = cur;
+    }
+    private void _on_map_change_value_slider_value_changed(double value)
 	{
 		_curChangeMapHeightLevel = (float)value;
 		_mapChangeValueLabel.Text = _curChangeMapHeightLevel.ToString();
@@ -405,4 +390,5 @@ public partial class MapGenerationMenu : Control, ICurTerrainInfo
 		_islandOptions.Visible = toggledOn;
 		EnableIslands = toggledOn;
 	}
+    #endregion
 }

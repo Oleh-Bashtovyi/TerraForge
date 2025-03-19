@@ -3,7 +3,7 @@ using TerrainGenerationApp.Generators;
 
 namespace TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
 
-public partial class PerlinOptions : Scripts.BaseGeneratorOptions
+public partial class PerlinOptions : GenerationOptions.BaseGeneratorOptions
 {
 	private PerlinNoise _generator;
 	private int _seed = 0;

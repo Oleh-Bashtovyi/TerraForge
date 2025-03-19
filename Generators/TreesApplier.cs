@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Godot;
+using TerrainGenerationApp.Generators.TreePlacement;
+using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Generators;
 
@@ -19,8 +21,8 @@ public static class TreesApplier
 
     public static TreeGenerationResult GenerateTreesMapsFromRules(
         float[,] heightMap,
-        ICurTerrainInfo terrainInfo,
-        TreesPlacementRule[] rules,
+        IWorldData worldData,
+        TreePlacementRule[] rules,
         int maxAttempts = 30)
     {
         var result = new TreeGenerationResult();
@@ -28,12 +30,12 @@ public static class TreesApplier
         foreach (var rule in rules)
         {
             // Convert rule to functions that TreesGenerator can use
-            Func<Vector2, bool> canPlaceFunc = pos => rule.CanPlace(pos, terrainInfo);
-            Func<Vector2, float> minDistanceFunc = pos => rule.GetRadius(pos, terrainInfo);
+            Func<Vector2, bool> canPlaceFunc = pos => rule.CanPlace(pos, worldData);
+            Func<Vector2, float> minDistanceFunc = pos => rule.GetRadius(pos, worldData);
 
             // Generate tree map for this rule
             bool[,] treeMap = GenerateTreesMap(heightMap, maxAttempts, canPlaceFunc, minDistanceFunc);
-            result.AddTreeMap(rule.TreeType, treeMap);
+            result.AddTreeMap(rule.TreeId, treeMap);
         }
 
         return result;
@@ -140,11 +142,6 @@ public static class TreesApplier
                 }
             }
         }
-
-
-
-
-
 
 
 
@@ -476,15 +473,4 @@ public static class TreesApplier
     }
 
 }*/
-
-
-
-
-
-
-
-
-
-
-
 

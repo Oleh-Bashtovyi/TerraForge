@@ -1,9 +1,10 @@
 using Godot;
 using TerrainGenerationApp.Generators;
+using TerrainGenerationApp.Scenes.GenerationOptions;
 
 namespace TerrainGenerationApp.Scenes.GeneratorOptions.Sharp;
 
-public partial class WorleyOptions : Scripts.BaseGeneratorOptions
+public partial class WorleyOptions : BaseGeneratorOptions
 {
 	private int _mapHeight = 100;
 	private int _mapWidth = 100;

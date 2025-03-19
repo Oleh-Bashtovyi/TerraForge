@@ -1,7 +1,7 @@
 using Godot;
 using TerrainGenerationApp.Generators;
 
-namespace TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.DomainWarpingOptions;
 
 public partial class DomainWarpingOptions : VBoxContainer
 {
@@ -33,7 +33,7 @@ public partial class DomainWarpingOptions : VBoxContainer
 	{
 		_domainWarpingApplier.WarpingStrength = value;
 		_strengthLabel.Text = value.ToString();
-		EmitSignal(SignalName.ParametersChanged);
+		EmitSignal(DomainWarpingOptions.SignalName.ParametersChanged);
 	}
 
 	private void OnNoiseScaleSValueChanged(float value)
@@ -41,6 +41,6 @@ public partial class DomainWarpingOptions : VBoxContainer
 		_domainWarpingApplier.XNoise.Scale = value;
 		_domainWarpingApplier.YNoise.Scale = value;
 		_noiseScaleLabel.Text = value.ToString();
-		EmitSignal(SignalName.ParametersChanged);
+		EmitSignal(DomainWarpingOptions.SignalName.ParametersChanged);
 	}
 }

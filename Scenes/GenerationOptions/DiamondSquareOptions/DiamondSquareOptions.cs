@@ -2,7 +2,7 @@ using System;
 using Godot;
 using TerrainGenerationApp.Generators;
 
-namespace TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.DiamondSquareOptions;
 
 public partial class DiamondSquareOptions : BaseGeneratorOptions
 {
