@@ -1,0 +1,200 @@
+[gd_scene load_steps=17 format=3 uid="uid://dhk7rgiforkic"]
+
+[ext_resource type="Script" uid="uid://bn1xteopq2m60" path="res://Scenes/GameComponents/Game/Game.cs" id="1_ug855"]
+[ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://Scenes/GameComponents/RtsCam/rtscam.tscn" id="2_al3ws"]
+[ext_resource type="Shader" uid="uid://ckpj7iuljx3gj" path="res://Resources/water.tres" id="3_3w3g2"]
+[ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/GameComponents/TerrainScene2D/TerrainScene2D.tscn" id="3_bauv2"]
+[ext_resource type="PackedScene" uid="uid://ckgwmiiux24bu" path="res://Scenes/GameComponents/GenerationMenu/MapGenerationMenu.tscn" id="4_2ko6c"]
+[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/GameComponents/MapDisplayOptions/MapDisplayOptions.tscn" id="6_kwpie"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_g7g4g"]
+
+[sub_resource type="Sky" id="Sky_p0mlm"]
+sky_material = SubResource("PanoramaSkyMaterial_g7g4g")
+process_mode = 2
+radiance_size = 1
+
+[sub_resource type="Environment" id="Environment_v1dd2"]
+background_mode = 1
+background_color = Color(0.295867, 0.295866, 0.295866, 1)
+background_energy_multiplier = 2.73
+sky = SubResource("Sky_p0mlm")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_62gk0"]
+render_priority = 0
+shader = ExtResource("3_3w3g2")
+shader_parameter/ColorParameter = Color(0.160784, 0.478431, 1, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ci60l"]
+material = SubResource("ShaderMaterial_62gk0")
+size = Vector2(160, 160)
+subdivide_width = 100
+subdivide_depth = 100
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_mxk2f"]
+noise_type = 3
+fractal_type = 0
+cellular_distance_function = 3
+domain_warp_frequency = 0.12
+domain_warp_fractal_octaves = 10
+domain_warp_fractal_lacunarity = 1.46
+domain_warp_fractal_gain = 14.725
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_r34pj"]
+noise = SubResource("FastNoiseLite_mxk2f")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4s4h6"]
+resource_local_to_scene = true
+bg_color = Color(0.258824, 0.6, 0.286275, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_61sx6"]
+bg_color = Color(0.744475, 0.541759, 0.523234, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wap7x"]
+bg_color = Color(0.862745, 0.815686, 0.337255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_ug855")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_v1dd2")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+
+[node name="RTScamera" parent="." instance=ExtResource("2_al3ws")]
+
+[node name="WaterMesh" type="MeshInstance3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140048, -1.90735e-06, -0.0549183)
+mesh = SubResource("PlaneMesh_ci60l")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(-324, 293)
+texture = SubResource("NoiseTexture2D_r34pj")
+
+[node name="Generation_Layer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+
+[node name="TerrainScene2D" parent="Generation_Layer" instance=ExtResource("3_bauv2")]
+unique_name_in_owner = true
+offset_right = -501.0
+
+[node name="RightPannel" type="ColorRect" parent="Generation_Layer"]
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -501.0
+grow_horizontal = 0
+grow_vertical = 2
+color = Color(0.141176, 0.141176, 0.141176, 1)
+
+[node name="MapGenerationMenu" parent="Generation_Layer/RightPannel" instance=ExtResource("4_2ko6c")]
+unique_name_in_owner = true
+layout_mode = 1
+offset_bottom = -252.0
+
+[node name="MapDisplayOptions" parent="Generation_Layer/RightPannel" instance=ExtResource("6_kwpie")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+offset_top = -260.0
+offset_bottom = -78.0
+grow_vertical = 0
+
+[node name="ButtonsContainer" type="MarginContainer" parent="Generation_Layer/RightPannel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -49.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="CenterContainer" type="CenterContainer" parent="Generation_Layer/RightPannel/ButtonsContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="GenerateMapButton" type="Button" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_4s4h6")
+text = "Generate"
+
+[node name="ErosionSimulationButton" type="Button" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_61sx6")
+text = "Erosion simulation"
+
+[node name="ShowIn3dButton" type="Button" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 35)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_wap7x")
+text = "Show in 3d"
+
+[node name="3D_Layer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+visible = false
+
+[node name="Control" type="Control" parent="3D_Layer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackButton" type="Button" parent="3D_Layer/Control"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -41.0
+offset_top = -101.0
+offset_right = 42.0
+offset_bottom = -56.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Back"
+
+[connection signal="pressed" from="3D_Layer/Control/BackButton" to="." method="_on_back_button_pressed"]

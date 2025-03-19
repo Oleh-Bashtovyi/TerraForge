@@ -1,0 +1,315 @@
+[gd_scene load_steps=12 format=3 uid="uid://ckgwmiiux24bu"]
+
+[ext_resource type="Script" uid="uid://c8djttepxw168" path="res://Scenes/GameComponents/GenerationMenu/MapGenerationMenu.cs" id="1_5x4vo"]
+[ext_resource type="PackedScene" uid="uid://c2fscxswvxfxo" path="res://Scenes/GenerationOptions/DiamondSquareOptions/DiamondSquareOptions.tscn" id="1_fu6da"]
+[ext_resource type="PackedScene" uid="uid://qs7cvr1k61r1" path="res://Scenes/GenerationOptions/WorleyOptions/WorleyOptions.tscn" id="2_88hpv"]
+[ext_resource type="PackedScene" uid="uid://dibwtw2cnl4pf" path="res://Scenes/GenerationOptions/PerlinOptions/PerlinOptions.tscn" id="3_o8gpn"]
+[ext_resource type="PackedScene" uid="uid://bagl6klwbcex2" path="res://Scenes/GenerationOptions/DomainWarpingOptions/DomainWarpingOptions.tscn" id="4_b8rru"]
+[ext_resource type="PackedScene" uid="uid://ds5ici2o3bfy0" path="res://Scenes/GenerationOptions/WaterErosionOptions/WaterErosionOptions.tscn" id="5_3mgfn"]
+[ext_resource type="PackedScene" uid="uid://cs3qk4i5r62mw" path="res://Scenes/GenerationOptions/IslandOptions/IslandOptions.tscn" id="6_mscmd"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jixox"]
+bg_color = Color(0.187176, 0.187176, 0.187176, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_l3s0y"]
+font_size = 21
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_emh3f"]
+bg_color = Color(0.348987, 0.604271, 0.274128, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iyu7f"]
+bg_color = Color(0.669651, 0.334897, 0.282751, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="MapGenerationMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_5x4vo")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.140447, 0.140447, 0.140447, 1)
+
+[node name="Label" type="Label" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 8.0
+offset_bottom = 31.0
+grow_horizontal = 2
+text = "Generation control"
+horizontal_alignment = 1
+
+[node name="GeneratorSelection" type="MarginContainer" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 34.0
+offset_bottom = 85.0
+grow_horizontal = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ColorRect/GeneratorSelection"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="GeneratorDropdownMenu" type="OptionButton" parent="ColorRect/GeneratorSelection/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+selected = 0
+item_count = 3
+popup/item_0/text = "Dimond square"
+popup/item_0/id = 1
+popup/item_1/text = "Perlin noise"
+popup/item_1/id = 2
+popup/item_2/text = "Warley noise"
+popup/item_2/id = 3
+
+[node name="GenerationOptions" type="MarginContainer" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 82.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 10
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ColorRect/GenerationOptions"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_jixox")
+horizontal_scroll_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Label3" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Parameters:"
+label_settings = SubResource("LabelSettings_l3s0y")
+
+[node name="DiamondSquareOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("1_fu6da")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="WorleyOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_88hpv")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="PerlinOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("3_o8gpn")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Adjustments:"
+label_settings = SubResource("LabelSettings_l3s0y")
+
+[node name="GeneralOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NoiseInfluence" type="HBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Noise influence:"
+
+[node name="NoiseInfluenceLabel" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "1"
+horizontal_alignment = 2
+
+[node name="NoiseInfluenceSlider" type="HSlider" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/NoiseInfluence"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = -3.0
+max_value = 3.0
+step = 0.01
+value = 1.0
+
+[node name="SmoothCycles" type="HBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Smooth cycles:"
+
+[node name="SmoothCyclesLabel" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 2
+
+[node name="SmoothCyclesSlider" type="HSlider" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions/SmoothCycles"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+max_value = 12.0
+rounded = true
+
+[node name="RedrawOnParametersChanged" type="HBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneralOptions"]
+visible = false
+layout_mode = 2
+
+[node name="AutoRegenerateCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Regenerate on parameters changed"
+
+[node name="IncreaseDecreaseNoise" type="HBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="RaiseMapButton" type="Button" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/IncreaseDecreaseNoise"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_stretch_ratio = 2.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_emh3f")
+text = "Raise map"
+
+[node name="LowerMapButton" type="Button" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/IncreaseDecreaseNoise"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_stretch_ratio = 2.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_iyu7f")
+text = "Lower map"
+
+[node name="MapChangeValueLabel" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/IncreaseDecreaseNoise"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 1
+text = "0.01"
+
+[node name="MapChangeValueSlider" type="HSlider" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/IncreaseDecreaseNoise"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 5.0
+min_value = 0.01
+max_value = 0.2
+step = 0.01
+value = 0.01
+
+[node name="Label2" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Features:"
+label_settings = SubResource("LabelSettings_l3s0y")
+
+[node name="IslandOptionsCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🏝️Islands"
+
+[node name="MarginContainer3" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+
+[node name="IslandOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/MarginContainer3" instance=ExtResource("6_mscmd")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="DomainWarpingCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🔄Domain warping"
+
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+
+[node name="DomainWarpingOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/MarginContainer" instance=ExtResource("4_b8rru")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="TreePlacementCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🌳 Tree placement"
+
+[node name="MarginContainer4" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+
+[node name="WaterErosionCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🌧Water erosion"
+
+[node name="MarginContainer2" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+
+[node name="WaterErosionOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/MarginContainer2" instance=ExtResource("5_3mgfn")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2

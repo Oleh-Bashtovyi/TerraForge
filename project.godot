@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="Terrain generation app"
-run/main_scene="res://scenes/game.tscn"
-config/features=PackedStringArray("4.3", "C#", "Mobile")
+run/main_scene="uid://dhk7rgiforkic"
+config/features=PackedStringArray("4.4", "C#", "Mobile")
 config/icon="res://Resources/icon.svg"
 
 [display]

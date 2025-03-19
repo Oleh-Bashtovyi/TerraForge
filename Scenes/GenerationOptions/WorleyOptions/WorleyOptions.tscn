@@ -1,0 +1,175 @@
+[gd_scene load_steps=2 format=3 uid="uid://qs7cvr1k61r1"]
+
+[ext_resource type="Script" uid="uid://beetbpesxql8s" path="res://Scenes/GenerationOptions/WorleyOptions/WorleyOptions.cs" id="1_ms1by"]
+
+[node name="WorleyOptions" type="VBoxContainer"]
+script = ExtResource("1_ms1by")
+
+[node name="MapHeight" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="MapHeight"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Map height:"
+
+[node name="MapHeightLabel" type="Label" parent="MapHeight"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "100"
+horizontal_alignment = 2
+
+[node name="MapHeightSlider" type="HSlider" parent="MapHeight"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 1.0
+max_value = 500.0
+value = 100.0
+rounded = true
+
+[node name="MapWidth" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="MapWidth"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Map width:"
+
+[node name="MapWidthLabel" type="Label" parent="MapWidth"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "100"
+horizontal_alignment = 2
+
+[node name="MapWidthSlider" type="HSlider" parent="MapWidth"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 1.0
+max_value = 500.0
+value = 100.0
+rounded = true
+
+[node name="DotsCount" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="DotsCount"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Dots count:"
+
+[node name="DotsCountLabel" type="Label" parent="DotsCount"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "100"
+horizontal_alignment = 2
+
+[node name="DotsCountSlider" type="HSlider" parent="DotsCount"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+max_value = 300.0
+value = 100.0
+rounded = true
+
+[node name="MaxIntensity" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="MaxIntensity"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Max intensity:"
+
+[node name="MaxIntensityLabel" type="Label" parent="MaxIntensity"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "100"
+horizontal_alignment = 2
+
+[node name="MaxIntensitySlider" type="HSlider" parent="MaxIntensity"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+max_value = 1000.0
+value = 100.0
+
+[node name="Invert" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="Invert"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 4.0
+text = "Invert:"
+
+[node name="InvertCheckButton" type="CheckButton" parent="Invert"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_stretch_ratio = 7.0
+
+[node name="Seed" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="Seed"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Seed:"
+
+[node name="SeedL" type="Label" parent="Seed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 2
+
+[node name="SeedS" type="HSlider" parent="Seed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = -10000.0
+max_value = 10000.0
+rounded = true
+
+[connection signal="value_changed" from="MapHeight/MapHeightSlider" to="." method="OnMapHeightValueChanged"]
+[connection signal="value_changed" from="MapWidth/MapWidthSlider" to="." method="OnMapWidthValueChanged"]
+[connection signal="value_changed" from="DotsCount/DotsCountSlider" to="." method="OnDotsCountValueChanged"]
+[connection signal="value_changed" from="MaxIntensity/MaxIntensitySlider" to="." method="OnMaxIntensityValueChanged"]
+[connection signal="toggled" from="Invert/InvertCheckButton" to="." method="OnInvertToggled"]
+[connection signal="value_changed" from="Seed/SeedS" to="." method="OnSeedValueChanged"]
