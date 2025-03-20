@@ -1,6 +1,6 @@
 using System;
 using Godot;
-using TerrainGenerationApp.Generators;
+using TerrainGenerationApp.Generators.Islands;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.IslandOptions;
 

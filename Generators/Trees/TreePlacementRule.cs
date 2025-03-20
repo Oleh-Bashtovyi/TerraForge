@@ -3,7 +3,7 @@ using TerrainGenerationApp.PlacementRules;
 using TerrainGenerationApp.RadiusRules;
 using TerrainGenerationApp.Utilities;
 
-namespace TerrainGenerationApp.Generators.TreePlacement;
+namespace TerrainGenerationApp.Generators.Trees;
 
 public class TreePlacementRule(string treeId, IPlacementRule placementRule, IRadiusRule radiusRule)
 {

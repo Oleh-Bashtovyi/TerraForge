@@ -4,4 +4,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>TerrainGenerationApp</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="Scenes\GenerationOptions\TreePlacementOptions\TerrainOptionsDiagram.cd" />
+  </ItemGroup>
 </Project>

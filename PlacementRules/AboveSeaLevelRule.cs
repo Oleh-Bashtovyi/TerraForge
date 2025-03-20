@@ -12,7 +12,7 @@ public class AboveSeaLevelRule(float minAboveWater, float maxAboveWater) : IPlac
     public bool CanPlaceIn(Vector2 pos, IWorldData worldData)
     {
         var map = worldData.TerrainMap;
-        var waterLevel = worldData.WaterLevel;
+        var waterLevel = worldData.SeaLevel;
         var h = map[(int)pos.Y, (int)pos.X];
 
         if (h < waterLevel)

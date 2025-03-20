@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Godot;
-using TerrainGenerationApp.Generators.TreePlacement;
 using TerrainGenerationApp.Utilities;
 
-namespace TerrainGenerationApp.Generators;
+namespace TerrainGenerationApp.Generators.Trees;
 
 
-public static class TreesApplier
+public class TreesApplier : ITreesApplier
 {
     public class TreeGenerationResult
     {
@@ -18,6 +17,34 @@ public static class TreesApplier
             TreeMaps[treeType] = treeMap;
         }
     }
+
+
+    public class TreesLayer(string treeId, List<Vector2> treePositions)
+    {
+        public string TreeId { get; } = treeId;
+        public List<Vector2> TreePositions { get; } = treePositions;
+    }
+
+
+    public TreeGenerationResult GenerateTreeMaps(IWorldData worldData)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Dictionary<string, bool[,]> GenerateTreeLayers(IWorldData worldData)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool[,] GenerateTreeLayer(IWorldData worldData, string layerName)
+    {
+        throw new NotImplementedException();
+    }
+
+
+
+
+
 
     public static TreeGenerationResult GenerateTreesMapsFromRules(
         float[,] heightMap,
@@ -168,10 +195,10 @@ public static class TreesApplier
         //}
 
         // If no valid starting point found, return empty tree map
-/*        if (!foundStartingPoint)
-        {
-            return trees;
-        }*/
+        /*        if (!foundStartingPoint)
+                {
+                    return trees;
+                }*/
 
         // Main tree placement algorithm
         while (activeList.Count > 0)

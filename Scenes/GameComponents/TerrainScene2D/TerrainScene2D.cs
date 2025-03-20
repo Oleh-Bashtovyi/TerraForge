@@ -1,17 +1,16 @@
 using Godot;
 using System;
 using TerrainGenerationApp.Enums;
+using TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.TerrainScene2D;
 
 public partial class TerrainScene2D : Control
 {
-	private GameComponents.GenerationMenu.MapGenerationMenu _generationMenu;
-	private MapDisplayOptions.MapDisplayOptions _displayOptions;
-
-	private Image _texture;
+	private MapDisplayOptions _displayOptions;
 	private ImageTexture _mapTexture;
+	private Image _texture;
 	private Gradient _terrainGradient;
 	private Gradient _waterGradient;
 
@@ -49,62 +48,96 @@ public partial class TerrainScene2D : Control
 
 
 
+
+
+    public void ResizeMap(IWorldData worldData)
+    {
+        var h = worldData.MapHeight;
+        var w = worldData.MapWidth;
+        if (_texture.GetSize() != new Vector2I(h, w))
+        {
+            _texture.Resize(w, h);
+            _mapTexture.SetImage(_texture);
+        }
+    }
+
+
+    public void RedrawTerrain(IWorldData worldData)
+    {
+        var displayFormat = _displayOptions.CurDisplayFormat;
+        var slopesThreshold = _displayOptions.CurSlopeThreshold;
+        var waterLevel = worldData.SeaLevel;
+        var slopes = worldData.SlopesMap;
+        var map = worldData.TerrainMap;
+        var h = map.GetLength(0);
+        var w = map.GetLength(1);
+
+        if (displayFormat == MapDisplayFormat.Grey)
+        {
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    var v = map[y, x];
+                    _texture.SetPixel(x, y, new Color(v, v, v, 1.0f));
+                }
+            }
+        }
+        else
+        {
+            if (displayFormat == MapDisplayFormat.Colors)
+            {
+                _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+                _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+            }
+            else
+            {
+                _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
+                _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
+            }
+
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    if (map[y, x] < waterLevel)
+                    {
+                        _texture.SetPixel(x, y, _waterGradient.Sample(waterLevel - map[y, x]));
+                    }
+                    else
+                    {
+                        var baseColor = _terrainGradient.Sample(map[y, x] - waterLevel);
+                        var slopeBaseColor =
+                            GetSlopeColor(baseColor, slopes[y, x], map[y, x], slopesThreshold);
+
+                        _texture.SetPixel(x, y, slopeBaseColor);
+                    }
+                }
+            }
+        }
+        _mapTexture.Update(_texture);
+    }
+
+    public void RedrawTreeLayers(IWorldData worldData)
+    {
+
+    }
+
+
+    public void RedrawTreeLayer(IWorldData worldData, string layerName)
+    {
+
+    }
+
+
+
+
+/*
 	public void RedrawMap()
 	{
-		GD.Print("REDRAW called");
-		var displayFormat = _displayOptions.CurDisplayFormat;
-		var slopesThreshold = _displayOptions.CurSlopeThreshold;
-		var waterLevel = _displayOptions.CurWaterLevel;
-		var slopes = _generationMenu.WorldData.TerrainMap;
-		var trees = _generationMenu.WorldData.TerrainMap;
-		var map = _generationMenu.WorldData.TerrainMap;
-		var treesColors = _generationMenu.TreesColorsTemp;
-		var h = map.GetLength(0);
-		var w = map.GetLength(1);
 
-		if (displayFormat == MapDisplayFormat.Grey)
-		{
-			for (int y = 0; y < h; y++)
-			{
-				for (int x = 0; x < w; x++)
-				{
-					var v = map[y, x];
-					_texture.SetPixel(x, y, new Color(v, v, v, 1.0f));
-				}
-			}
-		}
 		else
 		{
-			if (displayFormat == MapDisplayFormat.Colors)
-			{
-				_terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
-				_waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
-			}
-			else
-			{
-				_terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
-				_waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
-			}
-
-			for (int y = 0; y < h; y++)
-			{
-				for (int x = 0; x < w; x++)
-				{
-					// Display water
-					if (map[y, x] < waterLevel)
-					{
-						_texture.SetPixel(x, y, _waterGradient.Sample(waterLevel - map[y, x]));
-					}
-					else
-					{
-						var baseColor = _terrainGradient.Sample(map[y, x] - waterLevel);
-						var slopeBaseColor =
-							GetSlopeColor(baseColor, slopes[y, x], map[y, x], slopesThreshold);
-
-						_texture.SetPixel(x, y, slopeBaseColor);
-					}
-				}
-			}
 
 
 
@@ -140,63 +173,14 @@ public partial class TerrainScene2D : Control
 
 		}
 		_mapTexture.Update(_texture);
-	}
+	}*/
 
 
 
-
-	public void SetGenerationMenu(GameComponents.GenerationMenu.MapGenerationMenu menu)
+	public void SetDisplayOptions(DisplayOptions.MapDisplayOptions menu)
 	{
-		if (_generationMenu != null)
-		{
-			_generationMenu.OnMapGenerated -= _handleOnMapGenerated;
-		}
-		_generationMenu = menu;
-		if (_generationMenu != null)
-		{
-			_generationMenu.OnMapGenerated += _handleOnMapGenerated;
-		}
-	}
-
-
-	public void SetDisplayOptions(MapDisplayOptions.MapDisplayOptions menu)
-	{
-		if (_displayOptions != null)
-		{
-			_displayOptions.OnDisplayOptionsChanged -= _handleDisplayOptionsChanged;
-		}
-		_displayOptions = menu;
-		if (_displayOptions != null)
-		{
-			_displayOptions.OnDisplayOptionsChanged += _handleDisplayOptionsChanged;
-		}
-	}
-
-
-
-	private void _handleOnMapGenerated(MapGenerationResult result)
-	{
-		var map = _generationMenu.WorldData.TerrainMap;
-		var h = map.GetLength(0);
-		var w = map.GetLength(1);
-		if (_texture.GetSize() != new Vector2I(h, w))
-		{
-			_texture.Resize(w, h);
-			_mapTexture.SetImage(_texture);
-		}
-		RedrawMap();
-	}
-
-
-	private void _handleDisplayOptionsChanged()
-	{
-		RedrawMap();
-	}
-
-
-
-
-
+        _displayOptions = menu;
+    }
 
 	private Color GetSlopeColor(Color baseColor, float slope, float elevation, float slopeThreshold)
 	{

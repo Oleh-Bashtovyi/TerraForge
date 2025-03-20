@@ -1,9 +1,9 @@
 ﻿using System;
 using Godot;
 
-namespace TerrainGenerationApp.Generators;
+namespace TerrainGenerationApp.Generators.DomainWarping;
 
-public class DomainWarpingApplier
+public class DomainWarpingApplier : IDomainWarpingApplier
 {
     private readonly PerlinNoise xNoise;
     private readonly PerlinNoise yNoise;

@@ -7,16 +7,16 @@ public class WorldData : IWorldData
 {
     private float[,] _terrainMap;
     private float[,] _slopesMap;
-    private float _waterLevel;
+    private float _seaLevel;
     private Dictionary<string, bool[,]> _treesMap;
     private Dictionary<string, Color> _treesColors;
 
 
 
-    public float WaterLevel
+    public float SeaLevel
     {
-        get => _waterLevel;
-        private set => _waterLevel = value;
+        get => _seaLevel;
+        private set => _seaLevel = value;
     }
 
     public float[,] TerrainMap
@@ -55,12 +55,26 @@ public class WorldData : IWorldData
         _slopesMap = new float[1, 1];
     }
 
+    public void SetSeaLevel(float value)
+    {
+        _seaLevel = (float)Mathf.Clamp(value, 0.0, 1.0);
+    }
+
 
     public void SetTerrain(float[,] terrainMap)
     {
         TerrainMap = terrainMap;
         SlopesMap = MapHelpers.GetSlopes(terrainMap);
         TreeMaps.Clear();
+    }
+
+    public void SetTreeMaps(Dictionary<string, bool[,]> maps)
+    {
+        TreeMaps.Clear();
+        foreach (var map in maps)
+        {
+            TreeMaps[map.Key] = map.Value;
+        }
     }
 
     public float HeightAt(int row, int col)

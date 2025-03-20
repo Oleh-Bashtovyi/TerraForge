@@ -2,7 +2,7 @@ using Godot;
 using System;
 using TerrainGenerationApp.Utilities;
 
-namespace TerrainGenerationApp.Generators;
+namespace TerrainGenerationApp.Generators.WaterErosion;
 
 
 /// <summary>
@@ -43,7 +43,7 @@ public enum RainType
 }
 
 
-public partial class WaterErosionApplier : Resource
+public partial class WaterErosionApplier : IWaterErosionApplier
 {
     public const int MAX_ITERATIONS = 3000;
     public const float MAX_RAIN_POWER = 1.0f;
@@ -510,10 +510,11 @@ public partial class WaterErosionApplier : Resource
     private const bool DEBUG_VOLUME_CONSERVATION = false;
 
 
-
-
-
-
+    public event Action WaterErosionIterationPassed;
+    public void BeginApplyingErosion(IWorldData worldData)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 

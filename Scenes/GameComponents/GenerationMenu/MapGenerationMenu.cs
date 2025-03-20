@@ -1,139 +1,133 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using TerrainGenerationApp.Generators;
+using TerrainGenerationApp.Generators.DomainWarping;
+using TerrainGenerationApp.Generators.Islands;
+using TerrainGenerationApp.Generators.Trees;
+using TerrainGenerationApp.Generators.WaterErosion;
 using TerrainGenerationApp.Scenes.GenerationOptions;
 using TerrainGenerationApp.Scenes.GenerationOptions.DomainWarpingOptions;
 using TerrainGenerationApp.Scenes.GenerationOptions.IslandOptions;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
 using TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
-using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
+
 
 public partial class MapGenerationMenu : Control
 {
 	private const int MaxSmoothCycles = 10;
 
-	private float _curChangeMapHeightLevel = 0.01f;
 	private float _curNoiseInfluence = 1.0f;
+    private float _curSeaLevel = 0.2f;
 	private int _curSmoothCycles = 0;
-
 	private bool _regenerateOnParametersChanged = false;
 	private bool _enableDomainWarping = false;
 	private bool _enableIslands = false;
 	private bool _enableTrees = false;
-
 	private Dictionary<int, BaseGeneratorOptions> _generators = new();
-	private BaseGeneratorOptions _curGenerator;
+	private BaseGeneratorOptions _selectedGenerator;
 	private DomainWarpingApplier _domainWarpingApplier;
 	private WaterErosionApplier _waterErosionApplier;
 	private IslandApplier _islandApplier;
-	private GodotThread _waterErosionThread;
-	private WorldData _worldData;
+    private TreesApplier _treesApplier;
 
-	public event Action<MapGenerationResult> OnMapGenerated;
+    public event EventHandler OnWaterLevelChanged;
+    public event EventHandler GenerationParametersChanged;
 
-
-	// NODES REFERENCED WITH "%" IN SCENE
-	//========================================================================
-	// Select and set generator options
-	private OptionButton _generatorDropdownMenu;
-	private BaseGeneratorOptions _diamondSquareOptions;
-	private BaseGeneratorOptions _worleyOptions;
-	private BaseGeneratorOptions _perlinOptions;
-
-	// Map manipulation
-	private Label _smoothCyclesLabel;
-	private Label _mapChangeValueLabel;
-	private Label _noiseInfluenceLabel;
-	private Slider _smoothCyclesSlider;
-	private Slider _noiseInfluenceSlider;
-	private Slider _mapChangeValueSlider;
-
-	// Features
+    // NODES REFERENCED WITH "%" IN SCENE
+    private OptionButton _generatorDropdownMenu;
+    private BaseGeneratorOptions _diamondSquareOptions;
+    private BaseGeneratorOptions _worleyOptions;
+    private BaseGeneratorOptions _perlinOptions;
+    private Label _smoothCyclesLabel;
+    private Label _mapChangeValueLabel;
+    private Label _noiseInfluenceLabel;
+    private Label _seaLevelLabel;
+    private Slider _smoothCyclesSlider;
+    private Slider _noiseInfluenceSlider;
+    private Slider _mapChangeValueSlider;
+    private Slider _seaLevelSlider;
     private CheckBox _autoRegenerateCheckBox;
     private CheckBox _domainWarpingCheckBox;
     private CheckBox _waterErosionCheckbox;
     private CheckBox _islandsOptionsCheckbox;
-	private IslandOptions _islandOptions;
-	private DomainWarpingOptions _domainWarpingOptions;
-	private WaterErosionOptions _waterErosionOptions;
-	private TreePlacementOptions _treePlacementOptions;
+    private CheckBox _treeOptionsCheckbox;
+    private IslandOptions _islandOptions;
+    private DomainWarpingOptions _domainWarpingOptions;
+    private WaterErosionOptions _waterErosionOptions;
+    private TreePlacementOptions _treePlacementOptions;
 
-	public MapDisplayOptions.MapDisplayOptions MapDisplayOptions { get; set; }
 
-	public float CurWaterLevel => MapDisplayOptions.CurWaterLevel;
-
-	public TreesApplier.TreeGenerationResult TreesMaps { get; set; }
-
-    public IWorldData WorldData
+    public float CurSeaLevel
     {
-		get => _worldData;
+        get => _curSeaLevel;
+        private set
+        {
+            _curSeaLevel = value;
+            OnWaterLevelChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
-
 	public float CurNoiseInfluence
 	{
 		get => _curNoiseInfluence;
 		private set
 		{
 			_curNoiseInfluence = value;
-			_handleParametersChanged();
+			HandleParametersChanged();
 		}
 	}
-
 	public int CurSmoothCycles
 	{
 		get => _curSmoothCycles;
 		private set
 		{
 			_curSmoothCycles = Mathf.Clamp(value, 0, MaxSmoothCycles);
-			_handleParametersChanged();
+			HandleParametersChanged();
 		}
 	}
-
 	public bool EnableDomainWarping
 	{
 		get => _enableDomainWarping;
 		private set
 		{
 			_enableDomainWarping = value;
-			_handleParametersChanged();
+			HandleParametersChanged();
 		}
 	}
-
 	public bool EnableIslands
 	{
 		get => _enableIslands;
 		private set
 		{
 			_enableIslands = value;
-			_handleParametersChanged();
+			HandleParametersChanged();
 		}
 	}
-
 	public bool EnableTrees
 	{
 		get => _enableTrees;
 		private set
 		{
             _enableTrees = value;
-			_handleParametersChanged();
+			HandleParametersChanged();
 		}
 	}
-
 	public bool RegenerateOnParametersChanged
 	{
 		get => _regenerateOnParametersChanged;
 		set
 		{
 			_regenerateOnParametersChanged = value;
-			_handleParametersChanged();
+			HandleParametersChanged();
 		}
 	}
-
-
+    public BaseGeneratorOptions SelectedGenerator => _selectedGenerator;
+    public IDomainWarpingApplier DomainWarpingApplier => _domainWarpingApplier;
+    public IIslandsApplier IslandsApplier => _islandApplier;
+    public IWaterErosionApplier WaterErosionApplier => _waterErosionApplier;
+    public ITreesApplier TreesApplier => _treesApplier;
+	public TreePlacementOptions TreePlacementOptions => _treePlacementOptions;
 
 
 
@@ -149,12 +143,14 @@ public partial class MapGenerationMenu : Control
 		_smoothCyclesLabel = GetNode<Label>("%SmoothCyclesLabel");
 		_mapChangeValueLabel = GetNode<Label>("%MapChangeValueLabel");
 		_noiseInfluenceLabel = GetNode<Label>("%NoiseInfluenceLabel");
+        _seaLevelLabel = GetNode<Label>("%SeaLevelLabel");
 		_smoothCyclesSlider = GetNode<Slider>("%SmoothCyclesSlider");
 		_noiseInfluenceSlider = GetNode<Slider>("%NoiseInfluenceSlider");
 		_mapChangeValueSlider = GetNode<Slider>("%MapChangeValueSlider");
-		_smoothCyclesSlider.ValueChanged += _on_smooth_cycles_slider_value_changed;
-		_noiseInfluenceSlider.ValueChanged += _on_noise_influence_slider_value_changed;
-		_mapChangeValueSlider.ValueChanged += _on_map_change_value_slider_value_changed;
+        _seaLevelSlider = GetNode<Slider>("%SeaLevelSlider");
+		_seaLevelSlider.ValueChanged += OnSeaLevelSliderOnValueChanged;
+		_smoothCyclesSlider.ValueChanged += OnSmoothCyclesSliderValueChanged;
+		_noiseInfluenceSlider.ValueChanged += OnNoiseInfluenceSliderValueChanged;
 		
         // Features
         // GET AND SUBSCRIBE CHECKBOXES
@@ -162,10 +158,12 @@ public partial class MapGenerationMenu : Control
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
         _waterErosionCheckbox = GetNode<CheckBox>("%WaterErosionCheckBox");
         _islandsOptionsCheckbox = GetNode<CheckBox>("%IslandOptionsCheckBox");
+        _treeOptionsCheckbox = GetNode<CheckBox>("%TreeOptionsCheckBox");
+
         _treePlacementOptions = GetNode<TreePlacementOptions>("%TreePlacementOptions");
-        _domainWarpingCheckBox.Toggled += _on_domain_warping_check_box_toggled;
-        _waterErosionCheckbox.Toggled += _on_water_erosion_check_box_toggled;
-        _islandsOptionsCheckbox.Toggled += _on_island_options_check_box_toggled;
+        _domainWarpingCheckBox.Toggled += OnDomainWarpingCheckBoxToggled;
+        _waterErosionCheckbox.Toggled += OnWaterErosionCheckBoxToggled;
+        _islandsOptionsCheckbox.Toggled += OnIslandOptionsCheckBoxToggled;
         RegenerateOnParametersChanged = true;
         _autoRegenerateCheckBox.ButtonPressed = true;
         _autoRegenerateCheckBox.Toggled += (toggleOn) => RegenerateOnParametersChanged = toggleOn;
@@ -176,10 +174,9 @@ public partial class MapGenerationMenu : Control
 		_domainWarpingApplier = _domainWarpingOptions.DomainWarpingApplier;
 		_waterErosionApplier = _waterErosionOptions.WaterErosionApplier;
 		_islandApplier = _islandOptions.IslandApplier;
-		_domainWarpingOptions.ParametersChanged += _handleParametersChanged;
-		_waterErosionApplier.IterationPassed += OnWaterErosionIterationPassed;
-		_islandOptions.ParametersChanged += _handleParametersChanged;
-        _worldData = new WorldData();
+        _treesApplier = _treePlacementOptions.TreesApplier;
+		_domainWarpingOptions.ParametersChanged += HandleParametersChanged;
+		_islandOptions.ParametersChanged += HandleParametersChanged;
 
         // INIT COMBOBOX AND DICTIONARY
         _generators = new Dictionary<int, BaseGeneratorOptions>
@@ -200,105 +197,19 @@ public partial class MapGenerationMenu : Control
 		var firstItemId = _generatorDropdownMenu.GetItemId(firstSelectedIndex);
 		var firstItemOptions = _generators[firstItemId];
 		firstItemOptions.Visible = true;
-		_curGenerator = firstItemOptions;
-		_generatorDropdownMenu.ItemSelected += _onGeneratorDropdownMenuItemSelected;
-
-
-        _treePlacementOptions.OnTreePlacementRuleItemAdded += (sender, item) =>
-        {
-            GD.Print("======================================");
-			GD.Print("OnTreePlacementRuleItemAdded");
-            GenerateMap();
-        };
-
-        _treePlacementOptions.OnRulesChanged += (sender, args) =>
-        {
-            GD.Print("======================================");
-            GD.Print("OnRulesChanged");
-            GenerateMap();
-        };
-
-
+		_selectedGenerator = firstItemOptions;
+		_generatorDropdownMenu.ItemSelected += OnGeneratorDropdownMenuItemSelected;
     }
 
 
-	private void OnWaterErosionIterationPassed(float[,] map)
-	{
-		//CallDeferred(nameof(_redraw2dMap));
-	}
-
-
-
-	private void _connectParametersChanged()
+    private void _connectParametersChanged()
 	{
 		foreach (int key in _generators.Keys)
 		{
 			var options = _generators[key];
-			options.ParametersChanged += _handleParametersChanged;
+			options.ParametersChanged += HandleParametersChanged;
 		}
 	}
-
-
-	public Dictionary<string, Color> TreesColorsTemp { get; set; } 
-
-	public void GenerateMap()
-	{
-		if (_curGenerator == null)
-		{
-			GD.PushError("GENERATOR IS NOT SELECTED");
-			return;
-		}
-
-		var map = _curGenerator.GenerateMap();
-
-		MapHelpers.MultiplyHeight(map, CurNoiseInfluence);
-
-		for (int i = 0; i < CurSmoothCycles; i++)
-		{
-			map = MapHelpers.SmoothMap(map);
-		}
-
-        if (EnableIslands)
-        {
-            map = _islandApplier.ApplyIslands(map);
-        }
-
-        if (EnableDomainWarping)
-		{
-			map = _domainWarpingApplier.ApplyWarping(map);
-		}
-
-
-		_worldData.SetTerrain(map);
-
-		var rules = _treePlacementOptions.GetRules.ToArray();
-		GD.Print($"Rules count: {rules.Length}");
-
-        var treeMaps = TreesApplier.GenerateTreesMapsFromRules(map, _worldData, rules);
-
-        _worldData.TreeMaps.Clear();
-
-        foreach (var item in treeMaps.TreeMaps)
-        {
-			GD.Print($"Inserting: {item.Key}, Height: {item.Value.GetLength(0)}");
-            _worldData.TreeMaps.Add(item.Key, item.Value);
-        }
-
-        TreesColorsTemp = _treePlacementOptions.GetTreeIdColors();
-
- //TreesMaps= TreesApplier.GenerateTreesMapsFromRules(CurTerrainMap, this, rules);
-
-
-        //CurTreesMap = TreesApplier.GenerateTreesMap(map, 30, canPlaceFunction, minDistanceFunction);
-
-
-
-        //TreesMaps = new MapGenerationResult(CurTerrainMap, CurSlopesMap, CurTreesMap);
-        //GD.Print("MAP GENERATED");
-        OnMapGenerated?.Invoke(null);
-	}
-
-
 
 	private void _hideAllOptions()
 	{
@@ -310,66 +221,21 @@ public partial class MapGenerationMenu : Control
 	private void _show_options(int index)
 	{
 		var itemId = _generatorDropdownMenu.GetItemId(index);
-		var itemOptions = _generators[index];
+		var itemOptions = _generators[itemId];
 		if (itemOptions != null)
 		{
 			itemOptions.Visible = true;
 		}
 	}
 
-	private void _on_erosion_simulation_button_pressed()
-	{
-		if (_waterErosionThread != null)
-		{
-			if (_waterErosionThread.IsAlive())
-			{
-				return;
-			}
-
-			_waterErosionThread.Free();
-		}
-
-		_waterErosionOptions.MakeAllOptionsUnavailable();
-		_waterErosionThread = new GodotThread();
-		_waterErosionThread.Start(Callable.From(begin_erosion_simulation));
-	}
-
-
-	private void begin_erosion_simulation()
-	{
-		//_waterErosionApplier.BeginApplyingErosion(_curTerrainMap, CurWaterLevel);
-
-		//CallDeferred(nameof(MMM));
-	}
-
-
-	private void MMM()
-	{
-		_waterErosionOptions.MakeAllOptionsAvailable();
-	}
-
-
-	private void _handleParametersChanged()
-	{
-		if (RegenerateOnParametersChanged)
-		{
-			GenerateMap();
-		}
-	}
-
-
-    #region EventsHandling
-    private void _on_lower_map_button_pressed()
+    private void HandleParametersChanged()
     {
-        //MapHelpers.AddHeight(_curTerrainMap, -_curChangeMapHeightLevel);
-        //_redraw2dMap();
+        if (RegenerateOnParametersChanged)
+        {
+            GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
+        }
     }
-    private void _on_raise_map_button_pressed()
-    {
-        //MapHelpers.AddHeight(_curTerrainMap, _curChangeMapHeightLevel);
-        //_redraw2dMap();
-    }
-    private void _onGeneratorDropdownMenuItemSelected(long index)
+    private void OnGeneratorDropdownMenuItemSelected(long index)
     {
         _hideAllOptions();
 
@@ -380,36 +246,35 @@ public partial class MapGenerationMenu : Control
         {
             cur.Visible = true;
         }
-        _curGenerator = cur;
+        _selectedGenerator = cur;
     }
-    private void _on_map_change_value_slider_value_changed(double value)
-	{
-		_curChangeMapHeightLevel = (float)value;
-		_mapChangeValueLabel.Text = _curChangeMapHeightLevel.ToString();
-	}
-	private void _on_smooth_cycles_slider_value_changed(double value)
+    private void OnSeaLevelSliderOnValueChanged(double value)
+    {
+        CurSeaLevel = (float)value;
+        _seaLevelLabel.Text = CurSeaLevel.ToString();
+    }
+	private void OnSmoothCyclesSliderValueChanged(double value)
 	{
 		CurSmoothCycles = Mathf.RoundToInt(value);
 		_smoothCyclesLabel.Text = CurSmoothCycles.ToString();
 	}
-	private void _on_noise_influence_slider_value_changed(double value)
+	private void OnNoiseInfluenceSliderValueChanged(double value)
 	{
 		CurNoiseInfluence = (float)value;
 		_noiseInfluenceLabel.Text = CurNoiseInfluence.ToString();
 	}
-	private void _on_water_erosion_check_box_toggled(bool toggledOn)
+	private void OnWaterErosionCheckBoxToggled(bool toggledOn)
 	{
 		_waterErosionOptions.Visible = toggledOn;
 	}
-	private void _on_domain_warping_check_box_toggled(bool toggledOn)
+	private void OnDomainWarpingCheckBoxToggled(bool toggledOn)
 	{
 		_domainWarpingOptions.Visible = toggledOn;
 		EnableDomainWarping = toggledOn;
 	}
-	private void _on_island_options_check_box_toggled(bool toggledOn)
+	private void OnIslandOptionsCheckBoxToggled(bool toggledOn)
 	{
 		_islandOptions.Visible = toggledOn;
 		EnableIslands = toggledOn;
 	}
-    #endregion
 }

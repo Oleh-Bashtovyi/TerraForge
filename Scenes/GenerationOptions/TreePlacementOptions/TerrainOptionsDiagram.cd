@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.TreePlacementOptions">
+    <Position X="2" Y="1.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>QAgIAAACBAAAAAAAAAAAAQgAAAAQAAAAAABbgAAAAAA=</HashCode>
+      <FileName>Scenes\GenerationOptions\TreePlacementOptions\TreePlacementOptions.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="_rules" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.TreePlacementRuleItem">
+    <Position X="5.75" Y="1" Width="3.75" />
+    <NestedTypes>
+      <Class Name="TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.TreePlacementRuleItem.TreeColorChangedEventArgs" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Scenes\GenerationOptions\TreePlacementOptions\TreePlacementRuleItem.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.TreePlacementRuleItem.TreeIdChangedEventArgs" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Scenes\GenerationOptions\TreePlacementOptions\TreePlacementRuleItem.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>QAQAEhBABRACIUAAAAAgBCQAMAAAAACgIABAQg4IRAA=</HashCode>
+      <FileName>Scenes\GenerationOptions\TreePlacementOptions\TreePlacementRuleItem.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="_placementRules" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems.AboveSeaLevelRuleItem">
+    <Position X="13" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>yAAAABAAAAAEAQAAAAABGAAAAAAAAAAEEAAAAAgAAAA=</HashCode>
+      <FileName>Scenes\GenerationOptions\TreePlacementOptions\PlacementRuleItems\AboveSeaLevelRuleItem.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems.IPlacementRuleItem">
+    <Position X="11" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAQAAAAABAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Scenes\GenerationOptions\TreePlacementOptions\PlacementRuleItems\IPlacementRuleItem.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

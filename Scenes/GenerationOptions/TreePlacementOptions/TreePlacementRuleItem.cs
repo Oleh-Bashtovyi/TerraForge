@@ -2,21 +2,33 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TerrainGenerationApp.Generators.TreePlacement;
+using TerrainGenerationApp.Generators.Trees;
 using TerrainGenerationApp.PlacementRules;
 using TerrainGenerationApp.RadiusRules;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems;
+using TerrainGenerationApp.Utilities;
 
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
-public partial class TreePlacementRuleItem : PanelContainer
+
+
+public class TreeColorChangedEventArgs(string treeId, Color newColor)
 {
-	private static readonly PackedScene AboveSeaLevelPlacementRuleItemScene = 
-		ResourceLoader.Load<PackedScene>(
-			"res://Scenes/GenerationOptions/TreePlacementOptions/PlacementRuleItems/AboveSeaLevelRuleItem.tscn");
+    public Color NewColor { get; } = newColor;
+    public string TreeId { get; } = treeId;
+}
+
+public class TreeIdChangedEventArgs(string oldTreeId, string newTreeId)
+{
+    public string OldTreeId { get; } = oldTreeId;
+    public string NewTreeId { get; } = newTreeId;
+}
 
 
-	private ColorPickerButton _treeColorPickerButton;
+public partial class TreePlacementRuleItem : PanelContainer
+{   
+    // NODES REFERENCED WITH "%" IN SCENE
+    private ColorPickerButton _treeColorPickerButton;
 	private VBoxContainer _placeRulesVBoxContainer;
 	private VBoxContainer _radiusRuleVBoxContainer;
 	private LineEdit _treeIdLineEdit;
@@ -28,11 +40,14 @@ public partial class TreePlacementRuleItem : PanelContainer
 	private Label _noPlaceRulesLabel;
 	private Label _noRadiusRuleLabel;
 
-
 	private List<IPlacementRuleItem> _placementRules;
+    private Color _treeColor;
 	private string _treeId;
+    private TreePlacementRule _cachedRule; // Кешований об'єкт правила
+    private bool _isDirty = true; // Прапорець, що вказує на необхідність оновлення
 
-	public event EventHandler OnDeleteButtonPressed;
+
+    public event EventHandler OnDeleteButtonPressed;
 	public event EventHandler OnMoveUpButtonPressed;
 	public event EventHandler OnMoveDownButtonPressed;
 	public event EventHandler OnRulesChanged;
@@ -41,35 +56,30 @@ public partial class TreePlacementRuleItem : PanelContainer
 	public event EventHandler<TreeColorChangedEventArgs> OnTreeColorChanged;
 	public event EventHandler<TreeIdChangedEventArgs> OnTreeIdChanged;
 
-	public class TreeColorChangedEventArgs
-	{
-		public Color NewColor { get; set; }
-		public string TreeId { get; set; }
-	}
 
-	public class TreeIdChangedEventArgs
-	{
-		public string OldTreeId { get; set; }
-		public string NewTreeId { get; set; }
-	}
 
 
 	public string TreeId => _treeId;
-	public Color GetColor => _treeColorPickerButton.Color;
+	public Color GetColor => _treeColor;
 
 
-	public TreePlacementRule GetTreePlacementRule()
-	{
-		GD.Print("Rules inside:" + _placementRules.Count);
-		var rules = _placementRules.Select(x => x.GetPlacementRule()).ToList();
-		GD.Print("Rules count collected to composite rule: " + rules.Count);
-		var compositeRule = new CompositePlacementRule(rules);
-		var radiusRule = new ConstantRadiusRule(5.0f);
-		return new TreePlacementRule(_treeId, compositeRule, radiusRule);
-	}
+    public TreePlacementRule GetTreePlacementRule()
+    {
+        if (_isDirty || _cachedRule == null)
+        {
+            // Створення нового правила або оновлення кешованого
+            var rules = _placementRules.Select(x => x.GetPlacementRule()).ToList();
+            var compositeRule = new CompositePlacementRule(rules);
+            var radiusRule = new ConstantRadiusRule(5.0f);
+            _cachedRule = new TreePlacementRule(_treeId, compositeRule, radiusRule);
+            _isDirty = false;
+        }
+
+        return _cachedRule;
+    }
 
 
-	public override void _Ready()
+public override void _Ready()
 	{
 		_treeIdLineEdit = GetNode<LineEdit>("%TreeIdLineEdit");
 		_treeColorPickerButton = GetNode<ColorPickerButton>("%TreeColorPickerButton");
@@ -83,28 +93,50 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_noPlaceRulesLabel = GetNode<Label>("%NoPlaceRulesLabel");
 		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
 		_placementRules = new();
-		_treeColorPickerButton.Color = Colors.Purple;
-		_treeIdLineEdit.Text = "Tree";
 		_treeId = "Tree";
+        _treeColor = Colors.Purple;
+		_treeColorPickerButton.Color = _treeColor;
+		_treeIdLineEdit.Text = _treeId;
 
-		_treeIdLineEdit.EditingToggled += on =>
-		{
-			if (!on)
-			{
-				_treeId = _treeIdLineEdit.Text;
-				OnRulesChanged?.Invoke(this, EventArgs.Empty);
-			}
-		};
-
-
+		_treeColorPickerButton.ColorChanged += TreeColorPickerButtonOnColorChanged;
+		_treeIdLineEdit.EditingToggled += TreeIdLineEditOnEditingToggled;
 		_moveUpButton.Pressed += MoveUpButtonOnPressed;
 		_moveDownButton.Pressed += MoveDownButtonOnPressed;
 		_deleteButton.Pressed += DeleteButtonOnPressed;
 		_addPlaceRuleButton.Pressed += AddPlaceRuleButtonOnPressed;
 	}
 
+    private void MarkAsDirty()
+    {
+        _isDirty = true;
+        OnRulesChanged?.Invoke(this, EventArgs.Empty);
+    }
 
-	private void AddPlaceRuleButtonOnPressed()
+
+    private void TreeColorPickerButtonOnColorChanged(Color newColor)
+    {
+        _treeColor = newColor;
+        var eventArgs = new TreeColorChangedEventArgs(_treeId, newColor);
+		OnTreeColorChanged?.Invoke(this, eventArgs);
+    }
+
+    private void TreeIdLineEditOnEditingToggled(bool toggledOn)
+    {
+        if (!toggledOn)
+        {
+            var newId = _treeIdLineEdit.Text;
+            if (newId != _treeId) // Перевіряємо, чи змінився ID
+            {
+                var eventArgs = new TreeIdChangedEventArgs(_treeId, newId);
+                _treeId = newId;
+                OnTreeIdChanged?.Invoke(this, eventArgs);
+                MarkAsDirty();
+            }
+        }
+    }
+
+
+    private void AddPlaceRuleButtonOnPressed()
 	{
 		// Temporary stub
 		// TODO:
@@ -115,7 +147,7 @@ public partial class TreePlacementRuleItem : PanelContainer
 			return;
 		}
 
-		var scene = AboveSeaLevelPlacementRuleItemScene.Instantiate();
+		var scene = LoadedScenes.ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
 		var item = scene as IPlacementRuleItem;
 
 		if (item == null)
@@ -133,15 +165,15 @@ public partial class TreePlacementRuleItem : PanelContainer
 
 		_noPlaceRulesLabel.Visible = false;
 		OnRuleAdded?.Invoke(this, EventArgs.Empty);
-		OnRulesChanged?.Invoke(this, EventArgs.Empty);
-	}
+        MarkAsDirty();
+    }
 
-	private void PlacementRuleItemOnOnRuleParametersChanged(object sender, EventArgs e)
-	{
-		OnRulesChanged?.Invoke(this, EventArgs.Empty);
-	}
+    private void PlacementRuleItemOnOnRuleParametersChanged(object sender, EventArgs e)
+    {
+        MarkAsDirty();
+    }
 
-	private void PlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
+    private void PlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
 	{
 		var scene = sender as Node;
 		var item = sender as IPlacementRuleItem;
@@ -163,8 +195,8 @@ public partial class TreePlacementRuleItem : PanelContainer
 		}
 
 		OnRuleRemoved?.Invoke(this, EventArgs.Empty);
-		OnRulesChanged?.Invoke(this, EventArgs.Empty);
-	}
+        MarkAsDirty();
+    }
 
 	private void DeleteButtonOnPressed()
 	{

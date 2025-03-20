@@ -77,7 +77,7 @@ text = "➕"
 
 [node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "Can place rules:"
+text = "Placement rules:"
 
 [node name="PlaceRulesVBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
 unique_name_in_owner = true
