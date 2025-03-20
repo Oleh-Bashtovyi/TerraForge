@@ -41,7 +41,17 @@ public partial class TreePlacementOptions : VBoxContainer
 		_addRuleButton.Pressed += AddRuleButtonOnPressed;
 	}
 
-	private void AddRuleButtonOnPressed()
+
+
+    public Dictionary<string, bool[,]> GenerateTrees(IWorldData worldData)
+    {
+		GD.Print("Tree maps requested in Tree options!");
+        var rules = GetRules().ToArray();
+        return TreesApplier.GenerateTreesMapsFromRules(worldData, rules);
+    }
+
+
+    private void AddRuleButtonOnPressed()
 	{
 		var scene = LoadedScenes.TREE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
 		var item = scene as TreePlacementRuleItem;
@@ -68,6 +78,7 @@ public partial class TreePlacementOptions : VBoxContainer
 
     private void TreePlacementRuleItemOnRulesChanged(object sender, EventArgs e)
     {
+		GD.Print("TreePlacementOptions: Tree placement rule changed! Mark as dirty");
         _isRulesCacheDirty = true;
         OnTreePlacementRulesChanged?.Invoke(this, EventArgs.Empty);
     }

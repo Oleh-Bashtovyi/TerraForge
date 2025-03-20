@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://by1ppq2hqwnt8"]
 
-[ext_resource type="Script" uid="uid://dfj6f51jbeit6" path="res://Scenes/GameComponents/MapDisplayOptions/MapDisplayOptions.cs" id="1_akt4n"]
+[ext_resource type="Script" uid="uid://dfj6f51jbeit6" path="res://Scenes/GameComponents/DisplayOptions/MapDisplayOptions.cs" id="1_akt4n"]
 [ext_resource type="ButtonGroup" uid="uid://cq8skvodilixs" path="res://Resources/button_group_noise_display_type.tres" id="1_vo5h7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ywowt"]

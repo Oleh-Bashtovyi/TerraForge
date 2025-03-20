@@ -70,6 +70,8 @@ public class WorldData : IWorldData
 
     public void SetTreeMaps(Dictionary<string, bool[,]> maps)
     {
+        GD.Print("<TREE>Setting Tree maps! Count: " + maps.Count);
+
         TreeMaps.Clear();
         foreach (var map in maps)
         {

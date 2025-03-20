@@ -64,7 +64,8 @@ public partial class MapGenerationMenu : Control
         get => _curSeaLevel;
         private set
         {
-            _curSeaLevel = value;
+            _curSeaLevel = (float)Mathf.Clamp(value, 0.0, 1.0);
+            GD.Print("SEA LEVEL CHANGED!");
             OnWaterLevelChanged?.Invoke(this, EventArgs.Empty);
         }
     }
@@ -158,12 +159,13 @@ public partial class MapGenerationMenu : Control
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
         _waterErosionCheckbox = GetNode<CheckBox>("%WaterErosionCheckBox");
         _islandsOptionsCheckbox = GetNode<CheckBox>("%IslandOptionsCheckBox");
-        _treeOptionsCheckbox = GetNode<CheckBox>("%TreeOptionsCheckBox");
+        _treeOptionsCheckbox = GetNode<CheckBox>("%TreePlacementCheckBox");
 
         _treePlacementOptions = GetNode<TreePlacementOptions>("%TreePlacementOptions");
         _domainWarpingCheckBox.Toggled += OnDomainWarpingCheckBoxToggled;
         _waterErosionCheckbox.Toggled += OnWaterErosionCheckBoxToggled;
         _islandsOptionsCheckbox.Toggled += OnIslandOptionsCheckBoxToggled;
+        _treeOptionsCheckbox.Toggled += TreeOptionsCheckboxOnToggled;
         RegenerateOnParametersChanged = true;
         _autoRegenerateCheckBox.ButtonPressed = true;
         _autoRegenerateCheckBox.Toggled += (toggleOn) => RegenerateOnParametersChanged = toggleOn;
@@ -200,6 +202,8 @@ public partial class MapGenerationMenu : Control
 		_selectedGenerator = firstItemOptions;
 		_generatorDropdownMenu.ItemSelected += OnGeneratorDropdownMenuItemSelected;
     }
+
+
 
 
     private void _connectParametersChanged()
@@ -277,4 +281,8 @@ public partial class MapGenerationMenu : Control
 		_islandOptions.Visible = toggledOn;
 		EnableIslands = toggledOn;
 	}
+    private void TreeOptionsCheckboxOnToggled(bool toggledOn)
+    {
+        EnableTrees = toggledOn;
+    }
 }

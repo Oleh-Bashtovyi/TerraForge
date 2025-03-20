@@ -46,6 +46,35 @@ public class TreesApplier : ITreesApplier
 
 
 
+
+
+    public static Dictionary<string, bool[,]> GenerateTreesMapsFromRules(
+        IWorldData worldData,
+        TreePlacementRule[] rules,
+        int maxAttempts = 30)
+    {
+        var result = new Dictionary<string, bool[,]>();
+
+        foreach (var rule in rules)
+        {
+            // Convert rule to functions that TreesGenerator can use
+            Func<Vector2, bool> canPlaceFunc = pos => rule.CanPlace(pos, worldData);
+            Func<Vector2, float> minDistanceFunc = pos => rule.GetRadius(pos, worldData);
+
+            // Generate tree map for this rule
+            bool[,] treeMap = GenerateTreesMap(worldData.TerrainMap, maxAttempts, canPlaceFunc, minDistanceFunc);
+            result.Add(rule.TreeId, treeMap);
+        }
+
+        return result;
+    }
+
+
+
+
+
+
+
     public static TreeGenerationResult GenerateTreesMapsFromRules(
         float[,] heightMap,
         IWorldData worldData,

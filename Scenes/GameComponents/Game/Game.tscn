@@ -5,7 +5,7 @@
 [ext_resource type="Shader" uid="uid://ckpj7iuljx3gj" path="res://Resources/water.tres" id="3_3w3g2"]
 [ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/GameComponents/TerrainScene2D/TerrainScene2D.tscn" id="3_bauv2"]
 [ext_resource type="PackedScene" uid="uid://ckgwmiiux24bu" path="res://Scenes/GameComponents/GenerationMenu/MapGenerationMenu.tscn" id="4_2ko6c"]
-[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/GameComponents/MapDisplayOptions/MapDisplayOptions.tscn" id="6_kwpie"]
+[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/GameComponents/DisplayOptions/MapDisplayOptions.tscn" id="6_kwpie"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_g7g4g"]
 

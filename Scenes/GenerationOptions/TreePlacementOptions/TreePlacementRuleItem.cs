@@ -14,21 +14,21 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
 
 public class TreeColorChangedEventArgs(string treeId, Color newColor)
 {
-    public Color NewColor { get; } = newColor;
-    public string TreeId { get; } = treeId;
+	public Color NewColor { get; } = newColor;
+	public string TreeId { get; } = treeId;
 }
 
 public class TreeIdChangedEventArgs(string oldTreeId, string newTreeId)
 {
-    public string OldTreeId { get; } = oldTreeId;
-    public string NewTreeId { get; } = newTreeId;
+	public string OldTreeId { get; } = oldTreeId;
+	public string NewTreeId { get; } = newTreeId;
 }
 
 
 public partial class TreePlacementRuleItem : PanelContainer
 {   
-    // NODES REFERENCED WITH "%" IN SCENE
-    private ColorPickerButton _treeColorPickerButton;
+	// NODES REFERENCED WITH "%" IN SCENE
+	private ColorPickerButton _treeColorPickerButton;
 	private VBoxContainer _placeRulesVBoxContainer;
 	private VBoxContainer _radiusRuleVBoxContainer;
 	private LineEdit _treeIdLineEdit;
@@ -41,13 +41,13 @@ public partial class TreePlacementRuleItem : PanelContainer
 	private Label _noRadiusRuleLabel;
 
 	private List<IPlacementRuleItem> _placementRules;
-    private Color _treeColor;
+	private Color _treeColor;
 	private string _treeId;
-    private TreePlacementRule _cachedRule; // Кешований об'єкт правила
-    private bool _isDirty = true; // Прапорець, що вказує на необхідність оновлення
+	private TreePlacementRule _cachedRule; 
+	private bool _isDirty = true; 
 
 
-    public event EventHandler OnDeleteButtonPressed;
+	public event EventHandler OnDeleteButtonPressed;
 	public event EventHandler OnMoveUpButtonPressed;
 	public event EventHandler OnMoveDownButtonPressed;
 	public event EventHandler OnRulesChanged;
@@ -63,20 +63,27 @@ public partial class TreePlacementRuleItem : PanelContainer
 	public Color GetColor => _treeColor;
 
 
-    public TreePlacementRule GetTreePlacementRule()
-    {
+	public TreePlacementRule GetTreePlacementRule()
+	{
+		GD.Print("+--GetTreePlacementRule");
         if (_isDirty || _cachedRule == null)
         {
-            // Створення нового правила або оновлення кешованого
             var rules = _placementRules.Select(x => x.GetPlacementRule()).ToList();
             var compositeRule = new CompositePlacementRule(rules);
+			GD.Print("| - rules count: " + rules.Count);
             var radiusRule = new ConstantRadiusRule(5.0f);
             _cachedRule = new TreePlacementRule(_treeId, compositeRule, radiusRule);
             _isDirty = false;
+            GD.Print("| it was DIRTY, creating a new one");
         }
+        else
+        {
+			GD.Print("| Cache has up-to-date object");
+        }
+		GD.Print("+--");
 
-        return _cachedRule;
-    }
+		return _cachedRule;
+	}
 
 
 public override void _Ready()
@@ -94,7 +101,7 @@ public override void _Ready()
 		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
 		_placementRules = new();
 		_treeId = "Tree";
-        _treeColor = Colors.Purple;
+		_treeColor = Colors.Purple;
 		_treeColorPickerButton.Color = _treeColor;
 		_treeIdLineEdit.Text = _treeId;
 
@@ -106,37 +113,37 @@ public override void _Ready()
 		_addPlaceRuleButton.Pressed += AddPlaceRuleButtonOnPressed;
 	}
 
-    private void MarkAsDirty()
-    {
-        _isDirty = true;
-        OnRulesChanged?.Invoke(this, EventArgs.Empty);
-    }
+	private void MarkAsDirty()
+	{
+		_isDirty = true;
+		OnRulesChanged?.Invoke(this, EventArgs.Empty);
+	}
 
 
-    private void TreeColorPickerButtonOnColorChanged(Color newColor)
-    {
-        _treeColor = newColor;
-        var eventArgs = new TreeColorChangedEventArgs(_treeId, newColor);
+	private void TreeColorPickerButtonOnColorChanged(Color newColor)
+	{
+		_treeColor = newColor;
+		var eventArgs = new TreeColorChangedEventArgs(_treeId, newColor);
 		OnTreeColorChanged?.Invoke(this, eventArgs);
-    }
+	}
 
-    private void TreeIdLineEditOnEditingToggled(bool toggledOn)
-    {
-        if (!toggledOn)
-        {
-            var newId = _treeIdLineEdit.Text;
-            if (newId != _treeId) // Перевіряємо, чи змінився ID
-            {
-                var eventArgs = new TreeIdChangedEventArgs(_treeId, newId);
-                _treeId = newId;
-                OnTreeIdChanged?.Invoke(this, eventArgs);
-                MarkAsDirty();
-            }
-        }
-    }
+	private void TreeIdLineEditOnEditingToggled(bool toggledOn)
+	{
+		if (!toggledOn)
+		{
+			var newId = _treeIdLineEdit.Text;
+			if (newId != _treeId)
+			{
+				var eventArgs = new TreeIdChangedEventArgs(_treeId, newId);
+				_treeId = newId;
+				OnTreeIdChanged?.Invoke(this, eventArgs);
+				MarkAsDirty();
+			}
+		}
+	}
 
 
-    private void AddPlaceRuleButtonOnPressed()
+	private void AddPlaceRuleButtonOnPressed()
 	{
 		// Temporary stub
 		// TODO:
@@ -165,15 +172,16 @@ public override void _Ready()
 
 		_noPlaceRulesLabel.Visible = false;
 		OnRuleAdded?.Invoke(this, EventArgs.Empty);
-        MarkAsDirty();
-    }
+		MarkAsDirty();
+	}
 
-    private void PlacementRuleItemOnOnRuleParametersChanged(object sender, EventArgs e)
-    {
-        MarkAsDirty();
-    }
+	private void PlacementRuleItemOnOnRuleParametersChanged(object sender, EventArgs e)
+	{
+		GD.Print("Placement rule change, mark tree placement rule as dirty!");
+		MarkAsDirty();
+	}
 
-    private void PlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
+	private void PlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
 	{
 		var scene = sender as Node;
 		var item = sender as IPlacementRuleItem;
@@ -195,8 +203,8 @@ public override void _Ready()
 		}
 
 		OnRuleRemoved?.Invoke(this, EventArgs.Empty);
-        MarkAsDirty();
-    }
+		MarkAsDirty();
+	}
 
 	private void DeleteButtonOnPressed()
 	{

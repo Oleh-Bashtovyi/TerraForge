@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 using TerrainGenerationApp.Utilities;
@@ -16,6 +17,8 @@ public partial class TerrainScene2D : Control
 
 	private Label _cellInfoLabel;
 	private TextureRect _mapTextureRect;
+
+    private Dictionary<string, Color> _treeColors = new();
 
 
 	public override void _Ready()
@@ -48,86 +51,129 @@ public partial class TerrainScene2D : Control
 
 
 
-
-
-    public void ResizeMap(IWorldData worldData)
+    public void SetTreeColors(Dictionary<string, Color> dict)
     {
-        var h = worldData.MapHeight;
-        var w = worldData.MapWidth;
-        if (_texture.GetSize() != new Vector2I(h, w))
-        {
-            _texture.Resize(w, h);
-            _mapTexture.SetImage(_texture);
-        }
+		_treeColors = dict;
     }
 
+	public void ResizeMap(IWorldData worldData)
+	{
+		var h = worldData.MapHeight;
+		var w = worldData.MapWidth;
+		if (_texture.GetSize() != new Vector2I(h, w))
+		{
+			_texture.Resize(w, h);
+			_mapTexture.SetImage(_texture);
+		}
+	}
 
-    public void RedrawTerrain(IWorldData worldData)
+
+	public void RedrawTerrain(IWorldData worldData)
+	{
+		var displayFormat = _displayOptions.CurDisplayFormat;
+		var slopesThreshold = _displayOptions.CurSlopeThreshold;
+		var waterLevel = worldData.SeaLevel;
+		var slopes = worldData.SlopesMap;
+		var map = worldData.TerrainMap;
+		var h = map.GetLength(0);
+		var w = map.GetLength(1);
+
+		if (displayFormat == MapDisplayFormat.Grey)
+		{
+			for (int y = 0; y < h; y++)
+			{
+				for (int x = 0; x < w; x++)
+				{
+					var v = map[y, x];
+					_texture.SetPixel(x, y, new Color(v, v, v, 1.0f));
+				}
+			}
+		}
+		else
+		{
+			if (displayFormat == MapDisplayFormat.Colors)
+			{
+				_terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+				_waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+			}
+			else
+			{
+				_terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
+				_waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
+			}
+
+			for (int y = 0; y < h; y++)
+			{
+				for (int x = 0; x < w; x++)
+				{
+					if (map[y, x] < waterLevel)
+					{
+						_texture.SetPixel(x, y, _waterGradient.Sample(waterLevel - map[y, x]));
+					}
+					else
+					{
+						var baseColor = _terrainGradient.Sample(map[y, x] - waterLevel);
+						var slopeBaseColor =
+							GetSlopeColor(baseColor, slopes[y, x], map[y, x], slopesThreshold);
+
+						_texture.SetPixel(x, y, slopeBaseColor);
+					}
+				}
+			}
+		}
+		_mapTexture.Update(_texture);
+	}
+
+	public void RedrawTreeLayers(IWorldData worldData)
     {
-        var displayFormat = _displayOptions.CurDisplayFormat;
-        var slopesThreshold = _displayOptions.CurSlopeThreshold;
-        var waterLevel = worldData.SeaLevel;
-        var slopes = worldData.SlopesMap;
-        var map = worldData.TerrainMap;
-        var h = map.GetLength(0);
-        var w = map.GetLength(1);
+		GD.Print($"<{nameof(TerrainScene2D)}><{nameof(RedrawTreeLayers)}>--->STARTED....");
 
-        if (displayFormat == MapDisplayFormat.Grey)
+        var h = worldData.MapHeight;
+        var w = worldData.MapWidth;
+
+        foreach (var item in worldData.TreeMaps)
         {
+            var id = item.Key;
+			var map = item.Value;
+            var treesCount = 0;
+            var treeColor = _treeColors[id];
+
             for (int y = 0; y < h; y++)
             {
                 for (int x = 0; x < w; x++)
                 {
-                    var v = map[y, x];
-                    _texture.SetPixel(x, y, new Color(v, v, v, 1.0f));
+                    if (map[y, x])
+                    {
+                        
+                        treesCount++;
+
+                        _texture.SetPixel(x, y, treeColor);
+                        if (y > 0) _texture.SetPixel(x, y - 1, treeColor);
+                        if (x > 0) _texture.SetPixel(x - 1, y, treeColor);
+                        if (x < w - 1) _texture.SetPixel(x + 1, y, treeColor);
+                        if (y < h - 1) _texture.SetPixel(x, y + 1, treeColor);
+                    }
                 }
             }
-        }
-        else
-        {
-            if (displayFormat == MapDisplayFormat.Colors)
+
+            if (treesCount == 0)
             {
-                _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
-                _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
+				GD.Print("SOME TREE MAP HAS ZERO TREES - " + id);
             }
             else
             {
-                _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
-                _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
-            }
-
-            for (int y = 0; y < h; y++)
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    if (map[y, x] < waterLevel)
-                    {
-                        _texture.SetPixel(x, y, _waterGradient.Sample(waterLevel - map[y, x]));
-                    }
-                    else
-                    {
-                        var baseColor = _terrainGradient.Sample(map[y, x] - waterLevel);
-                        var slopeBaseColor =
-                            GetSlopeColor(baseColor, slopes[y, x], map[y, x], slopesThreshold);
-
-                        _texture.SetPixel(x, y, slopeBaseColor);
-                    }
-                }
+                GD.Print("Map id - " + id + " trees count - " + treesCount + " Color - " + treeColor);
             }
         }
         _mapTexture.Update(_texture);
-    }
-
-    public void RedrawTreeLayers(IWorldData worldData)
-    {
-
-    }
+        GD.Print($"<{nameof(TerrainScene2D)}><{nameof(RedrawTreeLayers)}>--->ENDED....");
+}
 
 
-    public void RedrawTreeLayer(IWorldData worldData, string layerName)
-    {
+	public void RedrawTreeLayer(IWorldData worldData, string layerName)
+	{
 
-    }
+	}
 
 
 
@@ -155,8 +201,8 @@ public partial class TerrainScene2D : Control
 					for (int x = 0; x < w; x++)
 					{
 						if (treeMap[y, x])
-                        {
-                            treesCount++;
+						{
+							treesCount++;
 							var treeColor = treesColors[key];
 
 							_texture.SetPixel(x, y, treeColor);
@@ -179,8 +225,8 @@ public partial class TerrainScene2D : Control
 
 	public void SetDisplayOptions(DisplayOptions.MapDisplayOptions menu)
 	{
-        _displayOptions = menu;
-    }
+		_displayOptions = menu;
+	}
 
 	private Color GetSlopeColor(Color baseColor, float slope, float elevation, float slopeThreshold)
 	{

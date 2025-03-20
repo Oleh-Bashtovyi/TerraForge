@@ -27,9 +27,6 @@ public class CompositePlacementRule : IPlacementRule
         }
     }
 
-/*    public CompositePlacementRule(string description = "Composite Rule") : this(new List<IPlacementRule>(), description)
-    {
-    }*/
 
     public bool CanPlaceIn(Vector2 pos, IWorldData worldData)
     {
