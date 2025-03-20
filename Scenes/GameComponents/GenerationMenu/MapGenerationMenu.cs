@@ -1,12 +1,14 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TerrainGenerationApp.Generators;
+using TerrainGenerationApp.Scenes.GenerationOptions;
+using TerrainGenerationApp.Scenes.GenerationOptions.DomainWarpingOptions;
+using TerrainGenerationApp.Scenes.GenerationOptions.IslandOptions;
+using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
 using TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
 using TerrainGenerationApp.Utilities;
-using BaseGeneratorOptions = TerrainGenerationApp.Scenes.GenerationOptions.BaseGeneratorOptions;
-using DomainWarpingOptions = TerrainGenerationApp.Scenes.GenerationOptions.DomainWarpingOptions.DomainWarpingOptions;
-using IslandOptions = TerrainGenerationApp.Scenes.GenerationOptions.IslandOptions.IslandOptions;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
 
@@ -14,9 +16,6 @@ public partial class MapGenerationMenu : Control
 {
 	private const int MaxSmoothCycles = 10;
 
-	private float[,] _curTerrainMap = new float[1, 1];
-	private float[,] _curSlopesMap = new float[1, 1];
-	private bool[,] _curTreesMap = new bool[1, 1];
 	private float _curChangeMapHeightLevel = 0.01f;
 	private float _curNoiseInfluence = 1.0f;
 	private int _curSmoothCycles = 0;
@@ -32,6 +31,7 @@ public partial class MapGenerationMenu : Control
 	private WaterErosionApplier _waterErosionApplier;
 	private IslandApplier _islandApplier;
 	private GodotThread _waterErosionThread;
+	private WorldData _worldData;
 
 	public event Action<MapGenerationResult> OnMapGenerated;
 
@@ -60,32 +60,18 @@ public partial class MapGenerationMenu : Control
 	private IslandOptions _islandOptions;
 	private DomainWarpingOptions _domainWarpingOptions;
 	private WaterErosionOptions _waterErosionOptions;
+	private TreePlacementOptions _treePlacementOptions;
 
-	public MapDisplayOptions MapDisplayOptions { get; set; }
-
-
-	public float[,] CurTerrainMap
-	{
-		get => _curTerrainMap;
-		private set => _curTerrainMap = value;
-	}
-
-	public float[,] CurSlopesMap
-	{
-		get => _curSlopesMap;
-		private set => _curSlopesMap = value;
-	}
+	public MapDisplayOptions.MapDisplayOptions MapDisplayOptions { get; set; }
 
 	public float CurWaterLevel => MapDisplayOptions.CurWaterLevel;
 
 	public TreesApplier.TreeGenerationResult TreesMaps { get; set; }
 
-
-	public bool[,] CurTreesMap
-	{
-		get => _curTreesMap;
-		private set => _curTreesMap = value;
-	}
+    public IWorldData WorldData
+    {
+		get => _worldData;
+    }
 
 	public float CurNoiseInfluence
 	{
@@ -176,6 +162,7 @@ public partial class MapGenerationMenu : Control
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
         _waterErosionCheckbox = GetNode<CheckBox>("%WaterErosionCheckBox");
         _islandsOptionsCheckbox = GetNode<CheckBox>("%IslandOptionsCheckBox");
+        _treePlacementOptions = GetNode<TreePlacementOptions>("%TreePlacementOptions");
         _domainWarpingCheckBox.Toggled += _on_domain_warping_check_box_toggled;
         _waterErosionCheckbox.Toggled += _on_water_erosion_check_box_toggled;
         _islandsOptionsCheckbox.Toggled += _on_island_options_check_box_toggled;
@@ -192,7 +179,7 @@ public partial class MapGenerationMenu : Control
 		_domainWarpingOptions.ParametersChanged += _handleParametersChanged;
 		_waterErosionApplier.IterationPassed += OnWaterErosionIterationPassed;
 		_islandOptions.ParametersChanged += _handleParametersChanged;
-        
+        _worldData = new WorldData();
 
         // INIT COMBOBOX AND DICTIONARY
         _generators = new Dictionary<int, BaseGeneratorOptions>
@@ -214,8 +201,25 @@ public partial class MapGenerationMenu : Control
 		var firstItemOptions = _generators[firstItemId];
 		firstItemOptions.Visible = true;
 		_curGenerator = firstItemOptions;
-		_generatorDropdownMenu.ItemSelected += _onGeneratorDropdownMenuItemSelected; 
-	}
+		_generatorDropdownMenu.ItemSelected += _onGeneratorDropdownMenuItemSelected;
+
+
+        _treePlacementOptions.OnTreePlacementRuleItemAdded += (sender, item) =>
+        {
+            GD.Print("======================================");
+			GD.Print("OnTreePlacementRuleItemAdded");
+            GenerateMap();
+        };
+
+        _treePlacementOptions.OnRulesChanged += (sender, args) =>
+        {
+            GD.Print("======================================");
+            GD.Print("OnRulesChanged");
+            GenerateMap();
+        };
+
+
+    }
 
 
 	private void OnWaterErosionIterationPassed(float[,] map)
@@ -233,6 +237,9 @@ public partial class MapGenerationMenu : Control
 			options.ParametersChanged += _handleParametersChanged;
 		}
 	}
+
+
+	public Dictionary<string, Color> TreesColorsTemp { get; set; } 
 
 	public void GenerateMap()
 	{
@@ -262,19 +269,33 @@ public partial class MapGenerationMenu : Control
 		}
 
 
-		CurTerrainMap = map;
-		CurSlopesMap = MapHelpers.GetSlopes(map);
+		_worldData.SetTerrain(map);
 
-		//TreesMaps= TreesApplier.GenerateTreesMapsFromRules(CurTerrainMap, this, rules);
+		var rules = _treePlacementOptions.GetRules.ToArray();
+		GD.Print($"Rules count: {rules.Length}");
+
+        var treeMaps = TreesApplier.GenerateTreesMapsFromRules(map, _worldData, rules);
+
+        _worldData.TreeMaps.Clear();
+
+        foreach (var item in treeMaps.TreeMaps)
+        {
+			GD.Print($"Inserting: {item.Key}, Height: {item.Value.GetLength(0)}");
+            _worldData.TreeMaps.Add(item.Key, item.Value);
+        }
+
+        TreesColorsTemp = _treePlacementOptions.GetTreeIdColors();
+
+ //TreesMaps= TreesApplier.GenerateTreesMapsFromRules(CurTerrainMap, this, rules);
 
 
-		//CurTreesMap = TreesApplier.GenerateTreesMap(map, 30, canPlaceFunction, minDistanceFunction);
+        //CurTreesMap = TreesApplier.GenerateTreesMap(map, 30, canPlaceFunction, minDistanceFunction);
 
 
 
-		//TreesMaps = new MapGenerationResult(CurTerrainMap, CurSlopesMap, CurTreesMap);
-		//GD.Print("MAP GENERATED");
-		OnMapGenerated?.Invoke(null);
+        //TreesMaps = new MapGenerationResult(CurTerrainMap, CurSlopesMap, CurTreesMap);
+        //GD.Print("MAP GENERATED");
+        OnMapGenerated?.Invoke(null);
 	}
 
 

@@ -1,6 +1,8 @@
-using Godot;
 using System;
+using Godot;
 using TerrainGenerationApp.Enums;
+
+namespace TerrainGenerationApp.Scenes.GameComponents.MapDisplayOptions;
 
 public partial class MapDisplayOptions : Control
 {
@@ -9,11 +11,9 @@ public partial class MapDisplayOptions : Control
     private float _curWaterLevel = 0.3f;
 
     // NODES REFERENCED WITH "%" IN SCENE
-    // Display format (Grey, colors, gradient)
     private CheckBox _displayGrey;
     private CheckBox _displayColors;
     private CheckBox _displayGradient;
-    // Display features
     private Label _waterLevelLabel;
     private Label _slopeThresholdLabel;
     private Slider _waterLevelSlider;
@@ -21,6 +21,7 @@ public partial class MapDisplayOptions : Control
 
 
     public event Action OnDisplayOptionsChanged;
+
 
     // PROPERTIES
     //========================================================================
@@ -59,7 +60,7 @@ public partial class MapDisplayOptions : Control
 
 
     public override void _Ready()
-	{
+    {
         // Display format (Grey, colors, gradient)
         _displayGrey = GetNode<CheckBox>("%DisplayGrey");
         _displayColors = GetNode<CheckBox>("%DisplayColors");
@@ -84,9 +85,6 @@ public partial class MapDisplayOptions : Control
         _waterLevelSlider.ValueChanged += _on_water_level_slider_value_changed;
         _slopeThresholdSlider.ValueChanged += _on_slope_threshold_slider_value_changed;
     }
-
-
-
 
 
     private void _on_slope_threshold_slider_value_changed(double value)

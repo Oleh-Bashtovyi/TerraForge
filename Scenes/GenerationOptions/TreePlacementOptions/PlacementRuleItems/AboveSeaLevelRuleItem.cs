@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using Godot.Collections;
 using TerrainGenerationApp.PlacementRules;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems;
@@ -27,15 +28,34 @@ public partial class AboveSeaLevelRuleItem : PanelContainer, IPlacementRuleItem
 		_lowerBoundLineEdit.Text = _lowerBound.ToString();
 		_upperBoundLineEdit.Text = _upperBound.ToString();
 		_lowerBoundLineEdit.EditingToggled += LowerBoundLineEditOnEditingToggled;
+		_upperBoundLineEdit.EditingToggled += UpperBoundLineEditOnEditingToggled;
 	}
 
 
+    public IPlacementRule GetPlacementRule()
+    {
+        return new AboveSeaLevelRule(_lowerBound, _upperBound);
+    }
 
 
-	public IPlacementRule GetPlacementRule()
-	{
-		return new AboveSeaLevelRule(_lowerBound, _upperBound);
-	}
+    private void UpperBoundLineEditOnEditingToggled(bool toggledon)
+    {
+        if (toggledon == false)
+        {
+            var text = _upperBoundLineEdit.Text;
+
+            if (float.TryParse(text, out float result))
+            {
+                if (!Mathf.IsEqualApprox(result, _upperBound))
+                {
+                    _upperBound = (float)Mathf.Clamp(result, 0.0, 1.0);
+                    _upperBoundLineEdit.Text = _upperBound.ToString();
+                    OnRuleParametersChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+    }
+
 
 	private void LowerBoundLineEditOnEditingToggled(bool toggledon)
 	{

@@ -13,14 +13,14 @@ public partial class TreePlacementRuleItem : PanelContainer
 {
 	private static readonly PackedScene AboveSeaLevelPlacementRuleItemScene = 
 		ResourceLoader.Load<PackedScene>(
-			"res://Scenes/GenerationOptions/TreePlacementOptions/AboveSeaCanPlaceRuleItem.tscn");
+			"res://Scenes/GenerationOptions/TreePlacementOptions/PlacementRuleItems/AboveSeaLevelRuleItem.tscn");
 
 
 	private ColorPickerButton _treeColorPickerButton;
-    private VBoxContainer _placeRulesVBoxContainer;
-    private VBoxContainer _radiusRuleVBoxContainer;
+	private VBoxContainer _placeRulesVBoxContainer;
+	private VBoxContainer _radiusRuleVBoxContainer;
 	private LineEdit _treeIdLineEdit;
-    private Button _addPlaceRuleButton;
+	private Button _addPlaceRuleButton;
 	private Button _addRadiusRuleButton;
 	private Button _moveUpButton;
 	private Button _moveDownButton;
@@ -54,14 +54,19 @@ public partial class TreePlacementRuleItem : PanelContainer
 	}
 
 
+	public string TreeId => _treeId;
+	public Color GetColor => _treeColorPickerButton.Color;
 
-    public TreePlacementRule GetTreePlacementRule()
-    {
-        var rules = _placementRules.Select(x => x.GetPlacementRule()).ToString();
-        var compositeRule = new CompositePlacementRule(rules);
-        var radiusRule = new ConstantRadiusRule(5.0f);
-        return new TreePlacementRule(_treeId, compositeRule, radiusRule);
-    }
+
+	public TreePlacementRule GetTreePlacementRule()
+	{
+		GD.Print("Rules inside:" + _placementRules.Count);
+		var rules = _placementRules.Select(x => x.GetPlacementRule()).ToList();
+		GD.Print("Rules count collected to composite rule: " + rules.Count);
+		var compositeRule = new CompositePlacementRule(rules);
+		var radiusRule = new ConstantRadiusRule(5.0f);
+		return new TreePlacementRule(_treeId, compositeRule, radiusRule);
+	}
 
 
 	public override void _Ready()
@@ -82,6 +87,16 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_treeIdLineEdit.Text = "Tree";
 		_treeId = "Tree";
 
+		_treeIdLineEdit.EditingToggled += on =>
+		{
+			if (!on)
+			{
+				_treeId = _treeIdLineEdit.Text;
+				OnRulesChanged?.Invoke(this, EventArgs.Empty);
+			}
+		};
+
+
 		_moveUpButton.Pressed += MoveUpButtonOnPressed;
 		_moveDownButton.Pressed += MoveDownButtonOnPressed;
 		_deleteButton.Pressed += DeleteButtonOnPressed;
@@ -94,21 +109,21 @@ public partial class TreePlacementRuleItem : PanelContainer
 		// Temporary stub
 		// TODO:
 		// Still need to create a window for selecting a rule type and 
-        // a ban on creating 2 rules with the same type
+		// a ban on creating 2 rules with the same type
 		if (_placementRules.Any())
 		{
 			return;
 		}
 
 		var scene = AboveSeaLevelPlacementRuleItemScene.Instantiate();
-        var item = scene as IPlacementRuleItem;
+		var item = scene as IPlacementRuleItem;
 
 		if (item == null)
-        {
-            throw new Exception($"Error in {typeof(TreePlacementRuleItem)}: " +
-                                $"Can not ADD placement rule, Instantiated scene is not of type {typeof(IPlacementRuleItem)}, " +
-                                $"actual type - {scene.GetType()}");
-        }
+		{
+			throw new Exception($"Error in {typeof(TreePlacementRuleItem)}: " +
+								$"Can not ADD placement rule, Instantiated scene is not of type {typeof(IPlacementRuleItem)}, " +
+								$"actual type - {scene.GetType()}");
+		}
 
 		_placeRulesVBoxContainer.AddChild(scene);
 		_placementRules.Add(item);
@@ -118,38 +133,40 @@ public partial class TreePlacementRuleItem : PanelContainer
 
 		_noPlaceRulesLabel.Visible = false;
 		OnRuleAdded?.Invoke(this, EventArgs.Empty);
+		OnRulesChanged?.Invoke(this, EventArgs.Empty);
 	}
 
-    private void PlacementRuleItemOnOnRuleParametersChanged(object sender, EventArgs e)
-    {
-        OnRulesChanged?.Invoke(this, EventArgs.Empty);
-    }
+	private void PlacementRuleItemOnOnRuleParametersChanged(object sender, EventArgs e)
+	{
+		OnRulesChanged?.Invoke(this, EventArgs.Empty);
+	}
 
-    private void PlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
-    {
-        var scene = sender as Node;
-        var item = sender as IPlacementRuleItem;
+	private void PlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
+	{
+		var scene = sender as Node;
+		var item = sender as IPlacementRuleItem;
 
-        if (item == null || scene == null)
-        {
-            throw new Exception($"Error in {typeof(TreePlacementRuleItem)}: " +
-                                $"Can not REMOVE placement rule, Instantiated scene is not of type {typeof(IPlacementRuleItem)}, " +
-                                $"actual type - {sender.GetType()}");
-        }
+		if (item == null || scene == null)
+		{
+			throw new Exception($"Error in {typeof(TreePlacementRuleItem)}: " +
+								$"Can not REMOVE placement rule, Instantiated scene is not of type {typeof(IPlacementRuleItem)}, " +
+								$"actual type - {sender.GetType()}");
+		}
 
-        _placeRulesVBoxContainer.RemoveChild(scene);
-        _placementRules.Remove(item);
-        scene.QueueFree();
+		_placeRulesVBoxContainer.RemoveChild(scene);
+		_placementRules.Remove(item);
+		scene.QueueFree();
 
-        if (_placementRules.Count == 0)
-        {
-            _noPlaceRulesLabel.Visible = true;
-        }
+		if (_placementRules.Count == 0)
+		{
+			_noPlaceRulesLabel.Visible = true;
+		}
 
-        OnRuleRemoved?.Invoke(this, EventArgs.Empty);
-    }
+		OnRuleRemoved?.Invoke(this, EventArgs.Empty);
+		OnRulesChanged?.Invoke(this, EventArgs.Empty);
+	}
 
-    private void DeleteButtonOnPressed()
+	private void DeleteButtonOnPressed()
 	{
 		OnDeleteButtonPressed?.Invoke(this, EventArgs.Empty);
 	}
