@@ -9,25 +9,18 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
 
 public partial class TreePlacementOptions : VBoxContainer
 {
-    // NODES REFERENCED WITH "%" IN SCENE
     private VBoxContainer _rulesContainer;
 	private Button _addRuleButton;
 
-	private List<TreePlacementRuleItem> _treePlacementRules;
-    private TreesApplier _treesApplier;
     private bool _isRulesCacheDirty = true;
+    private TreesApplier _treesApplier;
     private List<TreePlacementRule> _cachedRules = new();
+	private List<TreePlacementRuleItem> _treePlacementRules;
 
     public event EventHandler<TreePlacementRuleItem> OnTreePlacementRuleItemAdded;
     public event EventHandler<TreePlacementRuleItem> OnTreePlacementRuleItemRemoved;
     public event EventHandler OnTreePlacementRuleItemsOrderChanged;
     public event EventHandler OnTreePlacementRulesChanged;
-
-
-	public Dictionary<string, Color> GetTreeIdColors()
-	{
-		return _treePlacementRules.ToDictionary(item => item.TreeId, item => item.GetColor);
-	}
 
     public TreesApplier TreesApplier => _treesApplier;
 
@@ -38,50 +31,8 @@ public partial class TreePlacementOptions : VBoxContainer
 		_treePlacementRules = new();
 		_treesApplier = new();
 
-		_addRuleButton.Pressed += AddRuleButtonOnPressed;
+		_addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
 	}
-
-
-
-    public Dictionary<string, bool[,]> GenerateTrees(IWorldData worldData)
-    {
-		GD.Print("Tree maps requested in Tree options!");
-        var rules = GetRules().ToArray();
-        return TreesApplier.GenerateTreesMapsFromRules(worldData, rules);
-    }
-
-
-    private void AddRuleButtonOnPressed()
-	{
-		var scene = LoadedScenes.TREE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
-		var item = scene as TreePlacementRuleItem;
-
-		if (item == null)
-		{
-			throw new Exception($"Error in {typeof(TreePlacementOptions)}: " +
-								$"Can not ADD placement rule, Instantiated scene is not of type {typeof(TreePlacementRuleItem)}, " +
-								$"actual type - {scene.GetType()}");
-		}
-
-		_rulesContainer.AddChild(item);
-		_treePlacementRules.Add(item);
-
-        item.OnDeleteButtonPressed += TreePlacementRuleItemOnDeleteButtonPressed;
-        item.OnMoveDownButtonPressed += TreePlacementRuleItemOnMoveDownButtonPressed;
-        item.OnMoveUpButtonPressed += TreePlacementRuleItemOnMoveUpButtonPressed;
-        item.OnRulesChanged += TreePlacementRuleItemOnRulesChanged;
-        OnTreePlacementRuleItemAdded?.Invoke(this, item);
-
-        _isRulesCacheDirty = true;
-    }
-
-
-    private void TreePlacementRuleItemOnRulesChanged(object sender, EventArgs e)
-    {
-		GD.Print("TreePlacementOptions: Tree placement rule changed! Mark as dirty");
-        _isRulesCacheDirty = true;
-        OnTreePlacementRulesChanged?.Invoke(this, EventArgs.Empty);
-    }
 
     public List<TreePlacementRule> GetRules()
     {
@@ -95,42 +46,97 @@ public partial class TreePlacementOptions : VBoxContainer
     }
 
 
-    private void TreePlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
-	{
-		var item = sender as TreePlacementRuleItem;
-
-		if (item == null)
-		{
-			throw new Exception($"Error in {typeof(TreePlacementOptions)}: " +
-								$"Can`t REMOVE tree placement rule, Instantiated scene is not of type {typeof(TreePlacementRuleItem)}, " +
-								$"actual type - {sender.GetType()}");
-		}
-
-		_rulesContainer.RemoveChild(item);
-		_treePlacementRules.Remove(item);
-		OnTreePlacementRuleItemRemoved?.Invoke(this, item);
-		item.QueueFree();
-
-        _isRulesCacheDirty = true;
-}
-
-	private void TreePlacementRuleItemOnMoveDownButtonPressed(object sender, EventArgs e)
-	{
-		var sceneToMove = (sender as Node)!;
-		var curIndex = sceneToMove.GetIndex();
-		_rulesContainer.MoveChild(sceneToMove, (curIndex + 1) % _rulesContainer.GetChildCount());
-		OnTreePlacementRuleItemsOrderChanged?.Invoke(this, EventArgs.Empty);
-
-        _isRulesCacheDirty = true;
+    public Dictionary<string, bool[,]> GenerateTrees(IWorldData worldData)
+    {
+		GD.Print("Tree maps requested in Tree options!");
+        var rules = GetRules().ToArray();
+        return TreesApplier.GenerateTreesMapsFromRules(worldData, rules);
     }
 
-	private void TreePlacementRuleItemOnMoveUpButtonPressed(object sender, EventArgs e)
-	{
-		var sceneToMove = (sender as Node)!;
-		var curIndex = sceneToMove.GetIndex();
-		_rulesContainer.MoveChild(sceneToMove, curIndex - 1);
-		OnTreePlacementRuleItemsOrderChanged?.Invoke(this, EventArgs.Empty);
+
+    private void TreePlacementRuleItemOnRulesChanged(object sender, EventArgs e)
+    {
+        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnRulesChanged)}>---> " +
+                 $"CATCHING {nameof(TreePlacementRuleItem)} RULES CHANGED");
 
         _isRulesCacheDirty = true;
+        OnTreePlacementRulesChanged?.Invoke(this, EventArgs.Empty);
+    }
+    private void AddTreePlacementRuleButtonOnPressed()
+    {
+        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(AddTreePlacementRuleButtonOnPressed)}>---> " +
+                 $"HANDLING {nameof(TreePlacementRuleItem)} ADDING...");
+
+        var scene = LoadedScenes.TREE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
+        var item = scene as TreePlacementRuleItem;
+
+        if (item == null)
+        {
+            var message = $"<{nameof(TreePlacementOptions)}><{nameof(AddTreePlacementRuleButtonOnPressed)}>---> " +
+                          $"Can`t ADD TREE PLACEMENT RULE, because it is not " +
+                          $"of type {typeof(TreePlacementRuleItem)}, " +
+                          $"actual type: {scene.GetType()}";
+            GD.PrintErr(message);
+            throw new Exception(message);
+        }
+
+        _rulesContainer.AddChild(item);
+        _treePlacementRules.Add(item);
+
+        item.OnDeleteButtonPressed += TreePlacementRuleItemOnDeleteButtonPressed;
+        item.OnMoveDownButtonPressed += TreePlacementRuleItemOnMoveDownButtonPressed;
+        item.OnMoveUpButtonPressed += TreePlacementRuleItemOnMoveUpButtonPressed;
+        item.OnRulesChanged += TreePlacementRuleItemOnRulesChanged;
+        _isRulesCacheDirty = true;
+
+        OnTreePlacementRuleItemAdded?.Invoke(this, item);
+    }
+    private void TreePlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
+    {
+        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnDeleteButtonPressed)}>---> " +
+                 $"HANDLING {nameof(TreePlacementRuleItem)} DELETION...");
+
+        var item = sender as TreePlacementRuleItem;
+
+        if (item == null)
+        {
+            var message = $"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnDeleteButtonPressed)}>---> " +
+                          $"Can`t DELETE TREE PLACEMENT RULE, because it is not " +
+                          $"of type {typeof(TreePlacementRuleItem)}, " +
+                          $"actual type: {sender.GetType()}";
+            GD.PrintErr(message);
+            throw new Exception(message);
+        }
+
+        _rulesContainer.RemoveChild(item);
+        _treePlacementRules.Remove(item);
+        item.QueueFree();
+        _isRulesCacheDirty = true;
+
+        OnTreePlacementRuleItemRemoved?.Invoke(this, item);
+    }
+    private void TreePlacementRuleItemOnMoveDownButtonPressed(object sender, EventArgs e)
+	{
+        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnMoveDownButtonPressed)}>---> " +
+                 $"HANDLING {nameof(TreePlacementRuleItem)} MOVED DOWN");
+
+        var sceneToMove = (sender as Node)!;
+		var curIndex = sceneToMove.GetIndex();
+		_rulesContainer.MoveChild(sceneToMove, (curIndex + 1) % _rulesContainer.GetChildCount());
+        _isRulesCacheDirty = true;
+	
+        OnTreePlacementRuleItemsOrderChanged?.Invoke(this, EventArgs.Empty);
+    }
+	private void TreePlacementRuleItemOnMoveUpButtonPressed(object sender, EventArgs e)
+	{
+        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnMoveUpButtonPressed)}>---> " +
+                 $"HANDLING {nameof(TreePlacementRuleItem)} MOVED UP");
+
+        var sceneToMove = (sender as Node)!;
+		var curIndex = sceneToMove.GetIndex();
+		_rulesContainer.MoveChild(sceneToMove, curIndex - 1);
+        _isRulesCacheDirty = true;
+		
+        OnTreePlacementRuleItemsOrderChanged?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -87,7 +87,7 @@ public partial class Game : Node3D
 
         e.OnTreeColorChanged += TreePlacementRuleItemOnTreeColorChanged;
         e.OnTreeIdChanged += TreePlacementRuleItemOnOnTreeIdChanged;
-        _treeColors[e.TreeId] = e.GetColor;
+        _treeColors[e.TreeId] = e.TreeColor;
 
         if (_mapGenerationMenu.RegenerateOnParametersChanged && _mapGenerationMenu.EnableTrees)
         {

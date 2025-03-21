@@ -1,7 +1,9 @@
 using Godot;
 using System;
 using TerrainGenerationApp.PlacementRules;
+
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems;
+
 public partial class AboveSeaLevelRuleItem : PanelContainer, IPlacementRuleItem
 {
     private LineEdit _lowerBoundLineEdit;
@@ -44,6 +46,8 @@ public partial class AboveSeaLevelRuleItem : PanelContainer, IPlacementRuleItem
                 {
                     _upperBound = (float)Mathf.Clamp(result, _lowerBound, 1.0);
                     _upperBoundLineEdit.Text = _upperBound.ToString();
+                    GD.Print($"<{nameof(AboveSeaLevelRuleItem)}><{nameof(UpperBoundLineEditOnEditingToggled)}>---> " +
+                             $"Upper bound changed, invoking  {nameof(OnRuleParametersChanged)} event");
                     OnRuleParametersChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
@@ -65,6 +69,8 @@ public partial class AboveSeaLevelRuleItem : PanelContainer, IPlacementRuleItem
                 {
                     _lowerBound = (float)Mathf.Clamp(result, 0.0, _upperBound);
                     _lowerBoundLineEdit.Text = _lowerBound.ToString();
+                    GD.Print($"<{nameof(AboveSeaLevelRuleItem)}><{nameof(LowerBoundLineEditOnEditingToggled)}>---> " +
+                             $"Lower bound changed, invoking  {nameof(OnRuleParametersChanged)} event");
                     OnRuleParametersChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
