@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dhk7rgiforkic"]
+[gd_scene load_steps=16 format=3 uid="uid://dhk7rgiforkic"]
 
 [ext_resource type="Script" uid="uid://bn1xteopq2m60" path="res://Scenes/GameComponents/Game/Game.cs" id="1_ug855"]
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://Scenes/GameComponents/RtsCam/rtscam.tscn" id="2_al3ws"]
@@ -46,17 +46,6 @@ noise = SubResource("FastNoiseLite_mxk2f")
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4s4h6"]
 resource_local_to_scene = true
 bg_color = Color(0.258824, 0.6, 0.286275, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_61sx6"]
-bg_color = Color(0.744475, 0.541759, 0.523234, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -155,13 +144,6 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_4s4h6")
 text = "Generate"
-
-[node name="ErosionSimulationButton" type="Button" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
-custom_minimum_size = Vector2(100, 35)
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_styles/normal = SubResource("StyleBoxFlat_61sx6")
-text = "Erosion simulation"
 
 [node name="ShowIn3dButton" type="Button" parent="Generation_Layer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
 custom_minimum_size = Vector2(100, 35)

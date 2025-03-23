@@ -41,12 +41,10 @@ public partial class MapGenerationMenu : Control
     private BaseGeneratorOptions _worleyOptions;
     private BaseGeneratorOptions _perlinOptions;
     private Label _smoothCyclesLabel;
-    private Label _mapChangeValueLabel;
     private Label _noiseInfluenceLabel;
     private Label _seaLevelLabel;
     private Slider _smoothCyclesSlider;
     private Slider _noiseInfluenceSlider;
-    private Slider _mapChangeValueSlider;
     private Slider _seaLevelSlider;
     private CheckBox _autoRegenerateCheckBox;
     private CheckBox _domainWarpingCheckBox;
@@ -142,12 +140,10 @@ public partial class MapGenerationMenu : Control
 
 		// Manipulate map
 		_smoothCyclesLabel = GetNode<Label>("%SmoothCyclesLabel");
-		_mapChangeValueLabel = GetNode<Label>("%MapChangeValueLabel");
 		_noiseInfluenceLabel = GetNode<Label>("%NoiseInfluenceLabel");
         _seaLevelLabel = GetNode<Label>("%SeaLevelLabel");
 		_smoothCyclesSlider = GetNode<Slider>("%SmoothCyclesSlider");
 		_noiseInfluenceSlider = GetNode<Slider>("%NoiseInfluenceSlider");
-		_mapChangeValueSlider = GetNode<Slider>("%MapChangeValueSlider");
         _seaLevelSlider = GetNode<Slider>("%SeaLevelSlider");
 		_seaLevelSlider.ValueChanged += OnSeaLevelSliderOnValueChanged;
 		_smoothCyclesSlider.ValueChanged += OnSmoothCyclesSliderValueChanged;
@@ -283,6 +279,7 @@ public partial class MapGenerationMenu : Control
 	}
     private void TreeOptionsCheckboxOnToggled(bool toggledOn)
     {
+        _treePlacementOptions.Visible = toggledOn;
         EnableTrees = toggledOn;
     }
 }

@@ -12,4 +12,12 @@ public static class LoadedScenes
     public static readonly PackedScene ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE =
         ResourceLoader.Load<PackedScene>(
         "res://Scenes/GenerationOptions/TreePlacementOptions/PlacementRuleItems/AboveSeaLevelRuleItem.tscn");
+
+    public static readonly PackedScene SLOPE_PLACEMENT_RULE_ITEM_SCENE =
+        ResourceLoader.Load<PackedScene>(
+            "res://Scenes/GenerationOptions/TreePlacementOptions/PlacementRuleItems/SlopeRuleItem.tscn");
+
+    public static readonly PackedScene CONSTANT_RADIUS_RULE_ITEM_SCENE =
+        ResourceLoader.Load<PackedScene>(
+            "res://Scenes/GenerationOptions/TreePlacementOptions/RadiusRuleItems/ConstantRadiusRuleItem.tscn");
 }

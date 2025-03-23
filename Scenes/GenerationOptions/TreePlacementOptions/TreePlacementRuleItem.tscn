@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://bp31idpywmwc1" path="res://Scenes/GenerationOptions/TreePlacementOptions/TreePlacementRuleItem.cs" id="1_qqfdb"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qo2xr"]
-content_margin_left = 5.0
+content_margin_left = 10.0
 content_margin_top = 5.0
-content_margin_right = 5.0
+content_margin_right = 10.0
 content_margin_bottom = 5.0
 bg_color = Color(0.2484, 0.2484, 0.2484, 1)
 corner_radius_top_left = 16
@@ -27,6 +27,7 @@ script = ExtResource("1_qqfdb")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
+theme_override_constants/separation = 10
 
 [node name="LeftVBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
@@ -65,6 +66,15 @@ label_settings = SubResource("LabelSettings_lse0g")
 [node name="TreeIdLineEdit" type="LineEdit" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DeleteButton" type="Button" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🗑"
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
 layout_mode = 2
@@ -111,11 +121,3 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "There is no any rule"
 horizontal_alignment = 1
-
-[node name="RightVBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-
-[node name="DeleteButton" type="Button" parent="HBoxContainer/RightVBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "🗑"

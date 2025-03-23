@@ -1,18 +1,18 @@
-using Godot;
+﻿using Godot;
 using System;
 using TerrainGenerationApp.PlacementRules;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems;
 
-public partial class AboveSeaLevelRuleItem : PanelContainer, IPlacementRuleItem
+public partial class SlopeRuleItem : PanelContainer, IPlacementRuleItem
 {
     private LineEdit _lowerBoundLineEdit;
     private LineEdit _upperBoundLineEdit;
     private Button _deleteButton;
-    
+
     private float _lowerBound;
     private float _upperBound;
-    
+
     public event EventHandler OnDeleteButtonPressed;
     public event EventHandler OnRuleParametersChanged;
 
@@ -46,7 +46,7 @@ public partial class AboveSeaLevelRuleItem : PanelContainer, IPlacementRuleItem
                 {
                     _upperBound = (float)Mathf.Clamp(result, _lowerBound, 1.0);
                     _upperBoundLineEdit.Text = _upperBound.ToString();
-                    GD.Print($"<{nameof(AboveSeaLevelRuleItem)}><{nameof(UpperBoundLineEditOnEditingToggled)}>---> " +
+                    GD.Print($"<{nameof(SlopeRuleItem)}><{nameof(UpperBoundLineEditOnEditingToggled)}>---> " +
                              $"Upper bound changed, invoking  {nameof(OnRuleParametersChanged)} event");
                     OnRuleParametersChanged?.Invoke(this, EventArgs.Empty);
                 }
@@ -69,7 +69,7 @@ public partial class AboveSeaLevelRuleItem : PanelContainer, IPlacementRuleItem
                 {
                     _lowerBound = (float)Mathf.Clamp(result, 0.0, _upperBound);
                     _lowerBoundLineEdit.Text = _lowerBound.ToString();
-                    GD.Print($"<{nameof(AboveSeaLevelRuleItem)}><{nameof(LowerBoundLineEditOnEditingToggled)}>---> " +
+                    GD.Print($"<{nameof(SlopeRuleItem)}><{nameof(LowerBoundLineEditOnEditingToggled)}>---> " +
                              $"Lower bound changed, invoking  {nameof(OnRuleParametersChanged)} event");
                     OnRuleParametersChanged?.Invoke(this, EventArgs.Empty);
                 }
@@ -83,7 +83,7 @@ public partial class AboveSeaLevelRuleItem : PanelContainer, IPlacementRuleItem
     }
     private void DeleteButtonOnPressed()
     {
-        GD.Print($"<{nameof(AboveSeaLevelRuleItem)}><{nameof(DeleteButtonOnPressed)}>---> " +
+        GD.Print($"<{nameof(SlopeRuleItem)}><{nameof(DeleteButtonOnPressed)}>---> " +
                  $"Delete button pressed, invoking  {nameof(OnDeleteButtonPressed)} event");
         OnDeleteButtonPressed?.Invoke(this, EventArgs.Empty);
     }
