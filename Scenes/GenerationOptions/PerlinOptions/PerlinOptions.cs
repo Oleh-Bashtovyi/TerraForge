@@ -1,9 +1,9 @@
 using Godot;
 using TerrainGenerationApp.Generators;
 
-namespace TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.PerlinOptions;
 
-public partial class PerlinOptions : GenerationOptions.BaseGeneratorOptions
+public partial class PerlinOptions : BaseGeneratorOptions
 {
 	private PerlinNoise _generator;
 	private int _seed = 0;
@@ -20,7 +20,18 @@ public partial class PerlinOptions : GenerationOptions.BaseGeneratorOptions
 	private Label _seedLabel;
 	private Label _warpingStrengthLabel;
 	private Label _warpingSizeLabel;
-	private CheckButton _useWarpingCheckButton;
+	private Slider _mapHeightSlider;
+    private Slider _mapWidthSlider;
+    private Slider _offsetXSlider;
+    private Slider _offsetYSlider;
+    private Slider _scaleSlider;
+	private Slider _lacunaritySlider;
+	private Slider _persistanceSlider;
+    private Slider _octavesSlider;
+    private Slider _seedSlider;
+    private Slider _warpingStrengthSlider;
+    private Slider _warpingSizeSlider;
+    private CheckButton _useWarpingCheckButton;
 
 	public PerlinNoise Generator
 	{
@@ -48,7 +59,18 @@ public partial class PerlinOptions : GenerationOptions.BaseGeneratorOptions
 		_warpingStrengthLabel = GetNode<Label>("%WarpingStrengthL");
 		_warpingSizeLabel = GetNode<Label>("%WarpingSizeL");
 		_useWarpingCheckButton = GetNode<CheckButton>("%UseWarpingCheckButton");
-	}
+		_mapHeightSlider = GetNode<Slider>("%MapHeightSlider");
+        _mapWidthSlider = GetNode<Slider>("%MapWidthSlider");
+        _offsetXSlider = GetNode<Slider>("%OffsetXSlider");
+        _offsetYSlider = GetNode<Slider>("%OffsetYSlider");
+        _scaleSlider = GetNode<Slider>("%ScaleSlider");
+        _persistanceSlider = GetNode<Slider>("%PersistanceSlider");
+        _lacunaritySlider = GetNode<Slider>("%LacunaritySlider");
+        _octavesSlider = GetNode<Slider>("%OctavesSlider");
+        _seedSlider = GetNode<Slider>("%SeedSlider");
+        _warpingStrengthSlider = GetNode<Slider>("%WarpingStrengthSlider");
+        _warpingSizeSlider = GetNode<Slider>("%WarpingSizeSlider");
+    }
 
 
 	public override float[,] GenerateMap()
@@ -56,7 +78,38 @@ public partial class PerlinOptions : GenerationOptions.BaseGeneratorOptions
 		return _generator.GenerateMap();
 	}
 
-	private void OnMapHeightSliderValueChanged(float value)
+    public override void DisableAllOptions()
+    {
+        _mapHeightSlider.Editable = false;
+        _mapWidthSlider.Editable = false;
+        _offsetXSlider.Editable = false;
+        _offsetYSlider.Editable = false;
+        _scaleSlider.Editable = false;
+        _persistanceSlider.Editable = false;
+        _lacunaritySlider.Editable = false;
+        _octavesSlider.Editable = false;
+        _seedSlider.Editable = false;
+        _warpingStrengthSlider.Editable = false;
+        _warpingSizeSlider.Editable = false;
+    }
+
+    public override void EnableAllOptions()
+    {
+        _mapHeightSlider.Editable = true;
+        _mapWidthSlider.Editable = true;
+        _offsetXSlider.Editable = true;
+        _offsetYSlider.Editable = true;
+        _scaleSlider.Editable = true;
+        _persistanceSlider.Editable = true;
+        _lacunaritySlider.Editable = true;
+        _octavesSlider.Editable = true;
+        _seedSlider.Editable = true;
+        _warpingStrengthSlider.Editable = true;
+        _warpingSizeSlider.Editable = true;
+    }
+
+
+    private void OnMapHeightSliderValueChanged(float value)
 	{
 		_generator.MapHeight = Mathf.RoundToInt(value);
 		_mapHeightLabel.Text = _generator.MapHeight.ToString();

@@ -26,7 +26,7 @@ size_flags_vertical = 1
 text = "1"
 horizontal_alignment = 2
 
-[node name="StrengthS" type="HSlider" parent="Strength"]
+[node name="StrengthSlider" type="HSlider" parent="Strength"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -55,7 +55,7 @@ size_flags_vertical = 1
 text = "8"
 horizontal_alignment = 2
 
-[node name="NoiseScaleS" type="HSlider" parent="NoiseScale"]
+[node name="NoiseScaleSlider" type="HSlider" parent="NoiseScale"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -66,5 +66,5 @@ max_value = 50.0
 step = 0.1
 value = 8.0
 
-[connection signal="value_changed" from="Strength/StrengthS" to="." method="OnStrengthSValueChanged"]
-[connection signal="value_changed" from="NoiseScale/NoiseScaleS" to="." method="OnNoiseScaleSValueChanged"]
+[connection signal="value_changed" from="Strength/StrengthSlider" to="." method="OnStrengthSValueChanged"]
+[connection signal="value_changed" from="NoiseScale/NoiseScaleSlider" to="." method="OnNoiseScaleSValueChanged"]

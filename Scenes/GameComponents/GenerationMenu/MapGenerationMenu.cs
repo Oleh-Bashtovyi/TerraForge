@@ -17,25 +17,9 @@ namespace TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
 public partial class MapGenerationMenu : Control
 {
 	private const int MaxSmoothCycles = 10;
+	private const float MaxNoiseInfluence = 3.0f;
+	private const float MinNoiseInfluence = -3.0f;
 
-	private float _curNoiseInfluence = 1.0f;
-    private float _curSeaLevel = 0.2f;
-	private int _curSmoothCycles = 0;
-	private bool _regenerateOnParametersChanged = false;
-	private bool _enableDomainWarping = false;
-	private bool _enableIslands = false;
-	private bool _enableTrees = false;
-	private Dictionary<int, BaseGeneratorOptions> _generators = new();
-	private BaseGeneratorOptions _selectedGenerator;
-	private DomainWarpingApplier _domainWarpingApplier;
-	private WaterErosionApplier _waterErosionApplier;
-	private IslandApplier _islandApplier;
-    private TreesApplier _treesApplier;
-
-    public event EventHandler OnWaterLevelChanged;
-    public event EventHandler GenerationParametersChanged;
-
-    // NODES REFERENCED WITH "%" IN SCENE
     private OptionButton _generatorDropdownMenu;
     private BaseGeneratorOptions _diamondSquareOptions;
     private BaseGeneratorOptions _worleyOptions;
@@ -55,6 +39,23 @@ public partial class MapGenerationMenu : Control
     private DomainWarpingOptions _domainWarpingOptions;
     private WaterErosionOptions _waterErosionOptions;
     private TreePlacementOptions _treePlacementOptions;
+
+    private float _curNoiseInfluence = 1.0f;
+    private float _curSeaLevel = 0.2f;
+	private int _curSmoothCycles = 0;
+	private bool _regenerateOnParametersChanged = false;
+	private bool _enableDomainWarping = false;
+	private bool _enableIslands = false;
+	private bool _enableTrees = false;
+	private Dictionary<int, BaseGeneratorOptions> _generators = new();
+	private BaseGeneratorOptions _selectedGenerator;
+	private DomainWarpingApplier _domainWarpingApplier;
+	private WaterErosionApplier _waterErosionApplier;
+	private IslandApplier _islandApplier;
+    private TreesApplier _treesApplier;
+
+    public event EventHandler OnWaterLevelChanged;
+    public event EventHandler GenerationParametersChanged;
 
 
     public float CurSeaLevel
@@ -133,24 +134,23 @@ public partial class MapGenerationMenu : Control
 	public override void _Ready()
 	{
 		// Select and set generator options
-		_generatorDropdownMenu = GetNode<OptionButton>("%GeneratorDropdownMenu");
-		_diamondSquareOptions = GetNode<BaseGeneratorOptions>("%DiamondSquareOptions");
 		_perlinOptions = GetNode<BaseGeneratorOptions>("%PerlinOptions");
 		_worleyOptions = GetNode<BaseGeneratorOptions>("%WorleyOptions");
+		_diamondSquareOptions = GetNode<BaseGeneratorOptions>("%DiamondSquareOptions");
+		_generatorDropdownMenu = GetNode<OptionButton>("%GeneratorDropdownMenu");
 
 		// Manipulate map
+        _seaLevelLabel = GetNode<Label>("%SeaLevelLabel");
 		_smoothCyclesLabel = GetNode<Label>("%SmoothCyclesLabel");
 		_noiseInfluenceLabel = GetNode<Label>("%NoiseInfluenceLabel");
-        _seaLevelLabel = GetNode<Label>("%SeaLevelLabel");
+        _seaLevelSlider = GetNode<Slider>("%SeaLevelSlider");
 		_smoothCyclesSlider = GetNode<Slider>("%SmoothCyclesSlider");
 		_noiseInfluenceSlider = GetNode<Slider>("%NoiseInfluenceSlider");
-        _seaLevelSlider = GetNode<Slider>("%SeaLevelSlider");
 		_seaLevelSlider.ValueChanged += OnSeaLevelSliderOnValueChanged;
 		_smoothCyclesSlider.ValueChanged += OnSmoothCyclesSliderValueChanged;
 		_noiseInfluenceSlider.ValueChanged += OnNoiseInfluenceSliderValueChanged;
 		
         // Features
-        // GET AND SUBSCRIBE CHECKBOXES
         _autoRegenerateCheckBox = GetNode<CheckBox>("%AutoRegenerateCheckBox");
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
         _waterErosionCheckbox = GetNode<CheckBox>("%WaterErosionCheckBox");
@@ -184,9 +184,14 @@ public partial class MapGenerationMenu : Control
 			{ 3, _worleyOptions }
 		};
 		_hideAllOptions();
-		_connectParametersChanged();
 
-		var firstSelectedIndex = 0;
+        foreach (int key in _generators.Keys)
+        {
+            var options = _generators[key];
+            options.ParametersChanged += HandleParametersChanged;
+        }
+
+        var firstSelectedIndex = 0;
 		_generatorDropdownMenu.Clear();
 		_generatorDropdownMenu.AddItem("Diamond square", 1);
 		_generatorDropdownMenu.AddItem("Perlin noise", 2);
@@ -202,14 +207,42 @@ public partial class MapGenerationMenu : Control
 
 
 
-    private void _connectParametersChanged()
-	{
-		foreach (int key in _generators.Keys)
-		{
-			var options = _generators[key];
-			options.ParametersChanged += HandleParametersChanged;
-		}
-	}
+    public void DisableAllOptions()
+    {
+        _selectedGenerator?.DisableAllOptions();
+        _noiseInfluenceSlider.Editable = false;
+        _smoothCyclesSlider.Editable = false;
+        _seaLevelSlider.Editable = false;
+
+        _domainWarpingCheckBox.Disabled = true;
+        _waterErosionCheckbox.Disabled = true;
+        _islandsOptionsCheckbox.Disabled = true;
+        _treeOptionsCheckbox.Disabled = true;
+		_domainWarpingOptions.DisableAllOptions();
+        _waterErosionOptions.DisableAllOptions();
+        _islandOptions.DisableAllOptions();
+        _treePlacementOptions.DisableAllOptions();
+    }
+
+    public void EnableAllOptions()
+    {
+        _selectedGenerator?.EnableAllOptions();
+        _noiseInfluenceSlider.Editable = true;
+        _smoothCyclesSlider.Editable = true;
+        _seaLevelSlider.Editable = true;
+
+        _domainWarpingCheckBox.Disabled = false;
+        _waterErosionCheckbox.Disabled = false;
+        _islandsOptionsCheckbox.Disabled = false;
+        _treeOptionsCheckbox.Disabled = false;
+        _domainWarpingOptions.EnableAllOptions();
+        _waterErosionOptions.EnableAllOptions();
+        _islandOptions.EnableAllOptions();
+        _treePlacementOptions.EnableAllOptions();
+
+    }
+
+
 
 	private void _hideAllOptions()
 	{
@@ -230,10 +263,7 @@ public partial class MapGenerationMenu : Control
 
     private void HandleParametersChanged()
     {
-        if (RegenerateOnParametersChanged)
-        {
-            GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
-        }
+        GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
     }
     private void OnGeneratorDropdownMenuItemSelected(long index)
     {

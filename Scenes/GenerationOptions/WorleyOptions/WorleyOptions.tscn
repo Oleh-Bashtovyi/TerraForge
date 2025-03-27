@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://beetbpesxql8s" path="res://Scenes/GenerationOptions/WorleyOptions/WorleyOptions.cs" id="1_ms1by"]
 
 [node name="WorleyOptions" type="VBoxContainer"]
+theme_override_constants/separation = 5
 script = ExtResource("1_ms1by")
 
 [node name="MapHeight" type="HBoxContainer" parent="."]

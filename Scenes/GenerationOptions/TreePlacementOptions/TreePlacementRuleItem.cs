@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TerrainGenerationApp.Generators.Trees;
 using TerrainGenerationApp.PlacementRules;
-using TerrainGenerationApp.RadiusRules;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.RadiusRuleItems;
 using TerrainGenerationApp.Utilities;
@@ -24,8 +23,9 @@ public class TreeIdChangedEventArgs(string oldTreeId, string newTreeId)
 }
 
 public partial class TreePlacementRuleItem : PanelContainer
-{   
-	private ColorPickerButton _treeColorPickerButton;
+{
+    private PopupMenu _placementRulesPopupMenu;
+    private ColorPickerButton _treeColorPickerButton;
 	private VBoxContainer _placeRulesVBoxContainer;
 	private VBoxContainer _radiusRuleVBoxContainer;
 	private LineEdit _treeIdLineEdit;
@@ -92,6 +92,7 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_radiusRuleVBoxContainer = GetNode<VBoxContainer>("%RadiusRuleVBoxContainer");
 		_noPlaceRulesLabel = GetNode<Label>("%NoPlaceRulesLabel");
 		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
+        _placementRulesPopupMenu = GetNode<PopupMenu>("%PlacementRulesPopupMenu");
 		_placementRules = new();
 		_treeId = "Tree";
 		_treeColor = Colors.Purple;
@@ -181,16 +182,34 @@ public partial class TreePlacementRuleItem : PanelContainer
         GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(AddPlacementRuleButtonOnPressed)}><{nameof(TreeId)}: {TreeId}>" +
                  $"---> ADDING PLACEMENT RULE...");
 
+        var pos = (_addPlacementRuleButton.GlobalPosition + _addPlacementRuleButton.Size / 2);
+        var actualPos = new Vector2I((int)pos.X, (int)pos.Y);
+        _placementRulesPopupMenu.Position = actualPos;
+        _placementRulesPopupMenu.Show();
+
+
         // Temporary stub
         // TODO:
         // Still need to create a window for selecting a rule type and 
         // a ban on creating 2 rules with the same type
-        if (_placementRules.Any())
-		{
-			return;
-		}
+        //      if (_placementRules.Any())
+        //{
+        //	return;
+        //}
+        Node scene;
+        if (_placementRules.Count >= 2)
+        {
+            return;
+        }
+        else if (_placementRules.Count == 0)
+        {
+            scene = LoadedScenes.ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
+        }
+        else
+        {
+            scene = LoadedScenes.SLOPE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
+        }
 
-		var scene = LoadedScenes.ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
 		var item = scene as IPlacementRuleItem;
 
 		if (item == null)

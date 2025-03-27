@@ -34,6 +34,17 @@ public partial class TreePlacementOptions : VBoxContainer
 		_addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
 	}
 
+    public void DisableAllOptions()
+    {
+        _addRuleButton.Disabled = true;
+    }
+
+    public void EnableAllOptions()
+    {
+        _addRuleButton.Disabled = false;
+    }
+
+
     public List<TreePlacementRule> GetRules()
     {
         if (_isRulesCacheDirty)

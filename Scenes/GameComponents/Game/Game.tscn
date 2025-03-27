@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://bn1xteopq2m60" path="res://Scenes/GameComponents/Game/Game.cs" id="1_ug855"]
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://Scenes/GameComponents/RtsCam/rtscam.tscn" id="2_al3ws"]
 [ext_resource type="Shader" uid="uid://ckpj7iuljx3gj" path="res://Resources/water.tres" id="3_3w3g2"]
-[ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/GameComponents/TerrainScene2D/TerrainScene2D.tscn" id="3_bauv2"]
 [ext_resource type="PackedScene" uid="uid://ckgwmiiux24bu" path="res://Scenes/GameComponents/GenerationMenu/MapGenerationMenu.tscn" id="4_2ko6c"]
+[ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/GameComponents/TerrainScene2D/TerrainScene2D.tscn" id="4_a0xit"]
 [ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/GameComponents/DisplayOptions/MapDisplayOptions.tscn" id="6_kwpie"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_g7g4g"]
@@ -89,9 +89,9 @@ texture = SubResource("NoiseTexture2D_r34pj")
 [node name="Generation_Layer" type="CanvasLayer" parent="."]
 unique_name_in_owner = true
 
-[node name="TerrainScene2D" parent="Generation_Layer" instance=ExtResource("3_bauv2")]
+[node name="TerrainScene2D" parent="Generation_Layer" instance=ExtResource("4_a0xit")]
 unique_name_in_owner = true
-offset_right = -501.0
+offset_right = -497.0
 
 [node name="RightPannel" type="ColorRect" parent="Generation_Layer"]
 anchors_preset = 11
@@ -106,15 +106,15 @@ color = Color(0.141176, 0.141176, 0.141176, 1)
 [node name="MapGenerationMenu" parent="Generation_Layer/RightPannel" instance=ExtResource("4_2ko6c")]
 unique_name_in_owner = true
 layout_mode = 1
-offset_bottom = -252.0
+offset_bottom = -226.0
 
 [node name="MapDisplayOptions" parent="Generation_Layer/RightPannel" instance=ExtResource("6_kwpie")]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
-offset_top = -260.0
-offset_bottom = -78.0
+offset_top = -231.0
+offset_bottom = -54.0
 grow_vertical = 0
 
 [node name="ButtonsContainer" type="MarginContainer" parent="Generation_Layer/RightPannel"]

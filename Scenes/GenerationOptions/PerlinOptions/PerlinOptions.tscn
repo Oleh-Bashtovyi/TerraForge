@@ -262,7 +262,7 @@ size_flags_vertical = 1
 text = "0"
 horizontal_alignment = 2
 
-[node name="SeedS" type="HSlider" parent="Seed"]
+[node name="SeedSlider" type="HSlider" parent="Seed"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -308,7 +308,7 @@ size_flags_vertical = 1
 text = "1"
 horizontal_alignment = 2
 
-[node name="WarpingStrengthS" type="HSlider" parent="WarpingStrength"]
+[node name="WarpingStrengthSlider" type="HSlider" parent="WarpingStrength"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -337,7 +337,7 @@ size_flags_vertical = 1
 text = "1"
 horizontal_alignment = 2
 
-[node name="WarpingSizeS" type="HSlider" parent="WarpingSize"]
+[node name="WarpingSizeSlider" type="HSlider" parent="WarpingSize"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -356,7 +356,7 @@ value = 1.0
 [connection signal="value_changed" from="Persistance/PersistanceSlider" to="." method="OnPersistanceSliderValueChanged"]
 [connection signal="value_changed" from="Lacunarity/LacunaritySlider" to="." method="OnLacunaritySliderValueChanged"]
 [connection signal="value_changed" from="Octaves/OctavesSlider" to="." method="OnOctavesSliderValueChanged"]
-[connection signal="value_changed" from="Seed/SeedS" to="." method="OnSeedSValueChanged"]
+[connection signal="value_changed" from="Seed/SeedSlider" to="." method="OnSeedSValueChanged"]
 [connection signal="toggled" from="UseDomainWarping/UseWarpingCheckButton" to="." method="OnUseWarpingCheckButtonToggled"]
-[connection signal="value_changed" from="WarpingStrength/WarpingStrengthS" to="." method="OnWarpingStrengthSValueChanged"]
-[connection signal="value_changed" from="WarpingSize/WarpingSizeS" to="." method="OnWarpingSizeSValueChanged"]
+[connection signal="value_changed" from="WarpingStrength/WarpingStrengthSlider" to="." method="OnWarpingStrengthSValueChanged"]
+[connection signal="value_changed" from="WarpingSize/WarpingSizeSlider" to="." method="OnWarpingSizeSValueChanged"]

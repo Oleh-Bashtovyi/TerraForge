@@ -5,6 +5,7 @@
 [node name="DiamondSquareOptions" type="VBoxContainer"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_constants/separation = 5
 script = ExtResource("1_yfloh")
 
 [node name="TerrainPower" type="HBoxContainer" parent="."]
@@ -79,7 +80,7 @@ size_flags_vertical = 1
 size_flags_stretch_ratio = 3.0
 text = "Seed:"
 
-[node name="SeedL" type="Label" parent="Seed"]
+[node name="SeedLabel" type="Label" parent="Seed"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -87,7 +88,7 @@ size_flags_vertical = 1
 text = "0"
 horizontal_alignment = 2
 
-[node name="SeedS" type="HSlider" parent="Seed"]
+[node name="SeedSlider" type="HSlider" parent="Seed"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -96,7 +97,3 @@ size_flags_stretch_ratio = 7.0
 min_value = -10000.0
 max_value = 10000.0
 rounded = true
-
-[connection signal="value_changed" from="TerrainPower/TerrainPowerSlider" to="." method="OnTerrainPowerValueChanged"]
-[connection signal="value_changed" from="Roughness/RoughnessSlider" to="." method="OnRoughnessValueChanged"]
-[connection signal="value_changed" from="Seed/SeedS" to="." method="OnSeedValueChanged"]

@@ -12,7 +12,15 @@ public partial class BaseGeneratorOptions : VBoxContainer
 		return new float[1, 1];
 	}
 
-	protected void InvokeParametersChangedEvent()
+    public virtual void DisableAllOptions()
+    {
+    }
+
+    public virtual void EnableAllOptions()
+    {
+    }
+
+    protected void InvokeParametersChangedEvent()
 	{
 		ParametersChanged?.Invoke();
 	}

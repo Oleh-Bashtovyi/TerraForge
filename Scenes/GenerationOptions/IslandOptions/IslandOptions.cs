@@ -92,6 +92,32 @@ public partial class IslandOptions : VBoxContainer
         UpdateLabels();
     }
 
+    public void DisableAllOptions()
+    {
+        _horizontalOffsetSlider.Editable = false;
+        _verticalOffsetSlider.Editable = false;
+        _radiusSlider.Editable = false;
+        _minDistanceFactorSlider.Editable = false;
+        _islandsCountSlider.Editable = false;
+        _seedSlider.Editable = false;
+        _mixStrengthSlider.Editable = false;
+        _distanceFunctionOptions.Disabled = true;
+        _islandTypeOptions.Disabled = true;
+    }
+
+    public void EnableAllOptions()
+    {
+        _horizontalOffsetSlider.Editable = true;
+        _verticalOffsetSlider.Editable = true;
+        _radiusSlider.Editable = true;
+        _minDistanceFactorSlider.Editable = true;
+        _islandsCountSlider.Editable = true;
+        _seedSlider.Editable = true;
+        _mixStrengthSlider.Editable = true;
+        _distanceFunctionOptions.Disabled = false;
+        _islandTypeOptions.Disabled = false;
+    }
+
     private void UpdateLabels()
     {
         _radiusLabel.Text = _islandApplier.RadiusAroundIslands.ToString();

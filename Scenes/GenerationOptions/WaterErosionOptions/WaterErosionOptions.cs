@@ -53,11 +53,29 @@ public partial class WaterErosionOptions : VBoxContainer
 		_waterErosionApplier.RainRateType = RainRateType.EveryIteration;
 		_waterErosionApplier.RainType = RainType.StaticValues;
 	}
-	
-	
-	
-	
-	private void _on_iterations_slider_value_changed(float value)
+
+
+    public void DisableAllOptions()
+    {
+		_iterationSlider.Editable = false;
+        _rainChanceSlider.Editable = false;
+        _rainPowerSlider.Editable = false;
+        _rainRateTypeOptions.Disabled = true;
+        _rainTypeOptions.Disabled = true;
+    }
+
+    public void EnableAllOptions()
+    {
+        _iterationSlider.Editable = true;
+        _rainChanceSlider.Editable = true;
+        _rainPowerSlider.Editable = true;
+        _rainRateTypeOptions.Disabled = false;
+        _rainTypeOptions.Disabled = false;
+    }
+
+
+
+    private void _on_iterations_slider_value_changed(float value)
 	{
 		_waterErosionApplier.Iterations = Mathf.RoundToInt(value);
 		_iterationsLabel.Text = _waterErosionApplier.Iterations.ToString();

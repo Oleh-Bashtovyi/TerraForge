@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using TerrainGenerationApp.Generators.DomainWarping;
 
@@ -5,15 +6,17 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.DomainWarpingOptions;
 
 public partial class DomainWarpingOptions : VBoxContainer
 {
-	[Signal]
-	public delegate void ParametersChangedEventHandler();
+	public event Action ParametersChanged;
 
-	private float _warpingStrength;
+    private float _warpingStrength;
 	private float _noiseScale;
 	private Label _strengthLabel;
 	private Label _noiseScaleLabel;
-	private DomainWarpingApplier _domainWarpingApplier;
+	private Slider _strengthSlider;
+    private Slider _noiseScaleSlider;
 
+
+    private DomainWarpingApplier _domainWarpingApplier;
 	public DomainWarpingApplier DomainWarpingApplier
 	{
 		get => _domainWarpingApplier;
@@ -21,26 +24,41 @@ public partial class DomainWarpingOptions : VBoxContainer
 
 	public override void _Ready()
 	{
-		_domainWarpingApplier = new();
-		_domainWarpingApplier.XNoise.Scale = 8;
-		_domainWarpingApplier.YNoise.Scale = 8;
-
 		_strengthLabel = GetNode<Label>("%StrengthL");
 		_noiseScaleLabel = GetNode<Label>("%NoiseScaleL");
+		_strengthSlider = GetNode<Slider>("%StrengthSlider");
+        _noiseScaleSlider = GetNode<Slider>("%NoiseScaleSlider");
+        _domainWarpingApplier = new();
+		_domainWarpingApplier.XNoise.Scale = 8;
+		_domainWarpingApplier.YNoise.Scale = 8;
 	}
 
-	private void OnStrengthSValueChanged(float value)
+    public void DisableAllOptions()
+    {
+		_strengthSlider.Editable = false;
+        _noiseScaleSlider.Editable = false;
+    }
+
+    public void EnableAllOptions()
+    {
+        _strengthSlider.Editable = true;
+        _noiseScaleSlider.Editable = true;
+    }
+
+
+
+    private void OnStrengthSValueChanged(float value)
 	{
 		_domainWarpingApplier.WarpingStrength = value;
 		_strengthLabel.Text = value.ToString();
-		EmitSignal(DomainWarpingOptions.SignalName.ParametersChanged);
-	}
+        ParametersChanged?.Invoke();
+    }
 
 	private void OnNoiseScaleSValueChanged(float value)
 	{
 		_domainWarpingApplier.XNoise.Scale = value;
 		_domainWarpingApplier.YNoise.Scale = value;
 		_noiseScaleLabel.Text = value.ToString();
-		EmitSignal(DomainWarpingOptions.SignalName.ParametersChanged);
+		ParametersChanged?.Invoke();
 	}
 }
