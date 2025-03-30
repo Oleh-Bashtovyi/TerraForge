@@ -56,6 +56,10 @@ public partial class TreePlacementOptions : VBoxContainer
         return _cachedRules;
     }
 
+    public Dictionary<string, Color> GetTreesColors()
+    {
+        return _treePlacementRules.ToDictionary(x => x.TreeId, x => x.TreeColor);
+    }
 
     public Dictionary<string, bool[,]> GenerateTrees(IWorldData worldData)
     {

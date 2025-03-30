@@ -11,7 +11,7 @@ public class HeightRangeRule(float minHeight, float maxHeight) : IPlacementRule
 
     public bool CanPlaceIn(Vector2 pos, IWorldData worldData)
     {
-        var map = worldData.TerrainMap;
+        var map = worldData.TerrainHeightMap;
         var h = map[(int)pos.Y, (int)pos.X];
         return h >= MinHeight && h <= MaxHeight;
     }

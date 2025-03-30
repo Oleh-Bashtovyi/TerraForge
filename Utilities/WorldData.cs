@@ -19,13 +19,13 @@ public class WorldData : IWorldData
         private set => _seaLevel = value;
     }
 
-    public float[,] TerrainMap
+    public float[,] TerrainHeightMap
     {
         get => _terrainMap;
         private set => _terrainMap = value;
     }
 
-    public float[,] SlopesMap
+    public float[,] TerrainSlopesMap
     {
         get => _slopesMap;
         private set => _slopesMap = value;
@@ -63,8 +63,8 @@ public class WorldData : IWorldData
 
     public void SetTerrain(float[,] terrainMap)
     {
-        TerrainMap = terrainMap;
-        SlopesMap = MapHelpers.GetSlopes(terrainMap);
+        TerrainHeightMap = terrainMap;
+        TerrainSlopesMap = MapHelpers.GetSlopes(terrainMap);
         TreeMaps.Clear();
     }
 
@@ -81,11 +81,11 @@ public class WorldData : IWorldData
 
     public float HeightAt(int row, int col)
     {
-        return TerrainMap[row, col];
+        return TerrainHeightMap[row, col];
     }
 
     public float SlopeAt(int row, int col)
     {
-        return SlopesMap[row, col];
+        return TerrainSlopesMap[row, col];
     }
 }

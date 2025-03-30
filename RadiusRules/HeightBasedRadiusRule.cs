@@ -13,7 +13,7 @@ public class HeightBasedRadiusRule(float baseRadius, float minRadius, float maxR
 
     public float GetRadius(Vector2 pos, IWorldData worldData)
     {
-        var map = worldData.TerrainMap;
+        var map = worldData.TerrainHeightMap;
         var h = map[(int)pos.Y, (int)pos.X];
 
         float radius = BaseRadius + h * (MaxRadius - MinRadius);

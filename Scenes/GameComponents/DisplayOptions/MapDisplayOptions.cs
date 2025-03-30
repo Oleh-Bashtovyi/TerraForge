@@ -1,22 +1,26 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using TerrainGenerationApp.Enums;
+using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 
-public partial class MapDisplayOptions : Control
+public partial class MapDisplayOptions : Control, IDisplayOptionsProvider
 {
-    private float _curSlopeThreshold = 0.2f;
-    private MapDisplayFormat _curDisplayFormat = MapDisplayFormat.Grey;
-
-    public event Action OnDisplayOptionsChanged;
-
-    // NODES REFERENCED WITH "%" IN SCENE
     private CheckBox _displayGrey;
     private CheckBox _displayColors;
     private CheckBox _displayGradient;
     private Label _slopeThresholdLabel;
     private Slider _slopeThresholdSlider;
+
+    private MapDisplayFormat _curDisplayFormat = MapDisplayFormat.Grey;
+    private float _curSlopeThreshold = 0.2f;
+
+    public event Action OnDisplayOptionsChanged;
+
+    // NODES REFERENCED WITH "%" IN SCENE
+
 
 
     public MapDisplayFormat CurDisplayFormat
@@ -38,25 +42,25 @@ public partial class MapDisplayOptions : Control
             OnDisplayOptionsChanged?.Invoke();
         }
     }
+    public Dictionary<string, Color> TreeColors { get; set; } = new();
 
 
     public override void _Ready()
     {
-        // Display format (Grey, colors, gradient)
         _displayGrey = GetNode<CheckBox>("%DisplayGrey");
         _displayColors = GetNode<CheckBox>("%DisplayColors");
         _displayGradient = GetNode<CheckBox>("%DisplayGradient");
-        CurDisplayFormat = MapDisplayFormat.Colors;
+        _slopeThresholdLabel = GetNode<Label>("%SlopeThresholdL");
+        _slopeThresholdSlider = GetNode<Slider>("%SlopeThresholdSlider");
         _displayGradient.ButtonPressed = false;
         _displayGrey.ButtonPressed = false;
         _displayColors.ButtonPressed = true;
         _displayGrey.Toggled += (buttonPressed) => CurDisplayFormat = MapDisplayFormat.Grey;
         _displayColors.Toggled += (buttonPressed) => CurDisplayFormat = MapDisplayFormat.Colors;
         _displayGradient.Toggled += (buttonPressed) => CurDisplayFormat = MapDisplayFormat.GradientColors;
+        CurDisplayFormat = MapDisplayFormat.Colors;
 
         // Display features
-        _slopeThresholdLabel = GetNode<Label>("%SlopeThresholdL");
-        _slopeThresholdSlider = GetNode<Slider>("%SlopeThresholdSlider");
         _slopeThresholdSlider.Value = CurSlopeThreshold;
         _slopeThresholdLabel.Text = CurSlopeThreshold.ToString();
         _slopeThresholdSlider.ValueChanged += _on_slope_threshold_slider_value_changed;

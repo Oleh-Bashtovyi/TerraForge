@@ -10,7 +10,7 @@ public class SlopeRule(float maxSlope) : IPlacementRule
 
     public bool CanPlaceIn(Vector2 pos, IWorldData worldData)
     {
-        var slopesMap = worldData.SlopesMap;
+        var slopesMap = worldData.TerrainSlopesMap;
         var slope = slopesMap[(int)pos.Y, (int)pos.X];
         return slope <= MaxSlope;
     }
