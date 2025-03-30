@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Generators.Trees;
 using TerrainGenerationApp.Utilities;
 
@@ -14,6 +15,7 @@ public partial class TreePlacementOptions : VBoxContainer
 
     private bool _isRulesCacheDirty = true;
     private TreesApplier _treesApplier;
+    private Logger<TreePlacementOptions> _logger = new();
     private List<TreePlacementRule> _cachedRules = new();
 	private List<TreePlacementRuleItem> _treePlacementRules;
 
@@ -63,7 +65,6 @@ public partial class TreePlacementOptions : VBoxContainer
 
     public Dictionary<string, bool[,]> GenerateTrees(IWorldData worldData)
     {
-		GD.Print("Tree maps requested in Tree options!");
         var rules = GetRules().ToArray();
         return TreesApplier.GenerateTreesMapsFromRules(worldData, rules);
     }
@@ -71,27 +72,24 @@ public partial class TreePlacementOptions : VBoxContainer
 
     private void TreePlacementRuleItemOnRulesChanged(object sender, EventArgs e)
     {
-        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnRulesChanged)}>---> " +
-                 $"CATCHING {nameof(TreePlacementRuleItem)} RULES CHANGED");
+        _logger.Log($"CATCHING {nameof(TreePlacementRuleItem)} RULES CHANGED");
 
         _isRulesCacheDirty = true;
         OnTreePlacementRulesChanged?.Invoke(this, EventArgs.Empty);
     }
     private void AddTreePlacementRuleButtonOnPressed()
     {
-        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(AddTreePlacementRuleButtonOnPressed)}>---> " +
-                 $"HANDLING {nameof(TreePlacementRuleItem)} ADDING...");
+        _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} ADDING...");
 
         var scene = LoadedScenes.TREE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
         var item = scene as TreePlacementRuleItem;
 
         if (item == null)
         {
-            var message = $"<{nameof(TreePlacementOptions)}><{nameof(AddTreePlacementRuleButtonOnPressed)}>---> " +
-                          $"Can`t ADD TREE PLACEMENT RULE, because it is not " +
+            var message = $"Can`t ADD TREE PLACEMENT RULE, because it is not " +
                           $"of type {typeof(TreePlacementRuleItem)}, " +
                           $"actual type: {scene.GetType()}";
-            GD.PrintErr(message);
+            _logger.Log(message, LogMark.Error);
             throw new Exception(message);
         }
 
@@ -108,18 +106,16 @@ public partial class TreePlacementOptions : VBoxContainer
     }
     private void TreePlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
     {
-        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnDeleteButtonPressed)}>---> " +
-                 $"HANDLING {nameof(TreePlacementRuleItem)} DELETION...");
+        _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} DELETION...");
 
         var item = sender as TreePlacementRuleItem;
 
         if (item == null)
         {
-            var message = $"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnDeleteButtonPressed)}>---> " +
-                          $"Can`t DELETE TREE PLACEMENT RULE, because it is not " +
+            var message = $"Can`t DELETE TREE PLACEMENT RULE, because it is not " +
                           $"of type {typeof(TreePlacementRuleItem)}, " +
                           $"actual type: {sender.GetType()}";
-            GD.PrintErr(message);
+            _logger.Log(message, LogMark.Error);
             throw new Exception(message);
         }
 
@@ -132,8 +128,7 @@ public partial class TreePlacementOptions : VBoxContainer
     }
     private void TreePlacementRuleItemOnMoveDownButtonPressed(object sender, EventArgs e)
 	{
-        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnMoveDownButtonPressed)}>---> " +
-                 $"HANDLING {nameof(TreePlacementRuleItem)} MOVED DOWN");
+        _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} MOVED DOWN");
 
         var sceneToMove = (sender as Node)!;
 		var curIndex = sceneToMove.GetIndex();
@@ -144,8 +139,7 @@ public partial class TreePlacementOptions : VBoxContainer
     }
 	private void TreePlacementRuleItemOnMoveUpButtonPressed(object sender, EventArgs e)
 	{
-        GD.Print($"<{nameof(TreePlacementOptions)}><{nameof(TreePlacementRuleItemOnMoveUpButtonPressed)}>---> " +
-                 $"HANDLING {nameof(TreePlacementRuleItem)} MOVED UP");
+        _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} MOVED UP");
 
         var sceneToMove = (sender as Node)!;
 		var curIndex = sceneToMove.GetIndex();

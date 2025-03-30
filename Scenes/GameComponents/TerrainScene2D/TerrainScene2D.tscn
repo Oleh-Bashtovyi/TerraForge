@@ -1,8 +1,13 @@
-[gd_scene load_steps=4 format=3 uid="uid://cpg2jy1sloek"]
+[gd_scene load_steps=6 format=3 uid="uid://cpg2jy1sloek"]
 
 [ext_resource type="Script" uid="uid://bftuyl18ohe6c" path="res://Scenes/GameComponents/TerrainScene2D/TerrainScene2D.cs" id="1_vss7r"]
 
+[sub_resource type="CanvasTexture" id="CanvasTexture_vss7r"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_4mm8s"]
+
 [sub_resource type="CanvasTexture" id="CanvasTexture_p2mk5"]
+specular_color = Color(1, 0.129412, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3wgnw"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
@@ -65,7 +70,7 @@ texture_filter = 1
 layout_mode = 2
 offset_right = 568.0
 offset_bottom = 568.0
-texture = SubResource("CanvasTexture_p2mk5")
+texture = SubResource("CanvasTexture_vss7r")
 expand_mode = 1
 
 [node name="WaterTextureRect" type="TextureRect" parent="Background/MarginContainer/AspectRatioContainer/Control"]
@@ -75,12 +80,11 @@ texture_filter = 1
 layout_mode = 2
 offset_right = 568.0
 offset_bottom = 568.0
-texture = SubResource("CanvasTexture_p2mk5")
+texture = SubResource("CanvasTexture_4mm8s")
 expand_mode = 1
 
 [node name="TreesTextureRect" type="TextureRect" parent="Background/MarginContainer/AspectRatioContainer/Control"]
 unique_name_in_owner = true
-visible = false
 texture_filter = 1
 layout_mode = 2
 offset_right = 568.0

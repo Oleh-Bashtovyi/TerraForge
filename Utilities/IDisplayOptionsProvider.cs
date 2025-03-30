@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Godot;
+﻿using Godot;
+using System.Collections.Generic;
 using TerrainGenerationApp.Enums;
 
 namespace TerrainGenerationApp.Utilities;

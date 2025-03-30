@@ -1,8 +1,7 @@
 using Godot;
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 using TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
 using TerrainGenerationApp.Scenes.GenerationOptions;
@@ -20,6 +19,7 @@ public partial class Game : Node3D, IWorldDataProvider
     private Button _generateMapButton;
 
     private WorldData _worldData;
+    private Logger<Game> _logger;
     private GodotThread _waterErosionThread;
     private GodotThread _generationThread;
 
@@ -33,113 +33,48 @@ public partial class Game : Node3D, IWorldDataProvider
         _displayOptions = GetNode<MapDisplayOptions>("%MapDisplayOptions");
         _generateMapButton = GetNode<Button>("%GenerateMapButton");
         _worldData = new();
+        _logger = new();
         _worldData.SetSeaLevel(_mapGenerationMenu.CurSeaLevel);
         _terrainScene2D.SetWorldDataProvider(this);
         _terrainScene2D.SetDisplayOptionsProvider(_displayOptions);
 
         _treePlacementOptions = _mapGenerationMenu.TreePlacementOptions;
         _treePlacementOptions.OnTreePlacementRuleItemAdded += TreePlacementOptionsOnOnTreePlacementRuleItemAdded;
-        _treePlacementOptions.OnTreePlacementRuleItemRemoved += TreePlacementOptionsOnOnTreePlacementRuleItemRemoved;
-        _treePlacementOptions.OnTreePlacementRulesChanged += TreePlacementOptionsOnOnTreePlacementRulesChanged;
+        //_treePlacementOptions.OnTreePlacementRuleItemRemoved += TreePlacementOptionsOnOnTreePlacementRuleItemRemoved;
+        //_treePlacementOptions.OnTreePlacementRulesChanged += TreePlacementOptionsOnOnTreePlacementRulesChanged;
 
 
-        //_mapGenerationMenu.OnWaterLevelChanged += MapGenerationMenuOnOnWaterLevelChanged;
+        _mapGenerationMenu.OnWaterLevelChanged += MapGenerationMenuOnOnWaterLevelChanged;
         //_mapGenerationMenu.GenerationParametersChanged += MapGenerationMenuOnGenerationParametersChanged;
         _displayOptions.OnDisplayOptionsChanged += DisplayOptionsOnOnDisplayOptionsChanged;
         _generateMapButton.Pressed += GenerateMapButtonOnPressed;
     }
 
-
-
-
-/*    private void MapGenerationMenuOnOnWaterLevelChanged(object sender, EventArgs e)
+    private void MapGenerationMenuOnOnWaterLevelChanged(object sender, EventArgs e)
     {
         _worldData.SetSeaLevel(_mapGenerationMenu.CurSeaLevel);
-        GD.Print("SEA LEVEL CHANGED EVENT HANDLED!");
-        //_terrainScene2D.RedrawTerrain(_worldData);
-    }*/
-
-/*    private void MapGenerationMenuOnGenerationParametersChanged(object sender, EventArgs e)
-    {
-        //RegenerateMap();
-    }*/
-
-    private void TreePlacementOptionsOnOnTreePlacementRulesChanged(object sender, EventArgs e)
-    {
-        GD.Print("---> GAME ---> RuleChangedEvent!");
-
-        if (_mapGenerationMenu.RegenerateOnParametersChanged && _mapGenerationMenu.EnableTrees)
-        {
-            GD.Print("---> GAME ---> Regenerating trees...");
-            var trees = _treePlacementOptions.GenerateTrees(_worldData);
-            _worldData.SetTreeMaps(trees);
-            //_terrainScene2D.RedrawTerrain(_worldData);
-            //_terrainScene2D.RedrawTreeLayers(_worldData);
-        }
-    }
-
-    private void TreePlacementOptionsOnOnTreePlacementRuleItemRemoved(object sender, TreePlacementRuleItem e)
-    {
-        GD.Print("---> GAME ---> ItemRemovedEvent!");
-        if (_mapGenerationMenu.RegenerateOnParametersChanged && _mapGenerationMenu.EnableTrees)
-        {
-            GD.Print("---> GAME ---> Regenerating trees...");
-            var trees = _treePlacementOptions.GenerateTrees(_worldData);
-            _worldData.SetTreeMaps(trees);
-            //_terrainScene2D.RedrawTerrain(_worldData);
-            //_terrainScene2D.RedrawTreeLayers(_worldData);
-        }
     }
 
     private void TreePlacementOptionsOnOnTreePlacementRuleItemAdded(object sender, TreePlacementRuleItem e)
     {
-        GD.Print("---> GAME ---> ItemAddedEvent!");
-
         e.OnTreeColorChanged += TreePlacementRuleItemOnTreeColorChanged;
-        e.OnTreeIdChanged += TreePlacementRuleItemOnOnTreeIdChanged;
-        //_treeColors[e.TreeId] = e.TreeColor;
-
-        if (_mapGenerationMenu.RegenerateOnParametersChanged && _mapGenerationMenu.EnableTrees)
-        {
-/*            GD.Print("---> GAME ---> Regenerating trees...");
-            var trees = _treePlacementOptions.GenerateTrees(_worldData);
-            _worldData.SetTreeMaps(trees);*/
-            //_terrainScene2D.RedrawTerrain(_worldData);
-            //_terrainScene2D.RedrawTreeLayers(_worldData);
-        }
-    }
-
-    private void TreePlacementRuleItemOnOnTreeIdChanged(object sender, TreeIdChangedEventArgs e)
-    {
-/*        if (e.NewTreeId == e.OldTreeId)
-        {
-            return;
-        }
-
-        var color = _treeColors[e.OldTreeId];
-        var treeMap = _worldData.TreeMaps[e.OldTreeId];
-        _treeColors.Remove(e.OldTreeId);
-        _worldData.TreeMaps.Remove(e.OldTreeId);
-        _treeColors[e.NewTreeId] = color;
-        _worldData.TreeMaps[e.NewTreeId] = treeMap;*/
     }
 
     private void TreePlacementRuleItemOnTreeColorChanged(object sender, TreeColorChangedEventArgs e)
     {
-
-
-        //_treeColors[e.TreeId] = e.NewColor;
-        //_terrainScene2D.RedrawTerrain(_worldData);
-        //_terrainScene2D.RedrawTreeLayers(_worldData);
+        if (_displayOptions.TreeColors.ContainsKey(e.TreeId))
+        {
+            _displayOptions.TreeColors[e.TreeId] = e.NewColor;
+            _terrainScene2D.HandleTreesImageRedraw();
+            _terrainScene2D.UpdateTreesTextureWithImage();
+        }
     }
-
 
     private void DisplayOptionsOnOnDisplayOptionsChanged()
     {
-        //_terrainScene2D.RedrawTerrain(_worldData);
-        //_terrainScene2D.RedrawTreeLayers(_worldData);
+        _terrainScene2D.HandleAllImagesRedraw();
+        _terrainScene2D.HandleAllTexturesUpdate();
     }
-
 
     private void GenerateMapButtonOnPressed()
     {
@@ -152,16 +87,12 @@ public partial class Game : Node3D, IWorldDataProvider
         });
     }
 
-
-
-
     private async Task GenerationPipelineAsync()
     {
         try
         {
             GD.Print("==============================================================");
-            Log("SOME VALUE THAT LOGGED");
-            GD.Print($"<START><ASYNC> - {nameof(GenerationPipelineAsync)}");
+            _logger.LogMethodStart();
 
             var generator = _mapGenerationMenu.SelectedGenerator;
             if (generator == null) return;
@@ -184,102 +115,102 @@ public partial class Game : Node3D, IWorldDataProvider
         }
         catch (Exception e)
         {
-            GD.PrintErr($"<PROCESS><ASYNC> - {nameof(GenerationPipelineAsync)} - ERROR: {e.Message}");
+            _logger.Log($"<ERROR>: {e.Message}");
         }
         finally
         {
             await EnableGenerationOptions();
             await SetGenerationTipAsync(string.Empty);
-            GD.Print($"<END><ASYNC> - {nameof(GenerationPipelineAsync)}");
+            _logger.LogMethodEnd();
             GD.Print("==============================================================");
         }
     }
-
     private async Task GenerateTerrainAsync(BaseGeneratorOptions generator)
     {
-        GD.Print($"<PROCESS><ASYNC> - {nameof(GenerationPipelineAsync)} - Generating terrain");
+        _logger.LogMethodStart();
         await SetGenerationTipAsync("Generating map...");
         var map = generator.GenerateMap();
         _worldData.SetTerrain(map);
         await RedrawWithResizeTerrainAsync();
+        _logger.LogMethodEnd();
     }
     private async Task ApplyInfluenceAsync()
     {
-        GD.Print($"<PROCESS><ASYNC> - {nameof(GenerationPipelineAsync)} - Applying influence");
+        _logger.LogMethodStart();
         await SetGenerationTipAsync("Applying influence...");
         var map = _worldData.TerrainHeightMap;
         MapHelpers.MultiplyHeight(map, _mapGenerationMenu.CurNoiseInfluence);
         _worldData.SetTerrain(map);
         await RedrawTerrainAsync();
+        _logger.LogMethodEnd();
     }
     private async Task ApplyTerrainSmoothingAsync()
     {
-        GD.Print($"<PROCESS><ASYNC> - {nameof(GenerationPipelineAsync)} - Smoothing");
+        _logger.LogMethodStart();
         await SetGenerationTipAsync("Smoothing...");
         var map = _worldData.TerrainHeightMap;
         for (int i = 0; i < _mapGenerationMenu.CurSmoothCycles; i++)
         {
-            GD.Print($"<PROCESS><ASYNC> - {nameof(GenerationPipelineAsync)} - Smoothing - iteration: {i + 1}/{_mapGenerationMenu.CurSmoothCycles}");
+            _logger.Log($"Smoothing - iteration: {i + 1}/{_mapGenerationMenu.CurSmoothCycles}");
             map = MapHelpers.SmoothMap(map);
             _worldData.SetTerrain(map);
             await RedrawTerrainAsync();
         }
+        _logger.LogMethodEnd();
     }
     private async Task ApplyIslandsAsync()
     {
-        GD.Print($"<PROCESS><ASYNC> - {nameof(GenerationPipelineAsync)} - Applying islands");
+        _logger.LogMethodStart();
         await SetGenerationTipAsync("Making islands...");
         var map = _worldData.TerrainHeightMap;
         map = _mapGenerationMenu.IslandsApplier.ApplyIslands(map);
         _worldData.SetTerrain(map);
         await RedrawTerrainAsync();
+        _logger.LogMethodEnd();
     }
     private async Task ApplyDomainWarpingAsync()
     {
-        GD.Print($"<PROCESS><ASYNC> - {nameof(ApplyDomainWarpingAsync)} - Applying domain warping");
+        _logger.LogMethodStart();
         await SetGenerationTipAsync("Applying domain warping...");
         var map = _worldData.TerrainHeightMap;
         map = _mapGenerationMenu.DomainWarpingApplier.ApplyWarping(map);
         _worldData.SetTerrain(map);
         await RedrawTerrainAsync();
+        _logger.LogMethodEnd();
     }
     private async Task GenerateTrees()
     {
-        GD.Print($"<PROCESS><ASYNC> - {nameof(GenerateTrees)} - Generating trees");
+        _logger.LogMethodStart();
         await SetGenerationTipAsync("Generating trees...");
         var trees = _treePlacementOptions.GenerateTrees(_worldData);
         _worldData.SetTreeMaps(trees);
         var treesColors = _treePlacementOptions.GetTreesColors();
         _displayOptions.TreeColors = treesColors;
         await RedrawTreesAsync();
+        _logger.LogMethodEnd();
     }
-
     private async Task DisableGenerationOptions()
     {
-        GD.Print($"<START><ASYNC> - {nameof(DisableGenerationOptions)}");
+        _logger.LogMethodStart();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _mapGenerationMenu.DisableAllOptions();
-        GD.Print($"<END><ASYNC> - {nameof(DisableGenerationOptions)}");
+        _logger.LogMethodEnd();
     }
     private async Task EnableGenerationOptions()
     {
-        GD.Print($"<START><ASYNC> - {nameof(EnableGenerationOptions)}");
+        _logger.LogMethodStart();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _mapGenerationMenu.EnableAllOptions();
-        GD.Print($"<END><ASYNC> - {nameof(EnableGenerationOptions)}");
+        _logger.LogMethodEnd();
     }
     private async Task Clear2DSceneAsync()
     {
-        GD.Print($"<START><ASYNC> - {nameof(Clear2DSceneAsync)}");
-        _terrainScene2D.ClearTerrainImage();
-        _terrainScene2D.ClearTreesImage();
+        _logger.LogMethodStart();
+        _terrainScene2D.HandleAllImagesClear();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _terrainScene2D.UpdateTerrainTextureWithImage();
-        _terrainScene2D.UpdateTreesTextureWithImage();
-        GD.Print($"<END><ASYNC> - {nameof(Clear2DSceneAsync)}");
+        _terrainScene2D.HandleAllTexturesUpdate();
+        _logger.LogMethodEnd();
     }
-
-
     private async Task RedrawWithResizeTerrainAsync()
     {
         GD.Print($"<START><ASYNC> - {nameof(RedrawWithResizeTerrainAsync)}");
@@ -290,30 +221,25 @@ public partial class Game : Node3D, IWorldDataProvider
     }
     private async Task RedrawTerrainAsync()
     {
-        GD.Print($"<START><ASYNC> - {nameof(RedrawTerrainAsync)}");
+        _logger.LogMethodStart();
         _terrainScene2D.HandleTerrainImageRedraw();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _terrainScene2D.UpdateTerrainTextureWithImage();
-        GD.Print($"<END><ASYNC> - {nameof(RedrawTerrainAsync)}");
+        _logger.LogMethodEnd();
     }
     private async Task RedrawTreesAsync()
     {
-        GD.Print($"<START><ASYNC> - {nameof(RedrawTreesAsync)}");
+        _logger.LogMethodStart();
         _terrainScene2D.HandleTreesImageRedraw();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _terrainScene2D.UpdateTreesTextureWithImage();
-        GD.Print($"<END><ASYNC> - {nameof(RedrawTreesAsync)}");
+        _terrainScene2D.SetTreesImageToTexture();
+        _logger.LogMethodEnd();
     }
     private async Task SetGenerationTipAsync(string tip)
     {
-        GD.Print($"<START><ASYNC> - <{nameof(SetGenerationTipAsync)}> - Generation tip: {tip}");
+        _logger.Log($"Generation tip: {tip}", LogMark.Start);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _terrainScene2D.SetTip(tip);
-        GD.Print($"<END><ASYNC> - <{nameof(SetGenerationTipAsync)}> - Generation tip: {tip}");
-    }
-
-    private void Log(string text, [CallerMemberName] string callerName = "")
-    {
-        GD.Print($"<{nameof(Game)}><{callerName}> - {text}");
+        _logger.Log($"Generation tip: {tip}", LogMark.End);
     }
 }

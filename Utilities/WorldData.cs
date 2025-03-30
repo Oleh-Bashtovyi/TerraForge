@@ -11,8 +11,6 @@ public class WorldData : IWorldData
     private Dictionary<string, bool[,]> _treesMap;
     private Dictionary<string, Color> _treesColors;
 
-
-
     public float SeaLevel
     {
         get => _seaLevel;
@@ -70,8 +68,6 @@ public class WorldData : IWorldData
 
     public void SetTreeMaps(Dictionary<string, bool[,]> maps)
     {
-        GD.Print("<TREE>Setting Tree maps! Count: " + maps.Count);
-
         TreeMaps.Clear();
         foreach (var map in maps)
         {
