@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://blk7rq0uv5bfy"]
+
+[ext_resource type="ArrayMesh" uid="uid://8dbeuib8t4lu" path="res://Resources/Lowpoly_tree_sample.obj" id="1_mtpd4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fyxcu"]
+albedo_color = Color(0.515072, 0.340277, 0.278535, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gq4tk"]
+albedo_color = Color(0.65098, 1, 0.262745, 1)
+
+[node name="Tree" type="MeshInstance3D"]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+mesh = ExtResource("1_mtpd4")
+surface_material_override/0 = SubResource("StandardMaterial3D_fyxcu")
+surface_material_override/1 = SubResource("StandardMaterial3D_gq4tk")

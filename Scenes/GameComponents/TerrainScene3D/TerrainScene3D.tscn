@@ -1,7 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://djhdbxgy1amyg"]
+[gd_scene load_steps=9 format=3 uid="uid://djhdbxgy1amyg"]
 
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://Scenes/GameComponents/RtsCam/rtscam.tscn" id="1_0pwsw"]
-[ext_resource type="Shader" uid="uid://ckpj7iuljx3gj" path="res://Resources/water.tres" id="2_hjkaj"]
+[ext_resource type="Script" uid="uid://bvj43k8vw4db8" path="res://Scenes/GameComponents/TerrainScene3D/TerrainScene3D.cs" id="1_kwx7t"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_44ply"]
 
@@ -16,27 +16,17 @@ background_color = Color(0.295867, 0.295866, 0.295866, 1)
 background_energy_multiplier = 2.73
 sky = SubResource("Sky_p0mlm")
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_62gk0"]
-render_priority = 0
-shader = ExtResource("2_hjkaj")
-shader_parameter/ColorParameter = Color(0.160784, 0.478431, 1, 1)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kwx7t"]
+albedo_color = Color(0.576471, 0.937255, 0.980392, 0.188235)
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_1fmgo"]
-material = SubResource("ShaderMaterial_62gk0")
-size = Vector2(160, 160)
-subdivide_width = 100
-subdivide_depth = 100
+[sub_resource type="PlaneMesh" id="PlaneMesh_c773d"]
+material = SubResource("StandardMaterial3D_kwx7t")
+size = Vector2(100, 100)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0pwsw"]
-albedo_color = Color(0.444554, 0.81108, 0.264767, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_hjkaj"]
-size = Vector3(100, 2, 100)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_44ply"]
-size = Vector3(100, 2, 100)
+[sub_resource type="PlaneMesh" id="PlaneMesh_bfuhh"]
 
 [node name="TerrainScene3D" type="Node3D"]
+script = ExtResource("1_kwx7t")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_1nusq")
@@ -47,16 +37,10 @@ environment = SubResource("Environment_1nusq")
 
 [node name="WaterMesh" type="MeshInstance3D" parent="."]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.140048, -1.90735e-06, -0.0549183)
-visible = false
-mesh = SubResource("PlaneMesh_1fmgo")
+mesh = SubResource("PlaneMesh_c773d")
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="TreesContainer" type="Node3D" parent="."]
+unique_name_in_owner = true
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
-material_override = SubResource("StandardMaterial3D_0pwsw")
-mesh = SubResource("BoxMesh_hjkaj")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
-shape = SubResource("BoxShape3D_44ply")
-debug_color = Color(0.815686, 0.329412, 0.615686, 1)
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_bfuhh")

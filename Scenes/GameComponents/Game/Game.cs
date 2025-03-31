@@ -13,11 +13,14 @@ namespace TerrainGenerationApp.Scenes.GameComponents.Game;
 public partial class Game : Node3D, IWorldDataProvider
 {
     private TerrainScene2D.TerrainScene2D _terrainScene2D;
+    private TerrainScene3D.TerrainScene3D _terrainScene3D;
     private TreePlacementOptions _treePlacementOptions;
     private MapGenerationMenu _mapGenerationMenu;
     private MapDisplayOptions _displayOptions;
     private Button _generateMapButton;
     private Button _applyWaterErosionButton;
+    private Button _showIn2DButton;
+    private Button _showIn3DButton;
 
     private readonly Logger<Game> _logger = new();
     private WorldData _worldData;
@@ -30,11 +33,19 @@ public partial class Game : Node3D, IWorldDataProvider
     public override void _Ready()
     {
         _terrainScene2D = GetNode<TerrainScene2D.TerrainScene2D>("%TerrainScene2D");
+        _terrainScene3D = GetNode<TerrainScene3D.TerrainScene3D>("%TerrainScene3D");
         _mapGenerationMenu = GetNode<MapGenerationMenu>("%MapGenerationMenu");
         _displayOptions = GetNode<MapDisplayOptions>("%MapDisplayOptions");
         _generateMapButton = GetNode<Button>("%GenerateMapButton");
+        //_applyWaterErosionButton = GetNode<Button>("%ApplyWaterErosionButton");
+        _showIn2DButton = GetNode<Button>("%ShowIn2DButton");
+        _showIn3DButton = GetNode<Button>("%ShowIn3DButton");
+        _showIn2DButton.Pressed += _showIn2DButton_Pressed;
+        _showIn3DButton.Pressed += _showIn3DButton_Pressed;
+
         _worldData = new();
         _worldData.SetSeaLevel(_mapGenerationMenu.CurSeaLevel);
+        _terrainScene3D.SetWorldDataProvider(this);
         _terrainScene2D.SetWorldDataProvider(this);
         _terrainScene2D.SetDisplayOptionsProvider(_displayOptions);
 
@@ -48,7 +59,17 @@ public partial class Game : Node3D, IWorldDataProvider
         //_mapGenerationMenu.GenerationParametersChanged += MapGenerationMenuOnGenerationParametersChanged;
         _displayOptions.OnDisplayOptionsChanged += DisplayOptionsOnOnDisplayOptionsChanged;
         _generateMapButton.Pressed += GenerateMapButtonOnPressed;
-        _applyWaterErosionButton.Pressed += ApplyWaterErosionButtonOnPressed;
+        //_applyWaterErosionButton.Pressed += ApplyWaterErosionButtonOnPressed;
+    }
+
+    private void _showIn3DButton_Pressed()
+    {
+        _terrainScene2D.Visible = false;
+    }
+
+    private void _showIn2DButton_Pressed()
+    {
+        _terrainScene2D.Visible = true;
     }
 
     private void ApplyWaterErosionButtonOnPressed()
@@ -147,6 +168,8 @@ public partial class Game : Node3D, IWorldDataProvider
 
             if (_mapGenerationMenu.EnableTrees)
                 await GenerateTrees();
+
+            await GenerateMeshAsync();
         }
         catch (Exception e)
         {
@@ -276,5 +299,14 @@ public partial class Game : Node3D, IWorldDataProvider
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _terrainScene2D.SetTip(tip);
         _logger.Log($"Generation tip: {tip}", LogMark.End);
+    }
+
+    private async Task GenerateMeshAsync()
+    {
+        _logger.LogMethodStart();
+        await SetGenerationTipAsync("Generating mesh...");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _terrainScene3D.GenerateMesh();
+        _logger.LogMethodEnd();
     }
 }

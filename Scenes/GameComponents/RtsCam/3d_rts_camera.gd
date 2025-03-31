@@ -3,13 +3,13 @@ extends Camera3D
 # Camera movement settings
 @export_category("Camera movement settings")
 ## Defines the speed of camera movement.
-@export var camera_speed: float = 20.0
+@export var camera_speed: float = 50.0
 ## Defines how fast the camera can zoom.
-@export var camera_zoom_speed: float = 20.0
+@export var camera_zoom_speed: float = 120.0
 ## Defines how close you can zoom the camera.
 @export var camera_zoom_min: float = 10.0
 ## Defines how far away you can zoom the camera.
-@export var camera_zoom_max: float = 50.0
+@export var camera_zoom_max: float = 200.0
 
 #Edge scrolling settings
 @export_category("Edge scrolling settings")
