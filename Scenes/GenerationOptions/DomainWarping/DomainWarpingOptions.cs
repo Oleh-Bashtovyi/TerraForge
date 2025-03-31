@@ -2,7 +2,7 @@ using System;
 using Godot;
 using TerrainGenerationApp.Generators.DomainWarping;
 
-namespace TerrainGenerationApp.Scenes.GenerationOptions.DomainWarpingOptions;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.DomainWarping;
 
 public partial class DomainWarpingOptions : VBoxContainer
 {

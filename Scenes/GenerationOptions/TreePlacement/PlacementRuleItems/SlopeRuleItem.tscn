@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://om3sm4rf1lhk"]
 
-[ext_resource type="Script" uid="uid://b05hc5yf8osfx" path="res://Scenes/GenerationOptions/TreePlacementOptions/PlacementRuleItems/SlopeRuleItem.cs" id="1_wal7p"]
+[ext_resource type="Script" uid="uid://b05hc5yf8osfx" path="res://Scenes/GenerationOptions/TreePlacement/PlacementRuleItems/SlopeRuleItem.cs" id="1_wal7p"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0bdya"]
 content_margin_left = 5.0

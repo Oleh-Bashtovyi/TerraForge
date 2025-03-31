@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c111y36ggt3us"]
 
-[ext_resource type="Script" uid="uid://csqlftmmmxf4b" path="res://Scenes/GenerationOptions/TreePlacementOptions/TreePlacementOptions.cs" id="1_fjvus"]
+[ext_resource type="Script" uid="uid://csqlftmmmxf4b" path="res://Scenes/GenerationOptions/TreePlacement/TreePlacementOptions.cs" id="1_fjvus"]
 
 [node name="TreePlacementOptions" type="VBoxContainer"]
 anchors_preset = 15

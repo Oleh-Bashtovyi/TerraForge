@@ -1,8 +1,8 @@
-using System;
 using Godot;
+using System;
 using TerrainGenerationApp.Generators.Islands;
 
-namespace TerrainGenerationApp.Scenes.GenerationOptions.IslandOptions;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.Island;
 
 public partial class IslandOptions : VBoxContainer
 {

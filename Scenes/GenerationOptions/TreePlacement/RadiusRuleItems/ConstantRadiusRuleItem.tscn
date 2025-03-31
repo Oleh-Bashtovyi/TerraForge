@@ -1,6 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://o02sdp4uasg8"]
+[gd_scene load_steps=4 format=3 uid="uid://chradgh8i1xgl"]
 
-[ext_resource type="Script" uid="uid://846khfgy7kti" path="res://Scenes/GenerationOptions/TreePlacementOptions/PlacementRuleItems/AboveSeaLevelRuleItem.cs" id="1_yuuvf"]
+[ext_resource type="Script" uid="uid://bx75ls3o6fhvk" path="res://Scenes/GenerationOptions/TreePlacement/RadiusRuleItems/ConstantRadiusRuleItem.cs" id="1_mnhef"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0bdya"]
 content_margin_left = 5.0
@@ -16,10 +16,7 @@ corner_radius_bottom_left = 8
 [sub_resource type="LabelSettings" id="LabelSettings_3df8e"]
 font_size = 12
 
-[sub_resource type="LabelSettings" id="LabelSettings_tjqn2"]
-font_size = 12
-
-[node name="AboveSeaLevelRuleItem" type="PanelContainer"]
+[node name="ConstantRadiusRuleItem" type="PanelContainer"]
 anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
@@ -30,7 +27,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_0bdya")
-script = ExtResource("1_yuuvf")
+script = ExtResource("1_mnhef")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 2
@@ -42,7 +39,7 @@ theme_override_constants/separation = 5
 
 [node name="Label" type="Label" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
-text = "Above sea rule"
+text = "Constant radius rule"
 horizontal_alignment = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer"]
@@ -63,24 +60,10 @@ theme_override_constants/separation = 5
 
 [node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer"]
 layout_mode = 2
-text = "Lower bound:"
+text = "Radius:"
 label_settings = SubResource("LabelSettings_3df8e")
 
-[node name="LowerBoundLineEdit" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer2"]
-layout_mode = 2
-text = "Upper bound:"
-label_settings = SubResource("LabelSettings_tjqn2")
-
-[node name="UpperBoundLineEdit" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer2"]
+[node name="RadiusLineEdit" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12

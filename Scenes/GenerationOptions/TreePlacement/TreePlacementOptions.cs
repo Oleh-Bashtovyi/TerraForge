@@ -4,20 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Generators.Trees;
+using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
 using TerrainGenerationApp.Utilities;
 
-namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
 
 public partial class TreePlacementOptions : VBoxContainer
 {
     private VBoxContainer _rulesContainer;
 	private Button _addRuleButton;
 
-    private bool _isRulesCacheDirty = true;
-    private TreesApplier _treesApplier;
-    private Logger<TreePlacementOptions> _logger = new();
+    private readonly Logger<TreePlacementOptions> _logger = new();
+	private readonly List<TreePlacementRuleItem> _treePlacementRules = new();
     private List<TreePlacementRule> _cachedRules = new();
-	private List<TreePlacementRuleItem> _treePlacementRules;
+    private TreesApplier _treesApplier;
+    private bool _isRulesCacheDirty = true;
 
     public event EventHandler<TreePlacementRuleItem> OnTreePlacementRuleItemAdded;
     public event EventHandler<TreePlacementRuleItem> OnTreePlacementRuleItemRemoved;
@@ -30,10 +31,9 @@ public partial class TreePlacementOptions : VBoxContainer
 	{
 		_rulesContainer = GetNode<VBoxContainer>("%RulesContainer");
 		_addRuleButton = GetNode<Button>("%AddRuleButton");
-		_treePlacementRules = new();
-		_treesApplier = new();
+        _addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
 
-		_addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
+		_treesApplier = new();
 	}
 
     public void DisableAllOptions()
@@ -96,10 +96,7 @@ public partial class TreePlacementOptions : VBoxContainer
         _rulesContainer.AddChild(item);
         _treePlacementRules.Add(item);
 
-        item.OnDeleteButtonPressed += TreePlacementRuleItemOnDeleteButtonPressed;
-        item.OnMoveDownButtonPressed += TreePlacementRuleItemOnMoveDownButtonPressed;
-        item.OnMoveUpButtonPressed += TreePlacementRuleItemOnMoveUpButtonPressed;
-        item.OnRulesChanged += TreePlacementRuleItemOnRulesChanged;
+        SubscribeEventsToItem(item);
         _isRulesCacheDirty = true;
 
         OnTreePlacementRuleItemAdded?.Invoke(this, item);
@@ -121,11 +118,29 @@ public partial class TreePlacementOptions : VBoxContainer
 
         _rulesContainer.RemoveChild(item);
         _treePlacementRules.Remove(item);
-        item.QueueFree();
+
+        UnsubscribeEventsFromItem(item);
         _isRulesCacheDirty = true;
+        item.QueueFree();
 
         OnTreePlacementRuleItemRemoved?.Invoke(this, item);
     }
+
+    private void SubscribeEventsToItem(TreePlacementRuleItem item)
+    {
+        item.OnDeleteButtonPressed += TreePlacementRuleItemOnDeleteButtonPressed;
+        item.OnMoveDownButtonPressed += TreePlacementRuleItemOnMoveDownButtonPressed;
+        item.OnMoveUpButtonPressed += TreePlacementRuleItemOnMoveUpButtonPressed;
+        item.OnRulesChanged += TreePlacementRuleItemOnRulesChanged;
+    }
+    private void UnsubscribeEventsFromItem(TreePlacementRuleItem item)
+    {
+        item.OnDeleteButtonPressed -= TreePlacementRuleItemOnDeleteButtonPressed;
+        item.OnMoveDownButtonPressed -= TreePlacementRuleItemOnMoveDownButtonPressed;
+        item.OnMoveUpButtonPressed -= TreePlacementRuleItemOnMoveUpButtonPressed;
+        item.OnRulesChanged -= TreePlacementRuleItemOnRulesChanged;
+    }
+
     private void TreePlacementRuleItemOnMoveDownButtonPressed(object sender, EventArgs e)
 	{
         _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} MOVED DOWN");

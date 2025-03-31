@@ -1,28 +1,35 @@
-﻿using System;
+﻿using Godot;
+using System;
 using System.Collections.Generic;
-using Godot;
 
 namespace TerrainGenerationApp.Utilities;
 
+/// <summary>
+/// Provides helper methods for map manipulation and terrain generation.
+/// </summary>
 public static class MapHelpers
 {
-    private static readonly (int, int)[] DirectionsHvd =
+    private static readonly (int, int)[] DirectionsHorizontalVerticalDiagonals =
     {
-        (-1, 0),
-        (1, 0),
-        (0, -1),
-        (0, 1),
-        (-1, -1),
-        (1, -1),
-        (-1, 1),
-        (1, 1)
-    };
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1),
+            (-1, -1),
+            (1, -1),
+            (-1, 1),
+            (1, 1)
+        };
 
-
+    /// <summary>
+    /// Smooths the given map by averaging the values of neighboring cells.
+    /// </summary>
+    /// <param name="map">The input map to be smoothed.</param>
+    /// <returns>A new smoothed map.</returns>
     public static float[,] SmoothMap(float[,] map)
     {
-        var h = map.GetLength(0);
-        var w = map.GetLength(1);
+        var h = map.Height();
+        var w = map.Width();
         var newMap = new float[h, w];
 
         for (int y = 0; y < h; y++)
@@ -32,7 +39,7 @@ public static class MapHelpers
                 var sum = 0f;
                 var count = 0;
 
-                foreach (var (dy, dx) in DirectionsHvd)
+                foreach (var (dy, dx) in DirectionsHorizontalVerticalDiagonals)
                 {
                     var nx = x + dx;
                     var ny = y + dy;
@@ -50,11 +57,16 @@ public static class MapHelpers
         return newMap;
     }
 
+    /// <summary>
+    /// Calculates the slopes of the given map.
+    /// </summary>
+    /// <param name="map">The input map to calculate slopes for.</param>
+    /// <returns>A new map containing the slopes.</returns>
     public static float[,] GetSlopes(float[,] map)
     {
-        int h = map.GetLength(0);
-        int w = map.GetLength(1);
-        float[,] slopes = new float[h, w];
+        var h = map.Height();
+        var w = map.Width();
+        var slopes = new float[h, w];
 
         float HeightOrDefault(int x, int y) =>
             x >= 0 && x < w && y >= 0 && y < h ? map[y, x] : 0f;
@@ -71,10 +83,17 @@ public static class MapHelpers
         return slopes;
     }
 
+    /// <summary>
+    /// Adds a specified value to the height of each cell in the map, clamping the result within the given bounds.
+    /// </summary>
+    /// <param name="map">The input map to modify.</param>
+    /// <param name="value">The value to add to each cell.</param>
+    /// <param name="lowerBound">The lower bound for clamping.</param>
+    /// <param name="upperBound">The upper bound for clamping.</param>
     public static void AddHeight(float[,] map, float value, float lowerBound = 0.0f, float upperBound = 1.0f)
     {
-        int h = map.GetLength(0);
-        int w = map.GetLength(1);
+        var h = map.Height();
+        var w = map.Width();
 
         for (int y = 0; y < h; y++)
         {
@@ -85,10 +104,17 @@ public static class MapHelpers
         }
     }
 
+    /// <summary>
+    /// Multiplies the height of each cell in the map by a specified value, clamping the result within the given bounds.
+    /// </summary>
+    /// <param name="map">The input map to modify.</param>
+    /// <param name="value">The value to multiply each cell by.</param>
+    /// <param name="lowerBound">The lower bound for clamping.</param>
+    /// <param name="upperBound">The upper bound for clamping.</param>
     public static void MultiplyHeight(float[,] map, float value, float lowerBound = 0.0f, float upperBound = 1.0f)
     {
-        int h = map.GetLength(0);
-        int w = map.GetLength(1);
+        var h = map.Height();
+        var w = map.Width();
 
         for (int y = 0; y < h; y++)
         {
@@ -99,6 +125,16 @@ public static class MapHelpers
         }
     }
 
+    /// <summary>
+    /// Generates a list of random dots within the specified bounds.
+    /// </summary>
+    /// <param name="count">The number of dots to generate.</param>
+    /// <param name="minX">The minimum x-coordinate.</param>
+    /// <param name="maxX">The maximum x-coordinate.</param>
+    /// <param name="minY">The minimum y-coordinate.</param>
+    /// <param name="maxY">The maximum y-coordinate.</param>
+    /// <param name="seed">The seed for the random number generator.</param>
+    /// <returns>A list of generated dots.</returns>
     public static List<Vector2> GenerateDots(int count, float minX, float maxX, float minY, float maxY, ulong seed)
     {
         var rng = new RandomNumberGenerator();
@@ -109,13 +145,18 @@ public static class MapHelpers
         {
             var x = rng.RandfRange(minX, maxX);
             var y = rng.RandfRange(minY, maxY);
-            dots.Add(new(x, y));
+            dots.Add(new Vector2(x, y));
         }
 
         return dots;
     }
 
-
+    /// <summary>
+    /// Finds the nearest point to the specified point from a list of dots.
+    /// </summary>
+    /// <param name="from">The point to find the nearest point to.</param>
+    /// <param name="dots">The list of dots to search.</param>
+    /// <returns>The nearest point to the specified point.</returns>
     public static Vector2 FindNearestPoint(Vector2 from, List<Vector2> dots)
     {
         if (dots == null || dots.Count == 0)
@@ -126,13 +167,10 @@ public static class MapHelpers
         var nearest = dots[0];
         var minDist = float.MaxValue;
 
-        // Check distance to each feature point
         foreach (var dot in dots)
         {
-            // Calculate Euclidean distance
-            var dist = MathF.Sqrt((from.X - dot.X) * (from.X - dot.X) + (from.Y - dot.Y) * (from.Y - dot.Y));
+            var dist = Distances.Euclidean(from, dot);
 
-            // Keep track of minimum distance found
             if (dist < minDist)
             {
                 minDist = dist;

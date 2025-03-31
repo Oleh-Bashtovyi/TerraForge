@@ -37,6 +37,11 @@ public class Logger<T> where T : class
                 throw new NotSupportedException($"Such log type is not supported: {mark}");
         }
     }
+
+    public void LogError(string text, [CallerMemberName] string callerName = "")
+    {
+        Log(text, LogMark.Error, callerName);
+    }
     public void Log(string text, LogMark mark = LogMark.Default, [CallerMemberName] string callerName = "")
     {
         switch (mark)

@@ -118,10 +118,3 @@ grow_horizontal = 2
 grow_vertical = 0
 text = "<Cell: >"
 horizontal_alignment = 1
-
-[connection signal="gui_input" from="Background/MarginContainer/AspectRatioContainer/Control/TerrainTextureRect" to="." method="_on_map_texture_rect_gui_input"]
-[connection signal="mouse_exited" from="Background/MarginContainer/AspectRatioContainer/Control/TerrainTextureRect" to="." method="_on_map_texture_rect_mouse_exited"]
-[connection signal="gui_input" from="Background/MarginContainer/AspectRatioContainer/Control/WaterTextureRect" to="." method="_on_map_texture_rect_gui_input"]
-[connection signal="mouse_exited" from="Background/MarginContainer/AspectRatioContainer/Control/WaterTextureRect" to="." method="_on_map_texture_rect_mouse_exited"]
-[connection signal="gui_input" from="Background/MarginContainer/AspectRatioContainer/Control/TreesTextureRect" to="." method="_on_map_texture_rect_gui_input"]
-[connection signal="mouse_exited" from="Background/MarginContainer/AspectRatioContainer/Control/TreesTextureRect" to="." method="_on_map_texture_rect_mouse_exited"]

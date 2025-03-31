@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c2fscxswvxfxo"]
 
-[ext_resource type="Script" uid="uid://dnsj27ohnr26u" path="res://Scenes/GenerationOptions/DiamondSquareOptions/DiamondSquareOptions.cs" id="1_yfloh"]
+[ext_resource type="Script" uid="uid://dnsj27ohnr26u" path="res://Scenes/GenerationOptions/DiamondSquare/DiamondSquareOptions.cs" id="1_yfloh"]
 
 [node name="DiamondSquareOptions" type="VBoxContainer"]
 size_flags_horizontal = 3

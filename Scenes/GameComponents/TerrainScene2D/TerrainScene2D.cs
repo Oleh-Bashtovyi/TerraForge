@@ -17,6 +17,7 @@ public partial class TerrainScene2D : Control
     private TextureRect _waterTextureRect;
     private TextureRect _treesTextureRect;
 
+    private readonly Logger<TerrainScene2D> _logger = new();
     private Image _terrainImage;
     private Image _waterImage;
     private Image _treesImage;
@@ -27,7 +28,6 @@ public partial class TerrainScene2D : Control
     private IDisplayOptionsProvider _displayOptionsProvider;
     private Gradient _terrainGradient;
     private Gradient _waterGradient;
-    private Logger<TerrainScene2D> _logger;
 
     public override void _Ready()
     {
@@ -37,10 +37,10 @@ public partial class TerrainScene2D : Control
         _generationStatusLabel = GetNode<Label>("%GenerationStatusLabel");
         _cellInfoLabel = GetNode<Label>("%CellInfoLabel");
         _terrainTextureRect.MouseExited += OnMapTextureRectMouseExited;
+        _terrainTextureRect.GuiInput += OnMapTextureRectGuiInput;
 
         _terrainGradient = CreateGradient(ColorPallets.DefaultTerrainColors);
         _waterGradient = CreateGradient(ColorPallets.DefaultWaterColors);
-        _logger = new();
 
         _terrainImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
         _treesImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8); // RGBA8 for transparency
@@ -327,26 +327,26 @@ public partial class TerrainScene2D : Control
         return new Color(r, g, b);
     }
 
-    private void _on_map_texture_rect_gui_input(InputEvent @event)
+    private void OnMapTextureRectGuiInput(InputEvent @event)
     {
-        /*        if (@event is InputEventMouseMotion)
-                {
-                    Vector2 localPosition = _mapTextureRect.GetLocalMousePosition();
-                    int h = _curTerrainMap.GetLength(0);
-                    int w = _curTerrainMap.GetLength(1);
+        if (@event is InputEventMouseMotion)
+        {
+            Vector2 localPosition = _terrainTextureRect.GetLocalMousePosition();
+            var h = _worldDataProvider.WorldData.MapHeight;
+            var w = _worldDataProvider.WorldData.MapWidth;
 
-                    // Convert coordinates to map grid coordinates
-                    int cellX = (int)(localPosition.X / _mapTextureRect.Size.X * w);
-                    int cellY = (int)(localPosition.Y / _mapTextureRect.Size.Y * h);
+            // Convert coordinates to map grid coordinates
+            var cellX = (int)(localPosition.X / _terrainTextureRect.Size.X * w);
+            var cellY = (int)(localPosition.Y / _terrainTextureRect.Size.Y * h);
 
-                    // Check boundaries
-                    if (cellX >= 0 && cellX < w && cellY >= 0 && cellY < h)
-                    {
-                        float height = _curTerrainMap[cellY, cellX];  // Get height from the heat map
-                        float slope = _curSlopesMap[cellY, cellX];
-                        _cellInfoLabel.Text = string.Format("Cell: [ {0} ; {1} ] <---> Value: {2} <---> Slope: {3}", cellX, cellY, height, slope);
-                    }
-                }*/
+            // Check boundaries
+            if (cellX >= 0 && cellX < w && cellY >= 0 && cellY < h)
+            {
+                var height = _worldDataProvider.WorldData.GetHeightAt(cellY, cellX);
+                var slope = _worldDataProvider.WorldData.GetSlopeAt(cellY, cellX);
+                _cellInfoLabel.Text = string.Format("Cell: [ {0} ; {1} ] <---> Value: {2} <---> Slope: {3}", cellX, cellY, height, slope);
+            }
+        }
     }
 
     private void OnMapTextureRectMouseExited()

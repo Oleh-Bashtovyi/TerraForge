@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://oihfvosl22b7"]
 
-[ext_resource type="Script" uid="uid://bp31idpywmwc1" path="res://Scenes/GenerationOptions/TreePlacementOptions/TreePlacementRuleItem.cs" id="1_qqfdb"]
+[ext_resource type="Script" uid="uid://bp31idpywmwc1" path="res://Scenes/GenerationOptions/TreePlacement/TreePlacementRuleItem.cs" id="1_qqfdb"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qo2xr"]
 content_margin_left = 10.0

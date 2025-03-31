@@ -1,11 +1,10 @@
 using Godot;
-using TerrainGenerationApp.Generators;
 
-namespace TerrainGenerationApp.Scenes.GenerationOptions.PerlinOptions;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.PerlinNoise;
 
 public partial class PerlinOptions : BaseGeneratorOptions
 {
-	private PerlinNoise _generator;
+	private Generators.PerlinNoise _generator;
 	private int _seed = 0;
 
 	// UI Element references
@@ -33,7 +32,7 @@ public partial class PerlinOptions : BaseGeneratorOptions
     private Slider _warpingSizeSlider;
     private CheckButton _useWarpingCheckButton;
 
-	public PerlinNoise Generator
+	public Generators.PerlinNoise Generator
 	{
 		get => _generator;
 		set => _generator = value;
@@ -43,7 +42,7 @@ public partial class PerlinOptions : BaseGeneratorOptions
 	{
 		if (_generator == null)
 		{
-			_generator = new PerlinNoise();
+			_generator = new Generators.PerlinNoise();
 		}
 
 		// Get UI references

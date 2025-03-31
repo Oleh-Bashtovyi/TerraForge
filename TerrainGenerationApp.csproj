@@ -5,6 +5,7 @@
     <RootNamespace>TerrainGenerationApp</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Scenes\GenerationOptions\TreePlacementOptions\TerrainOptionsDiagram.cd" />
+    <Compile Remove="Scenes\GenerationOptions\TreePlacementOptions\**" />
+    <EmbeddedResource Remove="Scenes\GenerationOptions\TreePlacementOptions\**" />
   </ItemGroup>
 </Project>

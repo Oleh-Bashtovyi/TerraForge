@@ -1,9 +1,8 @@
 using Godot;
-using TerrainGenerationApp.Generators;
 using TerrainGenerationApp.Generators.WaterErosion;
-using WaterErosionApplier = TerrainGenerationApp.Generators.WaterErosion.WaterErosionApplier;
 
-namespace TerrainGenerationApp.Scenes.GeneratorOptions.Scripts;
+
+namespace TerrainGenerationApp.Scenes.GenerationOptions.WaterErosion;
 
 public partial class WaterErosionOptions : VBoxContainer
 {
@@ -16,9 +15,8 @@ public partial class WaterErosionOptions : VBoxContainer
 	private OptionButton _rainTypeOptions;
 	private OptionButton _rainRateTypeOptions;
 
-
-
 	private WaterErosionApplier _waterErosionApplier;
+
 	public WaterErosionApplier WaterErosionApplier
 	{
 		get => _waterErosionApplier;

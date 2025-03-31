@@ -8,7 +8,7 @@ using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.Placeme
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.RadiusRuleItems;
 using TerrainGenerationApp.Utilities;
 
-namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
 
 public class TreeColorChangedEventArgs(string treeId, Color newColor)
 {
@@ -24,7 +24,7 @@ public class TreeIdChangedEventArgs(string oldTreeId, string newTreeId)
 
 public partial class TreePlacementRuleItem : PanelContainer
 {
-    private PopupMenu _placementRulesPopupMenu;
+    //private PopupMenu _placementRulesPopupMenu;
     private ColorPickerButton _treeColorPickerButton;
 	private VBoxContainer _placeRulesVBoxContainer;
 	private VBoxContainer _radiusRuleVBoxContainer;
@@ -37,12 +37,13 @@ public partial class TreePlacementRuleItem : PanelContainer
 	private Label _noPlaceRulesLabel;
 	private Label _noRadiusRuleLabel;
 
+	private readonly List<IPlacementRuleItem> _placementRules = new();
+    private readonly Logger<TreePlacementRuleItem> _logger = new();
 	private bool _isDirty = true; 
 	private string _treeId;
 	private Color _treeColor;
 	private TreePlacementRule _cachedRule; 
 	private IRadiusRuleItem _radiusRule;
-	private List<IPlacementRuleItem> _placementRules;
 
     public event EventHandler OnDeleteButtonPressed;
 	public event EventHandler OnMoveUpButtonPressed;
@@ -57,27 +58,23 @@ public partial class TreePlacementRuleItem : PanelContainer
 
 	public TreePlacementRule GetTreePlacementRule()
 	{
-		GD.Print("+--GetTreePlacementRule");
+		_logger.LogMethodStart();
+
         if (_isDirty || _cachedRule == null)
         {
+            _logger.Log("Tree placement rule is dirty or null, creating a new one");
+
             var rules = _placementRules.Select(x => x.GetPlacementRule()).ToList();
             var compositeRule = new CompositePlacementRule(rules);
             var radiusRule = _radiusRule?.GetRadiusRule();
-            GD.Print("| - rules count: " + rules.Count);
-            //var radiusRule = new ConstantRadiusRule(5.0f);
             _cachedRule = new TreePlacementRule(_treeId, compositeRule, radiusRule);
             _isDirty = false;
-            GD.Print("| it was DIRTY, creating a new one");
         }
-        else
-        {
-			GD.Print("| Cache has up-to-date object");
-        }
-		GD.Print("+--");
 
-		return _cachedRule;
+		_logger.LogMethodEnd();
+
+        return _cachedRule;
 	}
-
 
     public override void _Ready()
 	{
@@ -92,8 +89,8 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_radiusRuleVBoxContainer = GetNode<VBoxContainer>("%RadiusRuleVBoxContainer");
 		_noPlaceRulesLabel = GetNode<Label>("%NoPlaceRulesLabel");
 		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
-        _placementRulesPopupMenu = GetNode<PopupMenu>("%PlacementRulesPopupMenu");
-		_placementRules = new();
+        //_placementRulesPopupMenu = GetNode<PopupMenu>("%PlacementRulesPopupMenu");
+
 		_treeId = "Tree";
 		_treeColor = Colors.Purple;
 		_treeColorPickerButton.Color = _treeColor;
@@ -104,14 +101,45 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_moveUpButton.Pressed += MoveUpButtonOnPressed;
 		_moveDownButton.Pressed += MoveDownButtonOnPressed;
 		_deleteButton.Pressed += DeleteButtonOnPressed;
-		_addPlacementRuleButton.Pressed += AddPlacementRuleButtonOnPressed;
-        _addRadiusRuleButton.Pressed += AddRadiusRuleButtonOnPressed;
+		_addPlacementRuleButton.Pressed += OnAddPlacementRuleButtonPressed;
+        _addRadiusRuleButton.Pressed += OnAddRadiusRuleButtonPressed;
     }
 
-    private void AddRadiusRuleButtonOnPressed()
+    private void TreeIdLineEditOnEditingToggled(bool toggledOn)
     {
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(AddRadiusRuleButtonOnPressed)}><{nameof(TreeId)}: {TreeId}>" +
-                 $"---> ADDING RADIUS RULE...");
+        if (!toggledOn)
+        {
+            var newId = _treeIdLineEdit.Text;
+            if (newId != _treeId)
+            {
+                _logger.Log($"<{nameof(TreeId)}: {TreeId}> - CHANGING ID to {newId}");
+                var eventArgs = new TreeIdChangedEventArgs(_treeId, newId);
+                _treeId = newId;
+                OnTreeIdChanged?.Invoke(this, eventArgs);
+                MarkAsDirty();
+            }
+        }
+    }
+
+    private void TreeColorPickerButtonOnColorChanged(Color newColor)
+    {
+        _treeColor = newColor;
+        var eventArgs = new TreeColorChangedEventArgs(_treeId, newColor);
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - Changing color of the tree layer to {newColor}");
+        OnTreeColorChanged?.Invoke(this, eventArgs);
+    }
+
+    private void MarkAsDirty()
+    {
+        _isDirty = true;
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - MARKED AS DIRTY!");
+        OnRulesChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+
+    private void OnAddRadiusRuleButtonPressed()
+    {
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - ADDING RADIUS RULE...");
 
         if (_radiusRule != null)
         {
@@ -123,69 +151,76 @@ public partial class TreePlacementRuleItem : PanelContainer
 
 		if (item == null)
         {
-            var message = $"<{nameof(TreePlacementRuleItem)}><{nameof(AddRadiusRuleButtonOnPressed)}>" +
-                          $"<{nameof(TreeId)}: {TreeId}>---> Can`t ADD RADIUS RULE, because it is not " +
+            var message = $"<{nameof(TreeId)}: {TreeId}>---> Can`t ADD RADIUS RULE, because it is not " +
                           $"of type {typeof(IRadiusRuleItem)}, " +
                           $"actual type: {scene.GetType()}";
-            GD.PrintErr(message);
+
+            _logger.LogError(message);
             throw new Exception(message);
         }
 
         _radiusRuleVBoxContainer.AddChild(scene);
         _radiusRule = item;
 
-        item.OnRuleParametersChanged += RadiusRuleItemOnRuleParametersChanged;
-        item.OnDeleteButtonPressed += RadiusRuleItemOnDeleteButtonPressed;
-
+        SubscribeRadiusRuleItem(item);
+        
         _noRadiusRuleLabel.Visible = false;
         MarkAsDirty();
     }
-
-
-    private void RadiusRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
+    private void SubscribeRadiusRuleItem(IRadiusRuleItem radiusRuleItem)
     {
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(RadiusRuleItemOnDeleteButtonPressed)}><{nameof(TreeId)}: {TreeId}>" +
-                 $"---> DELETING RADIUS RULE...");
+        radiusRuleItem.OnRuleParametersChanged += OnRadiusRuleItemRuleParametersChanged;
+        radiusRuleItem.OnDeleteButtonPressed += OnRadiusRuleItemDeleteButtonPressed;
+    }
+    private void UnsubscribeRadiusRuleItem(IRadiusRuleItem radiusRuleItem)
+    {
+        radiusRuleItem.OnRuleParametersChanged -= OnRadiusRuleItemRuleParametersChanged;
+        radiusRuleItem.OnDeleteButtonPressed -= OnRadiusRuleItemDeleteButtonPressed;
+    }
+    private void OnRadiusRuleItemRuleParametersChanged(object sender, EventArgs e)
+    {
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - Some radius rule parameters changed, marking as dirty");
+        MarkAsDirty();
+    }
+    private void OnRadiusRuleItemDeleteButtonPressed(object sender, EventArgs e)
+    {
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - DELETING RADIUS RULE...");
+
         var scene = sender as Node;
         var item = sender as IRadiusRuleItem;
+
         if (item == null || scene == null)
         {
-            var message = $"<{nameof(TreePlacementRuleItem)}><{nameof(RadiusRuleItemOnDeleteButtonPressed)}>" +
-                          $"<{nameof(TreeId)}: {TreeId}>---> Can`t DELETE RADIUS RULE, because it is not " +
+            var message = $"<{nameof(TreeId)}: {TreeId}>---> Can`t DELETE RADIUS RULE, because it is not " +
                           $"of types {typeof(IRadiusRuleItem)} and {typeof(Node)}, " +
                           $"actual type: {sender.GetType()}";
-            GD.PrintErr(message);
+
+            _logger.LogError(message);
             throw new Exception(message);
         }
         _radiusRuleVBoxContainer.RemoveChild(scene);
         _radiusRule = null;
+
+        UnsubscribeRadiusRuleItem(item);
+
         scene.QueueFree();
+
         if (_radiusRule == null)
         {
             _noRadiusRuleLabel.Visible = true;
         }
+
         MarkAsDirty();
     }
 
-    private void RadiusRuleItemOnRuleParametersChanged(object sender, EventArgs e)
-    {
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(RadiusRuleItemOnRuleParametersChanged)}><{nameof(TreeId)}: {TreeId}>" +
-                 $"---> Some radius rule parameters changed, marking as dirty");
-        MarkAsDirty();
-    }
-
-
-
-
-    private void AddPlacementRuleButtonOnPressed()
+    private void OnAddPlacementRuleButtonPressed()
 	{
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(AddPlacementRuleButtonOnPressed)}><{nameof(TreeId)}: {TreeId}>" +
-                 $"---> ADDING PLACEMENT RULE...");
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - ADDING PLACEMENT RULE...");
 
-        var pos = (_addPlacementRuleButton.GlobalPosition + _addPlacementRuleButton.Size / 2);
-        var actualPos = new Vector2I((int)pos.X, (int)pos.Y);
-        _placementRulesPopupMenu.Position = actualPos;
-        _placementRulesPopupMenu.Show();
+        //var pos = (_addPlacementRuleButton.GlobalPosition + _addPlacementRuleButton.Size / 2);
+        //var actualPos = new Vector2I((int)pos.X, (int)pos.Y);
+        //_placementRulesPopupMenu.Position = actualPos;
+        //_placementRulesPopupMenu.Show();
 
 
         // Temporary stub
@@ -197,6 +232,7 @@ public partial class TreePlacementRuleItem : PanelContainer
         //	return;
         //}
         Node scene;
+
         if (_placementRules.Count >= 2)
         {
             return;
@@ -214,61 +250,50 @@ public partial class TreePlacementRuleItem : PanelContainer
 
 		if (item == null)
 		{
-            var message = $"<{nameof(TreePlacementRuleItem)}><{nameof(AddPlacementRuleButtonOnPressed)}>" +
-                          $"<{nameof(TreeId)}: {TreeId}>---> Can`t ADD PLACEMENT RULE, because it is not " +
+            var message = $"<{nameof(TreeId)}: {TreeId}>---> Can`t ADD PLACEMENT RULE, because it is not " +
                           $"of type {typeof(IPlacementRuleItem)}, " +
                           $"actual type: {scene.GetType()}";
-            GD.PrintErr(message);
+            _logger.LogError(message);
             throw new Exception(message);
         }
 
 		_placeRulesVBoxContainer.AddChild(scene);
 		_placementRules.Add(item);
 
-		item.OnRuleParametersChanged += PlacementRuleItemOnRuleParametersChanged;
-		item.OnDeleteButtonPressed += PlacementRuleItemOnDeleteButtonPressed;
-
-		_noPlaceRulesLabel.Visible = false;
+        SubscribePlacementRuleItem(item);
+        _noPlaceRulesLabel.Visible = false;
 		MarkAsDirty();
 	}
-
-
-    private void TreeIdLineEditOnEditingToggled(bool toggledOn)
+    private void SubscribePlacementRuleItem(IPlacementRuleItem item)
     {
-        if (!toggledOn)
-        {
-            var newId = _treeIdLineEdit.Text;
-            if (newId != _treeId)
-            {
-                GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(TreeIdLineEditOnEditingToggled)}><{nameof(TreeId)}: {TreeId}>" +
-                         $"---> CHANGING ID to {newId}.");
-                var eventArgs = new TreeIdChangedEventArgs(_treeId, newId);
-                _treeId = newId;
-                OnTreeIdChanged?.Invoke(this, eventArgs);
-                MarkAsDirty();
-            }
-        }
+        item.OnRuleParametersChanged += PlacementRuleItemOnRuleParametersChanged;
+        item.OnDeleteButtonPressed += PlacementRuleItemOnDeleteButtonPressed;
+    }
+    private void UnsubscribePlacementRuleItem(IPlacementRuleItem item)
+    {
+        item.OnRuleParametersChanged -= PlacementRuleItemOnRuleParametersChanged;
+        item.OnDeleteButtonPressed -= PlacementRuleItemOnDeleteButtonPressed;
     }
     private void PlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
 	{
-		GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(PlacementRuleItemOnDeleteButtonPressed)}><{nameof(TreeId)}: {TreeId}>" +
-                 $"---> DELETING PLACEMENT RULE...");
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - DELETING PLACEMENT RULE...");
 
-		var scene = sender as Node;
+        var scene = sender as Node;
 		var item = sender as IPlacementRuleItem;
 
 		if (item == null || scene == null)
         {
-            var message = $"<{nameof(TreePlacementRuleItem)}><{nameof(PlacementRuleItemOnDeleteButtonPressed)}>" +
-                          $"<{nameof(TreeId)}: {TreeId}>---> Can`t DELETE PLACEMENT RULE, because it is not " +
+            var message = $"<{nameof(TreeId)}: {TreeId}>---> Can`t DELETE PLACEMENT RULE, because it is not " +
                           $"of types {typeof(IPlacementRuleItem)} and {typeof(Node)}, " +
                           $"actual type: {sender.GetType()}";
-            GD.PrintErr(message);
+            _logger.LogError(message);
             throw new Exception(message);
 		}
 
 		_placeRulesVBoxContainer.RemoveChild(scene);
 		_placementRules.Remove(item);
+
+        UnsubscribePlacementRuleItem(item);
 		scene.QueueFree();
 
 		if (_placementRules.Count == 0)
@@ -278,43 +303,25 @@ public partial class TreePlacementRuleItem : PanelContainer
 
 		MarkAsDirty();
 	}
-    private void MarkAsDirty()
-    {
-        _isDirty = true;
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(MarkAsDirty)}><{nameof(TreeId)}: {TreeId}>---> " +
-                 $"MARK AS DIRTY");
-        OnRulesChanged?.Invoke(this, EventArgs.Empty);
-    }
-    private void TreeColorPickerButtonOnColorChanged(Color newColor)
-    {
-        _treeColor = newColor;
-        var eventArgs = new TreeColorChangedEventArgs(_treeId, newColor);
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(TreeColorPickerButtonOnColorChanged)}><{nameof(TreeId)}: {TreeId}>---> " +
-                 $"Changing color of the tree layer to {newColor}");
-        OnTreeColorChanged?.Invoke(this, eventArgs);
-    }
     private void PlacementRuleItemOnRuleParametersChanged(object sender, EventArgs e)
     {
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(PlacementRuleItemOnRuleParametersChanged)}><{nameof(TreeId)}: {TreeId}>" +
-                 $"---> Some placement rule parameters changed, marking as dirty");
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - SOME PLACEMENT RULE CHANGED, MARKING AS DIRTY");
         MarkAsDirty();
     }
+
     private void DeleteButtonOnPressed()
 	{
-		GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(DeleteButtonOnPressed)}><{nameof(TreeId)}: {TreeId}>---> " +
-                 $"DELETE BUTTON PRESSED");
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - DELETE BUTTON PRESSED");
 		OnDeleteButtonPressed?.Invoke(this, EventArgs.Empty);
 	}
 	private void MoveDownButtonOnPressed()
 	{
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(MoveDownButtonOnPressed)}><{nameof(TreeId)}: {TreeId}>---> " +
-                 $"MOVE DOWN BUTTON PRESSED");
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - MOVE DOWN BUTTON PRESSED");
         OnMoveDownButtonPressed?.Invoke(this, EventArgs.Empty);
 	}
 	private void MoveUpButtonOnPressed()
 	{
-        GD.Print($"<{nameof(TreePlacementRuleItem)}><{nameof(MoveUpButtonOnPressed)}><{nameof(TreeId)}: {TreeId}>---> " +
-                 $"MOVE UP BUTTON PRESSED");
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - MOVE UP BUTTON PRESSED");
         OnMoveUpButtonPressed?.Invoke(this, EventArgs.Empty);
 	}
 }

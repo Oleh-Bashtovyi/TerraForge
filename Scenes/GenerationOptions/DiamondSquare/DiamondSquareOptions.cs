@@ -1,8 +1,7 @@
-using Godot;
 using System;
-using TerrainGenerationApp.Generators;
+using Godot;
 
-namespace TerrainGenerationApp.Scenes.GenerationOptions.DiamondSquareOptions;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.DiamondSquare;
 
 public partial class DiamondSquareOptions : BaseGeneratorOptions
 {
@@ -57,7 +56,7 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
 
     public override float[,] GenerateMap()
 	{
-		return DiamondSquare.GenerateMap(_terrainPower, _roughness, _seed);
+		return Generators.DiamondSquare.GenerateMap(_terrainPower, _roughness, _seed);
 	}
 
     public override void EnableAllOptions()

@@ -5,7 +5,7 @@ using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 using TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
 using TerrainGenerationApp.Scenes.GenerationOptions;
-using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
+using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
 using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.Game;
@@ -17,11 +17,12 @@ public partial class Game : Node3D, IWorldDataProvider
     private MapGenerationMenu _mapGenerationMenu;
     private MapDisplayOptions _displayOptions;
     private Button _generateMapButton;
+    private Button _applyWaterErosionButton;
 
+    private readonly Logger<Game> _logger = new();
     private WorldData _worldData;
-    private Logger<Game> _logger;
-    private GodotThread _waterErosionThread;
-    private GodotThread _generationThread;
+    private Task? _generationTask;
+    private Task? _waterErosionTask;
 
     public IWorldData WorldData => _worldData;
 
@@ -33,7 +34,6 @@ public partial class Game : Node3D, IWorldDataProvider
         _displayOptions = GetNode<MapDisplayOptions>("%MapDisplayOptions");
         _generateMapButton = GetNode<Button>("%GenerateMapButton");
         _worldData = new();
-        _logger = new();
         _worldData.SetSeaLevel(_mapGenerationMenu.CurSeaLevel);
         _terrainScene2D.SetWorldDataProvider(this);
         _terrainScene2D.SetDisplayOptionsProvider(_displayOptions);
@@ -48,6 +48,41 @@ public partial class Game : Node3D, IWorldDataProvider
         //_mapGenerationMenu.GenerationParametersChanged += MapGenerationMenuOnGenerationParametersChanged;
         _displayOptions.OnDisplayOptionsChanged += DisplayOptionsOnOnDisplayOptionsChanged;
         _generateMapButton.Pressed += GenerateMapButtonOnPressed;
+        _applyWaterErosionButton.Pressed += ApplyWaterErosionButtonOnPressed;
+    }
+
+    private void ApplyWaterErosionButtonOnPressed()
+    {
+        _applyWaterErosionButton.Disabled = true;
+
+        _waterErosionTask = Task.Run(WaterErosionPipelineAsync).ContinueWith(async t =>
+        {
+            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+            _applyWaterErosionButton.Disabled = false;
+        });
+    }
+
+    private async Task WaterErosionPipelineAsync()
+    {
+        try
+        {
+            GD.Print("==============================================================");
+            _logger.LogMethodStart();
+
+            // TODO: Implement water erosion pipeline
+
+        }
+        catch (Exception e)
+        {
+            _logger.Log($"<ERROR>: {e.Message}");
+        }
+        finally
+        {
+            await EnableGenerationOptions();
+            await SetGenerationTipAsync(string.Empty);
+            _logger.LogMethodEnd();
+            GD.Print("==============================================================");
+        }
     }
 
     private void MapGenerationMenuOnOnWaterLevelChanged(object sender, EventArgs e)

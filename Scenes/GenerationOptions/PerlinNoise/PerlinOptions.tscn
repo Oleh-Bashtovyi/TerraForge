@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dibwtw2cnl4pf"]
 
-[ext_resource type="Script" uid="uid://dh2e31h2uv1se" path="res://Scenes/GenerationOptions/PerlinOptions/PerlinOptions.cs" id="1_sjfok"]
+[ext_resource type="Script" uid="uid://dh2e31h2uv1se" path="res://Scenes/GenerationOptions/PerlinNoise/PerlinOptions.cs" id="1_sjfok"]
 
 [node name="PerlinOptions" type="VBoxContainer"]
 script = ExtResource("1_sjfok")
