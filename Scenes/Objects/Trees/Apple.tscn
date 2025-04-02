@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://beccokfa1kp0u"]
+
+[ext_resource type="ArrayMesh" uid="uid://b6syp2gn8cjg1" path="res://Resources/meshes/TreeRF_Plane_007.res" id="1_sp506"]
+
+[node name="Apple" type="MeshInstance3D"]
+transform = Transform3D(15, 0, 0, 0, -6.55671e-07, 15, 0, -15, -6.55671e-07, 0, 0, 0)
+mesh = ExtResource("1_sp506")

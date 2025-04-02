@@ -1,6 +1,6 @@
 ﻿using Godot;
 
-namespace TerrainGenerationApp.Utilities;
+namespace TerrainGenerationApp.Scenes.Loaded;
 
 // ReSharper disable InconsistentNaming
 public static class LoadedScenes

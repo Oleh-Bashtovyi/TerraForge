@@ -48,6 +48,7 @@ public partial class Game : Node3D, IWorldDataProvider
         _terrainScene3D.SetWorldDataProvider(this);
         _terrainScene2D.SetWorldDataProvider(this);
         _terrainScene2D.SetDisplayOptionsProvider(_displayOptions);
+        _terrainScene3D.SetDisplayOptionsProvider(_displayOptions);
 
         _treePlacementOptions = _mapGenerationMenu.TreePlacementOptions;
         _treePlacementOptions.OnTreePlacementRuleItemAdded += TreePlacementOptionsOnOnTreePlacementRuleItemAdded;
@@ -243,8 +244,10 @@ public partial class Game : Node3D, IWorldDataProvider
         var trees = _treePlacementOptions.GenerateTrees(_worldData);
         _worldData.SetTreeMaps(trees);
         var treesColors = _treePlacementOptions.GetTreesColors();
+        var treesModels = _treePlacementOptions.GetTreesModels();
         _displayOptions.TreeColors = treesColors;
-        await RedrawTreesAsync();
+        _displayOptions.TreeModels = treesModels;
+       // await RedrawTreesAsync();
         _logger.LogMethodEnd();
     }
     private async Task DisableGenerationOptions()

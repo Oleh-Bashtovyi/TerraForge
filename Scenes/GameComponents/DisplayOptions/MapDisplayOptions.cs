@@ -43,6 +43,7 @@ public partial class MapDisplayOptions : Control, IDisplayOptionsProvider
         }
     }
     public Dictionary<string, Color> TreeColors { get; set; } = new();
+    public Dictionary<string, PackedScene> TreeModels { get; set; } = new();
 
 
     public override void _Ready()

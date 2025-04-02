@@ -23,6 +23,10 @@ window/stretch/mode="canvas_items"
 
 project/assembly_name="TerrainGenerationApp"
 
+[filesystem]
+
+import/blender/enabled=false
+
 [rendering]
 
 renderer/rendering_method="mobile"

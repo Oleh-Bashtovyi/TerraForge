@@ -6,6 +6,7 @@ using TerrainGenerationApp.Generators.Trees;
 using TerrainGenerationApp.PlacementRules;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.RadiusRuleItems;
+using TerrainGenerationApp.Scenes.Loaded;
 using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
@@ -26,7 +27,8 @@ public partial class TreePlacementRuleItem : PanelContainer
 {
     //private PopupMenu _placementRulesPopupMenu;
     private ColorPickerButton _treeColorPickerButton;
-	private VBoxContainer _placeRulesVBoxContainer;
+    private OptionButton _modelOptionButton;
+    private VBoxContainer _placeRulesVBoxContainer;
 	private VBoxContainer _radiusRuleVBoxContainer;
 	private LineEdit _treeIdLineEdit;
 	private Button _addPlacementRuleButton;
@@ -89,9 +91,10 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_radiusRuleVBoxContainer = GetNode<VBoxContainer>("%RadiusRuleVBoxContainer");
 		_noPlaceRulesLabel = GetNode<Label>("%NoPlaceRulesLabel");
 		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
+        _modelOptionButton = GetNode<OptionButton>("%ModelOptionButton");
         //_placementRulesPopupMenu = GetNode<PopupMenu>("%PlacementRulesPopupMenu");
 
-		_treeId = "Tree";
+        _treeId = "Tree";
 		_treeColor = Colors.Purple;
 		_treeColorPickerButton.Color = _treeColor;
 		_treeIdLineEdit.Text = _treeId;
@@ -103,6 +106,20 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_deleteButton.Pressed += DeleteButtonOnPressed;
 		_addPlacementRuleButton.Pressed += OnAddPlacementRuleButtonPressed;
         _addRadiusRuleButton.Pressed += OnAddRadiusRuleButtonPressed;
+
+        // Populate model option button
+        foreach (var (id, name) in TreesLoadedScene.GetTreeNames())
+        {
+            _modelOptionButton.AddItem(name, id);
+        }
+        _modelOptionButton.Selected = 0;
+    }
+
+    public PackedScene GetModel()
+    {
+        var index = _modelOptionButton.Selected;
+        var id = _modelOptionButton.GetItemId(index);
+        return TreesLoadedScene.GetTreeScene(id);
     }
 
     private void TreeIdLineEditOnEditingToggled(bool toggledOn)
@@ -216,12 +233,6 @@ public partial class TreePlacementRuleItem : PanelContainer
     private void OnAddPlacementRuleButtonPressed()
 	{
         _logger.Log($"<{nameof(TreeId)}: {TreeId}> - ADDING PLACEMENT RULE...");
-
-        //var pos = (_addPlacementRuleButton.GlobalPosition + _addPlacementRuleButton.Size / 2);
-        //var actualPos = new Vector2I((int)pos.X, (int)pos.Y);
-        //_placementRulesPopupMenu.Position = actualPos;
-        //_placementRulesPopupMenu.Show();
-
 
         // Temporary stub
         // TODO:

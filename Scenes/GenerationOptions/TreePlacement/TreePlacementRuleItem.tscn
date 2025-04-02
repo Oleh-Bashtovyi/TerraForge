@@ -76,6 +76,19 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "🗑"
 
+[node name="TextureBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/TextureBoxContainer"]
+layout_mode = 2
+text = "Model in 3d:"
+
+[node name="ModelOptionButton" type="OptionButton" parent="HBoxContainer/CenterVBoxContainer/TextureBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_stretch_ratio = 0.85
+expand_icon = true
+
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 10

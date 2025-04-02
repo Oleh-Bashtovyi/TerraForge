@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Generators.Trees;
-using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions;
+using TerrainGenerationApp.Scenes.Loaded;
 using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
 
 public partial class TreePlacementOptions : VBoxContainer
 {
+    private Slider _frequencySlider;
+    private Label _frequencyLabel;
     private VBoxContainer _rulesContainer;
 	private Button _addRuleButton;
 
@@ -19,6 +21,7 @@ public partial class TreePlacementOptions : VBoxContainer
     private List<TreePlacementRule> _cachedRules = new();
     private TreesApplier _treesApplier;
     private bool _isRulesCacheDirty = true;
+    private float _frequency = 1.0f;
 
     public event EventHandler<TreePlacementRuleItem> OnTreePlacementRuleItemAdded;
     public event EventHandler<TreePlacementRuleItem> OnTreePlacementRuleItemRemoved;
@@ -31,10 +34,20 @@ public partial class TreePlacementOptions : VBoxContainer
 	{
 		_rulesContainer = GetNode<VBoxContainer>("%RulesContainer");
 		_addRuleButton = GetNode<Button>("%AddRuleButton");
+        _frequencySlider = GetNode<Slider>("%FrequencySlider");
+        _frequencyLabel = GetNode<Label>("%FrequencyLabel");
+
         _addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
+        _frequencySlider.ValueChanged += _frequencySlider_ValueChanged;
 
 		_treesApplier = new();
 	}
+
+    private void _frequencySlider_ValueChanged(double value)
+    {
+        _frequency = (float)value;
+        _frequencyLabel.Text = _frequency.ToString();
+    }
 
     public void DisableAllOptions()
     {
@@ -63,10 +76,15 @@ public partial class TreePlacementOptions : VBoxContainer
         return _treePlacementRules.ToDictionary(x => x.TreeId, x => x.TreeColor);
     }
 
+    public Dictionary<string, PackedScene> GetTreesModels()
+    {
+        return _treePlacementRules.ToDictionary(x => x.TreeId, x => x.GetModel());
+    }
+
     public Dictionary<string, bool[,]> GenerateTrees(IWorldData worldData)
     {
         var rules = GetRules().ToArray();
-        return TreesApplier.GenerateTreesMapsFromRules(worldData, rules);
+        return TreesApplier.GenerateTreesMapsFromRules(worldData, rules, _frequency);
     }
 
 
