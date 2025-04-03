@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using TerrainGenerationApp.Enums;
 
-namespace TerrainGenerationApp.Utilities;
+namespace TerrainGenerationApp.Data;
 
 public interface IDisplayOptionsProvider
 {

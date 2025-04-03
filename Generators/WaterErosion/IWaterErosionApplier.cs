@@ -1,5 +1,5 @@
 ﻿using System;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Data;
 
 namespace TerrainGenerationApp.Generators.WaterErosion;
 

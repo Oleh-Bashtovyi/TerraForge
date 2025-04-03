@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TerrainGenerationApp.Data;
 using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Generators.Trees;
 using TerrainGenerationApp.Scenes.Loaded;
@@ -81,10 +82,10 @@ public partial class TreePlacementOptions : VBoxContainer
         return _treePlacementRules.ToDictionary(x => x.TreeId, x => x.GetModel());
     }
 
-    public Dictionary<string, bool[,]> GenerateTrees(IWorldData worldData)
+    public List<TreesLayer> GenerateTrees(IWorldData worldData)
     {
         var rules = GetRules().ToArray();
-        return TreesApplier.GenerateTreesMapsFromRules(worldData, rules, _frequency);
+        return TreesApplier.GenerateTreesLayers(worldData, rules, _frequency);
     }
 
 

@@ -1,8 +1,9 @@
-using System;
 using Godot;
+using System;
 using System.Collections.Generic;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Data;
 using TerrainGenerationApp.Extensions;
+using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.TerrainScene3D;
 
@@ -56,192 +57,6 @@ public partial class TerrainScene3D : Node3D
     public int ChunkSize = 25;
     private Node3D _chunksContainer;
 
-/*    public void GenerateMesh()
-    {
-        // Clear existing chunks
-        foreach (var child in _chunksContainer.GetChildren())
-        {
-            child.QueueFree();
-        }
-
-        // Clear trees
-        var trees = _treesContainer.GetChildren();
-        foreach (var tree in trees)
-        {
-            tree.QueueFree();
-        }
-
-        var map = _worldDataProvider.WorldData.TerrainHeightMap;
-        var h = map.Height();
-        var w = map.Width();
-        var meshSizeX = w * MeshSizeScale;
-        var meshSizeZ = h * MeshSizeScale;
-
-        // Set up water
-        _waterMesh.Position = new Vector3(0, _worldDataProvider.WorldData.SeaLevel * HeightScale, 0);
-        ((PlaneMesh)_waterMesh.Mesh).Size = new Vector2(meshSizeX, meshSizeZ);
-
-        // Generate terrain in chunks
-        for (int chunkZ = 0; chunkZ < h; chunkZ += ChunkSize)
-        {
-            for (int chunkX = 0; chunkX < w; chunkX += ChunkSize)
-            {
-                // Calculate actual chunk size (handle edge chunks)
-                int actualChunkWidth = Math.Min(ChunkSize, w - chunkX);
-                int actualChunkHeight = Math.Min(ChunkSize, h - chunkZ);
-
-                if (actualChunkWidth <= 0 || actualChunkHeight <= 0)
-                    continue;
-
-                GenerateChunk(chunkX, chunkZ, actualChunkWidth, actualChunkHeight);
-            }
-        }
-    }
-
-    private void GenerateChunk(int startX, int startZ, int chunkWidth, int chunkHeight)
-    {
-        var map = _worldDataProvider.WorldData.TerrainHeightMap;
-
-        // Calculate world positions
-        float worldStartX = startX * MeshSizeScale - (map.Width() * MeshSizeScale / 2f);
-        float worldStartZ = startZ * MeshSizeScale - (map.Height() * MeshSizeScale / 2f);
-        float chunkWorldSizeX = chunkWidth * MeshSizeScale;
-        float chunkWorldSizeZ = chunkHeight * MeshSizeScale;
-
-        // Create arrays for mesh data (more efficient than using MeshDataTool)
-        var vertices = new List<Vector3>();
-        var normals = new List<Vector3>();
-        var colors = new List<Color>();
-        var uvs = new List<Vector2>();
-        var indices = new List<int>();
-
-        // Generate a grid of vertices for this chunk
-        for (int z = 0; z <= chunkHeight; z++)
-        {
-            for (int x = 0; x <= chunkWidth; x++)
-            {
-                // Calculate actual map coordinates
-                int mapX = startX + x;
-                int mapZ = startZ + z;
-
-                if (mapX >= map.Width() || mapZ >= map.Height())
-                    continue;
-
-                // Get height and position
-                float height = map.GetValueAt(mapZ, mapX);
-                float worldX = x * MeshSizeScale;
-                float worldZ = z * MeshSizeScale;
-
-                // Add vertex
-                vertices.Add(new Vector3(worldX, height * HeightScale, worldZ));
-
-                // Simple normal (will be recalculated later)
-                normals.Add(Vector3.Up);
-
-                // Vertex color based on height
-                colors.Add(GetTerrainColor(height));
-
-                // UV coordinates
-                uvs.Add(new Vector2((float)x / chunkWidth, (float)z / chunkHeight));
-            }
-        }
-
-        // Generate triangles
-        int stride = chunkWidth + 1;
-        for (int z = 0; z < chunkHeight; z++)
-        {
-            for (int x = 0; x < chunkWidth; x++)
-            {
-                int bottomLeft = z * stride + x;
-                int bottomRight = bottomLeft + 1;
-                int topLeft = (z + 1) * stride + x;
-                int topRight = topLeft + 1;
-
-                // First triangle
-                indices.Add(bottomLeft);
-                indices.Add(topLeft);
-                indices.Add(bottomRight);
-
-                // Second triangle
-                indices.Add(bottomRight);
-                indices.Add(topLeft);
-                indices.Add(topRight);
-            }
-        }
-
-        // Calculate proper normals
-        RecalculateNormals(vertices, indices, normals);
-
-        // Create the mesh
-        var mesh = new ArrayMesh();
-        var arrays = new Godot.Collections.Array();
-        arrays.Resize((int)Mesh.ArrayType.Max);
-        arrays[(int)Mesh.ArrayType.Vertex] = vertices.ToArray();
-        arrays[(int)Mesh.ArrayType.Normal] = normals.ToArray();
-        arrays[(int)Mesh.ArrayType.Color] = colors.ToArray();
-        arrays[(int)Mesh.ArrayType.TexUV] = uvs.ToArray();
-        arrays[(int)Mesh.ArrayType.Index] = indices.ToArray();
-
-        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
-
-        // Create material
-        var material = new StandardMaterial3D();
-        material.VertexColorUseAsAlbedo = true;
-        mesh.SurfaceSetMaterial(0, material);
-
-        // Create mesh instance
-        var meshInstance = new MeshInstance3D();
-        meshInstance.Mesh = mesh;
-        meshInstance.Position = new Vector3(worldStartX, 0, worldStartZ);
-
-        // Add collision if needed
-        // Uncomment the following line if you need collision
-        // meshInstance.CreateTrimeshCollision();
-
-        _chunksContainer.AddChild(meshInstance);
-    }
-
-    // Helper method to recalculate normals
-    private void RecalculateNormals(List<Vector3> vertices, List<int> indices, List<Vector3> normals)
-    {
-        // Reset all normals to zero
-        for (int i = 0; i < normals.Count; i++)
-        {
-            normals[i] = Vector3.Zero;
-        }
-
-        // Calculate normals for each triangle
-        for (int i = 0; i < indices.Count; i += 3)
-        {
-            int i1 = indices[i];
-            int i2 = indices[i + 1];
-            int i3 = indices[i + 2];
-
-            Vector3 v1 = vertices[i1];
-            Vector3 v2 = vertices[i2];
-            Vector3 v3 = vertices[i3];
-
-            Vector3 normal = (v2 - v1).Cross(v3 - v1).Normalized();
-
-            normals[i1] += normal;
-            normals[i2] += normal;
-            normals[i3] += normal;
-        }
-
-        // Normalize all normals
-        for (int i = 0; i < normals.Count; i++)
-        {
-            normals[i] = normals[i].Normalized();
-        }
-    }*/
-
-
-
-
-
-
-
-
 
     public void GenerateMesh()
     {
@@ -256,7 +71,7 @@ public partial class TerrainScene3D : Node3D
             tree.QueueFree();
         }
 
-        var map = _worldDataProvider.WorldData.TerrainHeightMap;
+        var map = _worldDataProvider.WorldData.TerrainData.HeightMap;
         var h = map.Height();
         var w = map.Width();
         var planeMesh = new PlaneMesh();
@@ -309,15 +124,15 @@ public partial class TerrainScene3D : Node3D
         AddChild(_mapMesh);
 
         // Generate trees
-        foreach (var item in _worldDataProvider.WorldData.TreeMaps)
+        foreach (var item in _worldDataProvider.WorldData.TreesData.GetLayers())
         {
-            var treeMap = item.Value;
+            var treeMap = item.TreesMap;
             var treeMapWidth = treeMap.Width();
             var treeMapHeight = treeMap.Height();
             float cellSizeX = meshSizeX / treeMapWidth;
             float cellSizeZ = meshSizeZ / treeMapHeight;
             var random = new Random();
-            var packedScene = _displayOptionsProvider.TreeModels[item.Key];
+            var packedScene = _displayOptionsProvider.TreeModels[item.TreeId];
             //var packedScene = _treeScene;
 
             for (var y = 0; y < treeMapHeight; y++)

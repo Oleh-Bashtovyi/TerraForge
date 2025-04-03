@@ -1,6 +1,5 @@
 ﻿using Godot;
-using TerrainGenerationApp.Extensions;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Data;
 
 namespace TerrainGenerationApp.PlacementRules;
 
@@ -11,8 +10,7 @@ public class SlopeRule(float maxSlope) : IPlacementRule
 
     public bool CanPlaceIn(Vector2 pos, IWorldData worldData)
     { 
-        var slopesMap = worldData.TerrainSlopesMap;
-        var slope = slopesMap.GetValueAt(pos);
+        var slope = worldData.TerrainData.SlopeAt(pos);
         return slope <= MaxSlope;
     }
 }

@@ -2,7 +2,9 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using TerrainGenerationApp.Data;
 using TerrainGenerationApp.Enums;
+using TerrainGenerationApp.Extensions;
 using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.TerrainScene2D;
@@ -119,12 +121,12 @@ public partial class TerrainScene2D : Control
 
     private void ResizeTerrainImageIfRequired()
     {
-        ResizeImageIfRequired(_terrainImage, _worldDataProvider.WorldData.GetMapSize());
+        ResizeImageIfRequired(_terrainImage, _worldDataProvider.WorldData.TerrainData.GetMapSize());
     }
 
     private void ResizeTreesImageIfRequired()
     {
-        ResizeImageIfRequired(_treesImage, _worldDataProvider.WorldData.GetMapSize());
+        ResizeImageIfRequired(_treesImage, _worldDataProvider.WorldData.TreesData.GetLayersSize());
     }
 
     private void ResizeImageIfRequired(Image image, Vector2I size)
@@ -137,9 +139,10 @@ public partial class TerrainScene2D : Control
 
     private void RedrawTerrainImageInGrey()
     {
-        var map = _worldDataProvider.WorldData.TerrainHeightMap;
-        var h = _worldDataProvider.WorldData.MapHeight;
-        var w = _worldDataProvider.WorldData.MapWidth;
+        var map = _worldDataProvider.WorldData.TerrainData.HeightMap;
+        var h = map.Height();
+        var w = map.Width();
+
         for (int y = 0; y < h; y++)
         {
             for (int x = 0; x < w; x++)
@@ -167,11 +170,11 @@ public partial class TerrainScene2D : Control
     private void InternalRedrawTerrainImageWithGradients()
     {
         var slopesThreshold = _displayOptionsProvider.CurSlopeThreshold;
-        var slopes = _worldDataProvider.WorldData.TerrainSlopesMap;
+        var slopes = _worldDataProvider.WorldData.TerrainData.SlopesMap;
         var seaLevel = _worldDataProvider.WorldData.SeaLevel;
-        var map = _worldDataProvider.WorldData.TerrainHeightMap;
-        var h = _worldDataProvider.WorldData.MapHeight;
-        var w = _worldDataProvider.WorldData.MapWidth;
+        var map = _worldDataProvider.WorldData.TerrainData.HeightMap;
+        var h = map.Height();
+        var w = map.Width();
 
         for (int y = 0; y < h; y++)
         {
@@ -266,18 +269,18 @@ public partial class TerrainScene2D : Control
 
     private void RedrawTreesImage()
     {
-        var treeMaps = _worldDataProvider.WorldData.TreeMaps;
+        var treeMaps = _worldDataProvider.WorldData.TreesData.GetLayers();
         var treeColors = _displayOptionsProvider.TreeColors;
-        var h = _worldDataProvider.WorldData.MapHeight;
-        var w = _worldDataProvider.WorldData.MapWidth;
+        var h = _worldDataProvider.WorldData.TreesData.LayersHeight;
+        var w = _worldDataProvider.WorldData.TreesData.LayersWidth;
 
         // Map should be transparent by default
         ClearTreesImage();
 
         foreach (var item in treeMaps)
         {
-            var id = item.Key;
-            var map = item.Value;
+            var id = item.TreeId;
+            var map = item.TreesMap;
             var treesCount = 0;
             var treeColor = treeColors.GetValueOrDefault(id, DefaultTreesColor);
 
@@ -332,8 +335,8 @@ public partial class TerrainScene2D : Control
         if (@event is InputEventMouseMotion)
         {
             Vector2 localPosition = _terrainTextureRect.GetLocalMousePosition();
-            var h = _worldDataProvider.WorldData.MapHeight;
-            var w = _worldDataProvider.WorldData.MapWidth;
+            var h = _worldDataProvider.WorldData.TerrainData.TerrainMapHeight;
+            var w = _worldDataProvider.WorldData.TerrainData.TerrainMapWidth;
 
             // Convert coordinates to map grid coordinates
             var cellX = (int)(localPosition.X / _terrainTextureRect.Size.X * w);
@@ -342,8 +345,8 @@ public partial class TerrainScene2D : Control
             // Check boundaries
             if (cellX >= 0 && cellX < w && cellY >= 0 && cellY < h)
             {
-                var height = _worldDataProvider.WorldData.GetHeightAt(cellY, cellX);
-                var slope = _worldDataProvider.WorldData.GetSlopeAt(cellY, cellX);
+                var height = _worldDataProvider.WorldData.TerrainData.HeightAt(cellY, cellX);
+                var slope = _worldDataProvider.WorldData.TerrainData.SlopeAt(cellY, cellX);
                 _cellInfoLabel.Text = string.Format("Cell: [ {0} ; {1} ] <---> Value: {2} <---> Slope: {3}", cellX, cellY, height, slope);
             }
         }

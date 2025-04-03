@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using TerrainGenerationApp.Utilities;
+﻿using TerrainGenerationApp.Utilities;
+using static TerrainGenerationApp.Generators.Trees.TreesApplier;
 
 namespace TerrainGenerationApp.Generators.Trees;
 
 public interface ITreesApplier
 {
-    public Dictionary<string, bool[,]> GenerateTreeLayers(IWorldData worldData);
-    public bool[,] GenerateTreeLayer(IWorldData worldData, string treeId);
+    //public TreesLayers GenerateTreeLayers(IWorldData worldData);
+    //public bool[,] GenerateTreeLayer(IWorldData worldData, string treeId);
 }

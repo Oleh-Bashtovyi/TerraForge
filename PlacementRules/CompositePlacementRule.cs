@@ -1,7 +1,7 @@
 ﻿using Godot;
 using System.Collections.Generic;
 using System.Linq;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Data;
 
 namespace TerrainGenerationApp.PlacementRules;
 
@@ -15,19 +15,7 @@ public class CompositePlacementRule : IPlacementRule
     {
         _rules = rules;
         Description = description;
-
-        GD.Print("RULES IN COMPOSED RULE:");
-        if (!_rules.Any())
-        {
-            GD.Print("NO ANY PLACEMENT RULES");
-        }
-
-        foreach (var rule in rules)
-        {
-            GD.Print(rule.Description);
-        }
     }
-
 
     public bool CanPlaceIn(Vector2 pos, IWorldData worldData)
     {

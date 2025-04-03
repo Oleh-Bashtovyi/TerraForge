@@ -1,7 +1,7 @@
 using Godot;
+using TerrainGenerationApp.Data;
 using TerrainGenerationApp.PlacementRules;
 using TerrainGenerationApp.RadiusRules;
-using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Generators.Trees;
 

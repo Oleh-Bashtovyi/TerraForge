@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Threading.Tasks;
+using TerrainGenerationApp.Data;
 using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 using TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
@@ -189,7 +190,7 @@ public partial class Game : Node3D, IWorldDataProvider
         _logger.LogMethodStart();
         await SetGenerationTipAsync("Generating map...");
         var map = generator.GenerateMap();
-        _worldData.SetTerrain(map);
+        _worldData.TerrainData.SetTerrain(map);
         await RedrawWithResizeTerrainAsync();
         _logger.LogMethodEnd();
     }
@@ -197,9 +198,9 @@ public partial class Game : Node3D, IWorldDataProvider
     {
         _logger.LogMethodStart();
         await SetGenerationTipAsync("Applying influence...");
-        var map = _worldData.TerrainHeightMap;
+        var map = _worldData.TerrainData.HeightMap;
         MapHelpers.MultiplyHeight(map, _mapGenerationMenu.CurNoiseInfluence);
-        _worldData.SetTerrain(map);
+        _worldData.TerrainData.SetTerrain(map);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }
@@ -207,12 +208,12 @@ public partial class Game : Node3D, IWorldDataProvider
     {
         _logger.LogMethodStart();
         await SetGenerationTipAsync("Smoothing...");
-        var map = _worldData.TerrainHeightMap;
+        var map = _worldData.TerrainData.HeightMap;
         for (int i = 0; i < _mapGenerationMenu.CurSmoothCycles; i++)
         {
             _logger.Log($"Smoothing - iteration: {i + 1}/{_mapGenerationMenu.CurSmoothCycles}");
             map = MapHelpers.SmoothMap(map);
-            _worldData.SetTerrain(map);
+            _worldData.TerrainData.SetTerrain(map);
             await RedrawTerrainAsync();
         }
         _logger.LogMethodEnd();
@@ -221,9 +222,9 @@ public partial class Game : Node3D, IWorldDataProvider
     {
         _logger.LogMethodStart();
         await SetGenerationTipAsync("Making islands...");
-        var map = _worldData.TerrainHeightMap;
+        var map = _worldData.TerrainData.HeightMap;
         map = _mapGenerationMenu.IslandsApplier.ApplyIslands(map);
-        _worldData.SetTerrain(map);
+        _worldData.TerrainData.SetTerrain(map);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }
@@ -231,9 +232,9 @@ public partial class Game : Node3D, IWorldDataProvider
     {
         _logger.LogMethodStart();
         await SetGenerationTipAsync("Applying domain warping...");
-        var map = _worldData.TerrainHeightMap;
+        var map = _worldData.TerrainData.HeightMap;
         map = _mapGenerationMenu.DomainWarpingApplier.ApplyWarping(map);
-        _worldData.SetTerrain(map);
+        _worldData.TerrainData.SetTerrain(map);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }
@@ -242,7 +243,7 @@ public partial class Game : Node3D, IWorldDataProvider
         _logger.LogMethodStart();
         await SetGenerationTipAsync("Generating trees...");
         var trees = _treePlacementOptions.GenerateTrees(_worldData);
-        _worldData.SetTreeMaps(trees);
+        _worldData.TreesData.SetLayers(trees);
         var treesColors = _treePlacementOptions.GetTreesColors();
         var treesModels = _treePlacementOptions.GetTreesModels();
         _displayOptions.TreeColors = treesColors;

@@ -1,4 +1,4 @@
-﻿namespace TerrainGenerationApp.Utilities;
+﻿namespace TerrainGenerationApp.Data;
 
 public interface IWorldDataProvider
 {

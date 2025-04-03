@@ -1,8 +1,8 @@
+using Godot;
 using System;
 using System.Collections.Generic;
-using Godot;
+using TerrainGenerationApp.Data;
 using TerrainGenerationApp.Enums;
-using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 
@@ -18,9 +18,6 @@ public partial class MapDisplayOptions : Control, IDisplayOptionsProvider
     private float _curSlopeThreshold = 0.2f;
 
     public event Action OnDisplayOptionsChanged;
-
-    // NODES REFERENCED WITH "%" IN SCENE
-
 
 
     public MapDisplayFormat CurDisplayFormat

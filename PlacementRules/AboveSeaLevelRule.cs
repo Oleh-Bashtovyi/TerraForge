@@ -1,6 +1,5 @@
 ﻿using Godot;
-using TerrainGenerationApp.Extensions;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Data;
 
 namespace TerrainGenerationApp.PlacementRules;
 
@@ -12,9 +11,8 @@ public class AboveSeaLevelRule(float minAboveWater, float maxAboveWater) : IPlac
 
     public bool CanPlaceIn(Vector2 pos, IWorldData worldData)
     {
-        var map = worldData.TerrainHeightMap;
         var waterLevel = worldData.SeaLevel;
-        var h = map.GetValueAt(pos);
+        var h = worldData.TerrainData.HeightAt(pos);
 
         if (h < waterLevel)
             return false;
