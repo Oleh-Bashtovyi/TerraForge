@@ -1,7 +1,7 @@
 using System;
-using TerrainGenerationApp.PlacementRules;
+using TerrainGenerationApp.Rules.PlacementRules;
 
-namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
 
 public interface IPlacementRuleItem
 {

@@ -6,7 +6,6 @@ using TerrainGenerationApp.Extensions;
 
 namespace TerrainGenerationApp.Data;
 
-
 public class TreesData
 {
     private Dictionary<string, bool[,]> _layers = new();
@@ -96,7 +95,6 @@ public class TreesData
 
     }
 
-
     public void ClearLayers()
     {
         _layers.Clear();
@@ -159,7 +157,7 @@ public class TreesData
             .ToList();
     }
 
-public List<string> GetLayersIds()
+    public List<string> GetLayersIds()
     {
         return _layers.Keys.ToList();
     }

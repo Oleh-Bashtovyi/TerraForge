@@ -1,7 +1,7 @@
 ﻿using Godot;
 using TerrainGenerationApp.Data;
 
-namespace TerrainGenerationApp.PlacementRules;
+namespace TerrainGenerationApp.Rules.PlacementRules;
 
 public interface IPlacementRule
 {

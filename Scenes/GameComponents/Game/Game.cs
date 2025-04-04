@@ -157,6 +157,8 @@ public partial class Game : Node3D, IWorldDataProvider
 
             await DisableGenerationOptions();
             await Clear2DSceneAsync();
+            WorldData.TerrainData.Clear();
+            WorldData.TreesData.ClearLayers();
 
             await GenerateTerrainAsync(generator);
             await ApplyInfluenceAsync();
@@ -248,7 +250,7 @@ public partial class Game : Node3D, IWorldDataProvider
         var treesModels = _treePlacementOptions.GetTreesModels();
         _displayOptions.TreeColors = treesColors;
         _displayOptions.TreeModels = treesModels;
-       // await RedrawTreesAsync();
+        await RedrawTreesAsync();
         _logger.LogMethodEnd();
     }
     private async Task DisableGenerationOptions()

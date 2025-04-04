@@ -1,7 +1,7 @@
 ﻿using System;
-using TerrainGenerationApp.RadiusRules;
+using TerrainGenerationApp.Rules.RadiusRules;
 
-namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.RadiusRuleItems;
+namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRuleItems;
 
 public interface IRadiusRuleItem
 {

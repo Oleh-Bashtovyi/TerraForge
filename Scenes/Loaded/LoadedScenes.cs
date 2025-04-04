@@ -26,4 +26,8 @@ public static class LoadedScenes
     public static readonly PackedScene CONSTANT_RADIUS_RULE_ITEM_SCENE =
         ResourceLoader.Load<PackedScene>(
             $"{FOLDER_WITH_RADIUS_RULES}ConstantRadiusRuleItem.tscn");
+
+    public static readonly PackedScene NOISE_MAP_PLACEMENT_RULE_ITEM_SCENE =
+        ResourceLoader.Load<PackedScene>(
+            $"{FOLDER_WITH_TREE_PLACEMENT_RULES}NoiseMapRuleItem.tscn");
 }

@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TerrainGenerationApp.Generators.Trees;
-using TerrainGenerationApp.PlacementRules;
-using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.PlacementRuleItems;
-using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacementOptions.RadiusRuleItems;
+using TerrainGenerationApp.Rules.PlacementRules;
+using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
+using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRuleItems;
 using TerrainGenerationApp.Scenes.Loaded;
 using TerrainGenerationApp.Utilities;
 
@@ -25,7 +25,7 @@ public class TreeIdChangedEventArgs(string oldTreeId, string newTreeId)
 
 public partial class TreePlacementRuleItem : PanelContainer
 {
-    //private PopupMenu _placementRulesPopupMenu;
+    private PopupMenu _placementRulesPopupMenu;
     private ColorPickerButton _treeColorPickerButton;
     private OptionButton _modelOptionButton;
     private VBoxContainer _placeRulesVBoxContainer;
@@ -58,7 +58,23 @@ public partial class TreePlacementRuleItem : PanelContainer
 	public Color TreeColor => _treeColor;
 
 
-	public TreePlacementRule GetTreePlacementRule()
+    private Dictionary<int, Type> _placementRuleTypes = new()
+    {
+        { 0, typeof(AboveSeaLevelRuleItem) },
+        { 1, typeof(SlopeRuleItem) },
+        { 2, typeof(NoiseMapRuleItem) }
+    };
+
+    private Dictionary<Type, PackedScene> _placementRuleScenes = new()
+    {
+        { typeof(AboveSeaLevelRuleItem), LoadedScenes.ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE },
+        { typeof(SlopeRuleItem), LoadedScenes.SLOPE_PLACEMENT_RULE_ITEM_SCENE },
+        { typeof(NoiseMapRuleItem), LoadedScenes.NOISE_MAP_PLACEMENT_RULE_ITEM_SCENE }
+    };
+
+
+
+    public TreePlacementRule GetTreePlacementRule()
 	{
 		_logger.LogMethodStart();
 
@@ -92,7 +108,7 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_noPlaceRulesLabel = GetNode<Label>("%NoPlaceRulesLabel");
 		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
         _modelOptionButton = GetNode<OptionButton>("%ModelOptionButton");
-        //_placementRulesPopupMenu = GetNode<PopupMenu>("%PlacementRulesPopupMenu");
+        _placementRulesPopupMenu = GetNode<PopupMenu>("%PlacementRulesPopupMenu");
 
         _treeId = "Tree";
 		_treeColor = Colors.Purple;

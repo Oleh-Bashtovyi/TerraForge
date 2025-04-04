@@ -1,0 +1,378 @@
+[gd_scene load_steps=4 format=3 uid="uid://bwb0up3nuvay2"]
+
+[ext_resource type="Script" uid="uid://ddfb4m5xdjaa0" path="res://Scenes/GenerationOptions/TreePlacement/PlacementRuleItems/NoiseMapRuleItem.cs" id="1_gjdrv"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0bdya"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0.439049, 0.439049, 0.439049, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_uj310"]
+
+[node name="NoiseMapRuleItem" type="PanelContainer"]
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -11.5
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_0bdya")
+script = ExtResource("1_gjdrv")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "Noise rule"
+horizontal_alignment = 1
+
+[node name="MarginContainer2" type="MarginContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = SubResource("CanvasTexture_uj310")
+expand_mode = 1
+
+[node name="NoiseThreshold" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/NoiseThreshold"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Noise threshold:"
+
+[node name="NoiseThresholdLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/NoiseThreshold"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0.5"
+horizontal_alignment = 2
+
+[node name="NoiseThresholdSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/NoiseThreshold"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 0.01
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Noise map options"
+horizontal_alignment = 1
+
+[node name="MapHeight" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/MapHeight"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Map height:"
+
+[node name="MapHeightLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/MapHeight"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "50"
+horizontal_alignment = 2
+
+[node name="MapHeightSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/MapHeight"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 1.0
+value = 50.0
+rounded = true
+
+[node name="MapWidth" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/MapWidth"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Map width:"
+
+[node name="MapWidthLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/MapWidth"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "50"
+horizontal_alignment = 2
+
+[node name="MapWidthSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/MapWidth"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 1.0
+value = 50.0
+rounded = true
+
+[node name="OffsetX" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/OffsetX"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Offset X:"
+
+[node name="OffsetXLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/OffsetX"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 2
+
+[node name="OffsetXSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/OffsetX"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = -1000.0
+max_value = 1000.0
+rounded = true
+
+[node name="OffsetY" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/OffsetY"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Offset Y:"
+
+[node name="OffsetYLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/OffsetY"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 2
+
+[node name="OffsetYSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/OffsetY"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = -1000.0
+max_value = 1000.0
+rounded = true
+
+[node name="Scale" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Scale"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Scale:"
+
+[node name="ScaleLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Scale"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "25"
+horizontal_alignment = 2
+
+[node name="ScaleSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Scale"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 0.05
+max_value = 50.0
+step = 0.05
+value = 25.0
+
+[node name="Persistance" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Persistance"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Persistance:"
+
+[node name="PersistanceLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Persistance"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0.5"
+horizontal_alignment = 2
+
+[node name="PersistanceSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Persistance"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 0.001
+max_value = 1.0
+step = 0.001
+value = 0.5
+
+[node name="Lacunarity" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Lacunarity"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Lacunarity:"
+
+[node name="LacunarityLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Lacunarity"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "2"
+horizontal_alignment = 2
+
+[node name="LacunaritySlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Lacunarity"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 0.001
+max_value = 10.0
+step = 0.001
+value = 2.0
+
+[node name="Octaves" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Octaves"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Octaves:"
+
+[node name="OctavesLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Octaves"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "1"
+horizontal_alignment = 2
+
+[node name="OctavesSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Octaves"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 1.0
+max_value = 10.0
+value = 1.0
+rounded = true
+
+[node name="Seed" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Seed"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Seed:"
+
+[node name="SeedLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Seed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 2
+
+[node name="SeedSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/Seed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = -10000.0
+max_value = 10000.0
+rounded = true
+
+[node name="DeleteButton" type="Button" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+text = "🗑"

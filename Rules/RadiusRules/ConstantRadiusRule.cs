@@ -1,7 +1,7 @@
 ﻿using Godot;
 using TerrainGenerationApp.Data;
 
-namespace TerrainGenerationApp.RadiusRules;
+namespace TerrainGenerationApp.Rules.RadiusRules;
 
 public class ConstantRadiusRule(float radius) : IRadiusRule
 {

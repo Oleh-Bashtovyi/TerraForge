@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TerrainGenerationApp.Data;
 
-namespace TerrainGenerationApp.PlacementRules;
+namespace TerrainGenerationApp.Rules.PlacementRules;
 
 public class CompositePlacementRule : IPlacementRule
 {
