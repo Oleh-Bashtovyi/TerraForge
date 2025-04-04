@@ -25,13 +25,12 @@ public class TreeIdChangedEventArgs(string oldTreeId, string newTreeId)
 
 public partial class TreePlacementRuleItem : PanelContainer
 {
-    private PopupMenu _placementRulesPopupMenu;
     private ColorPickerButton _treeColorPickerButton;
     private OptionButton _modelOptionButton;
     private VBoxContainer _placeRulesVBoxContainer;
 	private VBoxContainer _radiusRuleVBoxContainer;
 	private LineEdit _treeIdLineEdit;
-	private Button _addPlacementRuleButton;
+	private MenuButton _addPlacementRuleButton;
 	private Button _addRadiusRuleButton;
 	private Button _moveUpButton;
 	private Button _moveDownButton;
@@ -74,9 +73,122 @@ public partial class TreePlacementRuleItem : PanelContainer
 
 
 
-    public TreePlacementRule GetTreePlacementRule()
+    public override void _Ready()
 	{
-		_logger.LogMethodStart();
+		_treeIdLineEdit = GetNode<LineEdit>("%TreeIdLineEdit");
+		_treeColorPickerButton = GetNode<ColorPickerButton>("%TreeColorPickerButton");
+		_addPlacementRuleButton = GetNode<MenuButton>("%AddPlaceRuleButton");
+		_addRadiusRuleButton = GetNode<Button>("%AddRadiusRuleButton");
+		_moveUpButton = GetNode<Button>("%MoveUpButton");
+		_moveDownButton = GetNode<Button>("%MoveDownButton");
+		_deleteButton = GetNode<Button>("%DeleteButton");
+		_placeRulesVBoxContainer = GetNode<VBoxContainer>("%PlaceRulesVBoxContainer");
+		_radiusRuleVBoxContainer = GetNode<VBoxContainer>("%RadiusRuleVBoxContainer");
+		_noPlaceRulesLabel = GetNode<Label>("%NoPlaceRulesLabel");
+		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
+        _modelOptionButton = GetNode<OptionButton>("%ModelOptionButton");
+
+        _treeId = "Tree";
+		_treeColor = Colors.Purple;
+		_treeColorPickerButton.Color = _treeColor;
+		_treeIdLineEdit.Text = _treeId;
+
+		_treeColorPickerButton.ColorChanged += TreeColorPickerButtonOnColorChanged;
+		_treeIdLineEdit.EditingToggled += TreeIdLineEditOnEditingToggled;
+		_moveUpButton.Pressed += MoveUpButtonOnPressed;
+		_moveDownButton.Pressed += MoveDownButtonOnPressed;
+		_deleteButton.Pressed += DeleteButtonOnPressed;
+        _addRadiusRuleButton.Pressed += OnAddRadiusRuleButtonPressed;
+
+        // Populate model option button
+        foreach (var (id, name) in TreesLoadedScene.GetTreeNames())
+        {
+            _modelOptionButton.AddItem(name, id);
+        }
+        _modelOptionButton.Selected = 0;
+
+        // Populate placement rules popup menu
+        _addPlacementRuleButton.AboutToPopup += _addPlacementRuleButton_AboutToPopup;
+        var popup = _addPlacementRuleButton.GetPopup();
+        popup.AddItem("Above sea rule", 0);
+        popup.AddItem("Slope rule", 1);
+        popup.AddItem("Noise map rule", 2);
+        popup.IdPressed += PlacementRulesPopupMenuOnIdPressed;
+    }
+
+    private void _addPlacementRuleButton_AboutToPopup()
+    {
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - POPUP ABOUT TO SHOW");
+
+        var popup = _addPlacementRuleButton.GetPopup();
+        var itemsCount = popup.ItemCount;
+
+        for (int index = 0; index < itemsCount; index++)
+        {
+            var id = popup.GetItemId(index);
+            var type = _placementRuleTypes[id];
+            if (_placementRules.Any(x => x.GetType() == type))
+            {
+                popup.SetItemDisabled(index, true);
+            }
+            else
+            {
+                popup.SetItemDisabled(index, false);
+            }
+
+        }
+    }
+
+    private void PlacementRulesPopupMenuOnIdPressed(long id)
+    {
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - PLACEMENT RULE ABOUT TO BE ADD...");
+
+        var idInt = (int)id;
+        var type = _placementRuleTypes[idInt];
+
+        if (_placementRules.Any(x => x.GetType() == type))
+        {
+            _logger.LogError($"<{nameof(TreeId)}: {TreeId}> - PLACEMENT RULE OF TYPE {type} ALREADY EXISTS");
+            return;
+        }
+
+        var scene = _placementRuleScenes[type];
+        AddPlacementRule(scene);
+    }
+
+
+    private void AddPlacementRule(PackedScene placementRuleScene)
+    {
+        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - ADDING PLACEMENT RULE...");
+
+        var scene = placementRuleScene.Instantiate();
+
+        var item = scene as IPlacementRuleItem;
+
+        if (item == null)
+        {
+            var message = $"<{nameof(TreeId)}: {TreeId}>---> Can`t ADD PLACEMENT RULE, because it is not " +
+                          $"of type {typeof(IPlacementRuleItem)}, " +
+                          $"actual type: {scene.GetType()}";
+            _logger.LogError(message);
+            throw new Exception(message);
+        }
+
+        _placeRulesVBoxContainer.AddChild(scene);
+        _placementRules.Add(item);
+
+        SubscribePlacementRuleItem(item);
+        _noPlaceRulesLabel.Visible = false;
+        MarkAsDirty();
+    }
+
+
+
+
+
+    public TreePlacementRule GetTreePlacementRule()
+    {
+        _logger.LogMethodStart();
 
         if (_isDirty || _cachedRule == null)
         {
@@ -89,46 +201,9 @@ public partial class TreePlacementRuleItem : PanelContainer
             _isDirty = false;
         }
 
-		_logger.LogMethodEnd();
+        _logger.LogMethodEnd();
 
         return _cachedRule;
-	}
-
-    public override void _Ready()
-	{
-		_treeIdLineEdit = GetNode<LineEdit>("%TreeIdLineEdit");
-		_treeColorPickerButton = GetNode<ColorPickerButton>("%TreeColorPickerButton");
-		_addPlacementRuleButton = GetNode<Button>("%AddPlaceRuleButton");
-		_addRadiusRuleButton = GetNode<Button>("%AddRadiusRuleButton");
-		_moveUpButton = GetNode<Button>("%MoveUpButton");
-		_moveDownButton = GetNode<Button>("%MoveDownButton");
-		_deleteButton = GetNode<Button>("%DeleteButton");
-		_placeRulesVBoxContainer = GetNode<VBoxContainer>("%PlaceRulesVBoxContainer");
-		_radiusRuleVBoxContainer = GetNode<VBoxContainer>("%RadiusRuleVBoxContainer");
-		_noPlaceRulesLabel = GetNode<Label>("%NoPlaceRulesLabel");
-		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
-        _modelOptionButton = GetNode<OptionButton>("%ModelOptionButton");
-        _placementRulesPopupMenu = GetNode<PopupMenu>("%PlacementRulesPopupMenu");
-
-        _treeId = "Tree";
-		_treeColor = Colors.Purple;
-		_treeColorPickerButton.Color = _treeColor;
-		_treeIdLineEdit.Text = _treeId;
-
-		_treeColorPickerButton.ColorChanged += TreeColorPickerButtonOnColorChanged;
-		_treeIdLineEdit.EditingToggled += TreeIdLineEditOnEditingToggled;
-		_moveUpButton.Pressed += MoveUpButtonOnPressed;
-		_moveDownButton.Pressed += MoveDownButtonOnPressed;
-		_deleteButton.Pressed += DeleteButtonOnPressed;
-		_addPlacementRuleButton.Pressed += OnAddPlacementRuleButtonPressed;
-        _addRadiusRuleButton.Pressed += OnAddRadiusRuleButtonPressed;
-
-        // Populate model option button
-        foreach (var (id, name) in TreesLoadedScene.GetTreeNames())
-        {
-            _modelOptionButton.AddItem(name, id);
-        }
-        _modelOptionButton.Selected = 0;
     }
 
     public PackedScene GetModel()
@@ -246,51 +321,7 @@ public partial class TreePlacementRuleItem : PanelContainer
         MarkAsDirty();
     }
 
-    private void OnAddPlacementRuleButtonPressed()
-	{
-        _logger.Log($"<{nameof(TreeId)}: {TreeId}> - ADDING PLACEMENT RULE...");
 
-        // Temporary stub
-        // TODO:
-        // Still need to create a window for selecting a rule type and 
-        // a ban on creating 2 rules with the same type
-        //      if (_placementRules.Any())
-        //{
-        //	return;
-        //}
-        Node scene;
-
-        if (_placementRules.Count >= 2)
-        {
-            return;
-        }
-        else if (_placementRules.Count == 0)
-        {
-            scene = LoadedScenes.ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
-        }
-        else
-        {
-            scene = LoadedScenes.SLOPE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
-        }
-
-		var item = scene as IPlacementRuleItem;
-
-		if (item == null)
-		{
-            var message = $"<{nameof(TreeId)}: {TreeId}>---> Can`t ADD PLACEMENT RULE, because it is not " +
-                          $"of type {typeof(IPlacementRuleItem)}, " +
-                          $"actual type: {scene.GetType()}";
-            _logger.LogError(message);
-            throw new Exception(message);
-        }
-
-		_placeRulesVBoxContainer.AddChild(scene);
-		_placementRules.Add(item);
-
-        SubscribePlacementRuleItem(item);
-        _noPlaceRulesLabel.Visible = false;
-		MarkAsDirty();
-	}
     private void SubscribePlacementRuleItem(IPlacementRuleItem item)
     {
         item.OnRuleParametersChanged += PlacementRuleItemOnRuleParametersChanged;

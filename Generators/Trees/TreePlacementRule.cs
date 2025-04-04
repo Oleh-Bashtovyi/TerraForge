@@ -1,5 +1,5 @@
 using Godot;
-using TerrainGenerationApp.Data;
+using TerrainGenerationApp.Data.Structure;
 using TerrainGenerationApp.Rules.PlacementRules;
 using TerrainGenerationApp.Rules.RadiusRules;
 

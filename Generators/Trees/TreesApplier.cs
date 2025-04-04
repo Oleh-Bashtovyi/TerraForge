@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TerrainGenerationApp.Data;
+using TerrainGenerationApp.Data.Structure;
 using TerrainGenerationApp.Extensions;
 using TerrainGenerationApp.Rules.RadiusRules;
 

@@ -1,18 +1,14 @@
 using Godot;
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using TerrainGenerationApp.Data;
-using TerrainGenerationApp.Enums;
-using TerrainGenerationApp.Extensions;
+using TerrainGenerationApp.Data.Display;
+using TerrainGenerationApp.Data.Structure;
 using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.TerrainScene2D;
 
 public partial class TerrainScene2D : Control
 {
-    private static readonly Color DefaultTreesColor = Colors.Red;
-
     private Label _cellInfoLabel;
     private Label _generationStatusLabel;
     private TextureRect _terrainTextureRect;
@@ -20,6 +16,9 @@ public partial class TerrainScene2D : Control
     private TextureRect _treesTextureRect;
 
     private readonly Logger<TerrainScene2D> _logger = new();
+    private bool _terrainImageTextureResizeRequired = false;
+    private bool _treesImageTextureResizeRequired = false;
+    private bool _waterTextureResizeRequired = false;
     private Image _terrainImage;
     private Image _waterImage;
     private Image _treesImage;
@@ -27,9 +26,7 @@ public partial class TerrainScene2D : Control
     private ImageTexture _waterImageTexture;
     private ImageTexture _treesImageTexture;
     private IWorldDataProvider _worldDataProvider;
-    private IDisplayOptionsProvider _displayOptionsProvider;
-    private Gradient _terrainGradient;
-    private Gradient _waterGradient;
+    private IWorldVisualizationSettingsProvider _visualizationSettingsProvider;
 
     public override void _Ready()
     {
@@ -41,9 +38,6 @@ public partial class TerrainScene2D : Control
         _terrainTextureRect.MouseExited += OnMapTextureRectMouseExited;
         _terrainTextureRect.GuiInput += OnMapTextureRectGuiInput;
 
-        _terrainGradient = CreateGradient(ColorPallets.DefaultTerrainColors);
-        _waterGradient = CreateGradient(ColorPallets.DefaultWaterColors);
-
         _terrainImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
         _treesImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8); // RGBA8 for transparency
         _terrainImageTexture = ImageTexture.CreateFromImage(_terrainImage);
@@ -52,283 +46,111 @@ public partial class TerrainScene2D : Control
         _treesTextureRect.Texture = _treesImageTexture;
     }
 
-    private Gradient CreateGradient(IReadOnlyDictionary<float, Color> colorPallet)
-    {
-        var gradient = new Gradient();
-        gradient.RemovePoint(1);
-        foreach (var heightColor in colorPallet)
-        {
-            gradient.AddPoint(heightColor.Key, heightColor.Value);
-        }
-        return gradient;
-    }
-
     public void SetWorldDataProvider(IWorldDataProvider provider)
     {
         _worldDataProvider = provider;
     }
 
-    public void SetDisplayOptionsProvider(IDisplayOptionsProvider provider)
+    public void SetDisplayOptionsProvider(IWorldVisualizationSettingsProvider provider)
     {
-        _displayOptionsProvider = provider;
+        _visualizationSettingsProvider = provider;
     }
 
-    public void SetTip(string tip)
+    public void SetTitleTip(string tip)
     {
         _generationStatusLabel.Text = tip;
     }
 
-    public void HandleAllImagesClear()
+    public void ClearAllImages()
     {
         ClearTerrainImage();
         ClearTreesImage();
     }
 
-    public void HandleAllImagesRedraw()
+    public void RedrawAllImages()
     {
-        HandleTerrainImageRedraw();
-        HandleTreesImageRedraw();
+        RedrawTerrainImage();
+        RedrawTreesImage();
     }
 
-    public void HandleAllTexturesUpdate()
+    public void UpdateAllTextures()
     {
-        UpdateTerrainTextureWithImage();
-        UpdateTreesTextureWithImage();
+        UpdateTerrainTexture();
+        UpdateTreesTexture();
     }
 
-    public void HandleTerrainImageRedraw()
+
+    public void ClearTerrainImage()
+    {
+        _terrainImage.Fill(Colors.Black);
+    }
+
+    public void RedrawTerrainImage()
     {
         ThrowIfNoWorldDataProviderOrDisplayOptionsProvider();
 
         ResizeTerrainImageIfRequired();
 
-        switch (_displayOptionsProvider.CurDisplayFormat)
+        var worldData = _worldDataProvider.WorldData;
+        _visualizationSettingsProvider.Settings.TerrainSettings.RedrawTerrainImage(_terrainImage, worldData);
+    }
+
+    public void UpdateTerrainTexture()
+    {
+        if (_terrainImageTextureResizeRequired)
         {
-            case MapDisplayFormat.Grey:
-                RedrawTerrainImageInGrey();
-                break;
-            case MapDisplayFormat.Colors:
-                RedrawTerrainImageInColors();
-                break;
-            case MapDisplayFormat.GradientColors:
-                RedrawTerrainImageWithGradients();
-                break;
-            default:
-                throw new NotSupportedException($"<{nameof(TerrainScene2D)}><{nameof(HandleTerrainImageRedraw)}> - " +
-                                                $"Display format: {_displayOptionsProvider.CurDisplayFormat} is NOT supported");
+            _terrainImageTexture.SetImage(_terrainImage);
+            _terrainImageTextureResizeRequired = false;
+        }
+        else
+        {
+            _terrainImageTexture.Update(_terrainImage);
         }
     }
 
     private void ResizeTerrainImageIfRequired()
     {
-        ResizeImageIfRequired(_terrainImage, _worldDataProvider.WorldData.TerrainData.GetMapSize());
+        var terrainMapSize = _worldDataProvider.WorldData.TerrainData.GetMapSize();
+        _terrainImageTextureResizeRequired = ResizeImageIfRequired(_terrainImage, terrainMapSize);
     }
 
-    private void ResizeTreesImageIfRequired()
-    {
-        ResizeImageIfRequired(_treesImage, _worldDataProvider.WorldData.TreesData.GetLayersSize());
-    }
-
-    private void ResizeImageIfRequired(Image image, Vector2I size)
-    {
-        if (image.GetSize() != size)
-        {
-            image.Resize(size.X, size.Y);
-        }
-    }
-
-    private void RedrawTerrainImageInGrey()
-    {
-        var map = _worldDataProvider.WorldData.TerrainData.HeightMap;
-        var h = map.Height();
-        var w = map.Width();
-
-        for (int y = 0; y < h; y++)
-        {
-            for (int x = 0; x < w; x++)
-            {
-                var height = map[y, x];
-                _terrainImage.SetPixel(x, y, new Color(height, height, height));
-            }
-        }
-    }
-
-    private void RedrawTerrainImageInColors()
-    {
-        _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
-        _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Constant;
-        InternalRedrawTerrainImageWithGradients();
-    }
-
-    private void RedrawTerrainImageWithGradients()
-    {
-        _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
-        _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
-        InternalRedrawTerrainImageWithGradients();
-    }
-
-    private void InternalRedrawTerrainImageWithGradients()
-    {
-        var slopesThreshold = _displayOptionsProvider.CurSlopeThreshold;
-        var slopes = _worldDataProvider.WorldData.TerrainData.SlopesMap;
-        var seaLevel = _worldDataProvider.WorldData.SeaLevel;
-        var map = _worldDataProvider.WorldData.TerrainData.HeightMap;
-        var h = map.Height();
-        var w = map.Width();
-
-        for (int y = 0; y < h; y++)
-        {
-            for (int x = 0; x < w; x++)
-            {
-                if (map[y, x] < seaLevel)
-                {
-                    _terrainImage.SetPixel(x, y, _waterGradient.Sample(seaLevel - map[y, x]));
-                }
-                else
-                {
-                    var baseColor = _terrainGradient.Sample(map[y, x] - seaLevel);
-                    var slopeBaseColor = GetSlopeColor(baseColor, slopes[y, x], map[y, x], slopesThreshold);
-                    _terrainImage.SetPixel(x, y, slopeBaseColor);
-                }
-            }
-        }
-    }
-
-    private void ThrowIfNoWorldDataProviderOrDisplayOptionsProvider([CallerMemberName] string callerName = "")
-    {
-        if (_worldDataProvider == null)
-            throw new NullReferenceException($"<{nameof(TerrainScene2D)}><{callerName}> - " +
-                                             $"WorldDataProvider is not set");
-
-        if (_displayOptionsProvider == null)
-            throw new NullReferenceException($"<{nameof(TerrainScene2D)}><{callerName}> - " +
-                                             $"DisplayOptionsProvider is not set");
-    }
-
-    private void ClearImage(Image image, Color clearColor)
-    {
-        var size = image.GetSize();
-        for (int x = 0; x < size.X; x++)
-        {
-            for (int y = 0; y < size.Y; y++)
-            {
-                image.SetPixel(x, y, clearColor);
-            }
-        }
-    }
-
-    public void ClearTerrainImage()
-    {
-        ClearImage(_terrainImage, Colors.Black);
-    }
 
     public void ClearTreesImage()
     {
-        ClearImage(_treesImage, Colors.Transparent);
+        _treesImage.Fill(Colors.Transparent);
     }
 
-    public void SetTerrainImageToTexture()
-    {
-        _terrainImageTexture.SetImage(_terrainImage);
-    }
-
-    public void UpdateTerrainTextureWithImage()
-    {
-        _terrainImageTexture.Update(_terrainImage);
-    }
-
-    public void SetTreesImageToTexture()
-    {
-        _treesImageTexture.SetImage(_treesImage);
-    }
-
-    public void UpdateTreesTextureWithImage()
-    {
-        _treesImageTexture.Update(_treesImage);
-    }
-
-    public void HandleTreesImageRedraw()
+    public void RedrawTreesImage()
     {
         ThrowIfNoWorldDataProviderOrDisplayOptionsProvider();
 
         ResizeTreesImageIfRequired();
 
-        switch (_displayOptionsProvider.CurDisplayFormat)
-        {
-            case MapDisplayFormat.Grey:
-                break;
-            case MapDisplayFormat.Colors:
-            case MapDisplayFormat.GradientColors:
-                RedrawTreesImage();
-                break;
-            default:
-                throw new NotSupportedException($"<{nameof(TerrainScene2D)}><{nameof(HandleTreesImageRedraw)}> - " +
-                                                $"Display format: {_displayOptionsProvider.CurDisplayFormat} is NOT supported");
-        }
-    }
-
-    private void RedrawTreesImage()
-    {
-        var treeMaps = _worldDataProvider.WorldData.TreesData.GetLayers();
-        var treeColors = _displayOptionsProvider.TreeColors;
-        var h = _worldDataProvider.WorldData.TreesData.LayersHeight;
-        var w = _worldDataProvider.WorldData.TreesData.LayersWidth;
-
-        // Map should be transparent by default
         ClearTreesImage();
 
-        foreach (var item in treeMaps)
+        var worldData = _worldDataProvider.WorldData;
+        _visualizationSettingsProvider.Settings.TreeSettings.RedrawTreesImage(_treesImage, worldData);
+    }
+
+    public void UpdateTreesTexture()
+    {
+        if (_treesImageTextureResizeRequired)
         {
-            var id = item.TreeId;
-            var map = item.TreesMap;
-            var treesCount = 0;
-            var treeColor = treeColors.GetValueOrDefault(id, DefaultTreesColor);
-
-            for (int y = 0; y < h; y++)
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    if (map[y, x])
-                    {
-                        treesCount++;
-                        _treesImage.SetPixel(x, y, treeColor);
-                        if (y > 0) _treesImage.SetPixel(x, y - 1, treeColor);
-                        if (x > 0) _treesImage.SetPixel(x - 1, y, treeColor);
-                        if (x < w - 1) _treesImage.SetPixel(x + 1, y, treeColor);
-                        if (y < h - 1) _treesImage.SetPixel(x, y + 1, treeColor);
-                    }
-                }
-            }
-
-            if (treesCount == 0)
-            {
-                _logger.Log($"Tree layer: {id} has ZERO trees");
-            }
-            else
-            {
-                _logger.Log($"Tree layer: {id}, trees count: {treesCount}, color: {treeColor}");
-            }
+            _treesImageTexture.SetImage(_treesImage);
+            _treesImageTextureResizeRequired = false;
+        }
+        else
+        {
+            _treesImageTexture.Update(_treesImage);
         }
     }
 
-    private Color GetSlopeColor(Color baseColor, float slope, float elevation, float slopeThreshold)
+    private void ResizeTreesImageIfRequired()
     {
-        // Normalize slope value (to fit within 0-1 range)
-        float slopeFactor = MathF.Min(slope * slopeThreshold, 1.0f);
-
-        // Darken based on steepness
-        float r = baseColor.R * (1.0f - slopeFactor);
-        float g = baseColor.G * (1.0f - slopeFactor);
-        float b = baseColor.B * (1.0f - slopeFactor);
-
-        // Brightness correction (slightly brighten at higher elevations)
-        float brightnessFactor = 1.0f + (elevation * 0.2f);
-        r = Math.Clamp(r * brightnessFactor, 0, 1.0f);
-        g = Math.Clamp(g * brightnessFactor, 0, 1.0f);
-        b = Math.Clamp(b * brightnessFactor, 0, 1.0f);
-
-        return new Color(r, g, b);
+        var treesMapSize = _worldDataProvider.WorldData.TreesData.GetLayersSize();
+        _treesImageTextureResizeRequired = ResizeImageIfRequired(_treesImage, treesMapSize);
     }
+
 
     private void OnMapTextureRectGuiInput(InputEvent @event)
     {
@@ -355,5 +177,35 @@ public partial class TerrainScene2D : Control
     private void OnMapTextureRectMouseExited()
     {
         _cellInfoLabel.Text = "";
+    }
+
+
+    /// <summary>
+    /// Resizes the image if its size does not match the specified size.
+    /// </summary>
+    /// <returns>True if the image was resized</returns>
+    private bool ResizeImageIfRequired(Image image, Vector2I size)
+    {
+        if (image.GetSize() != size)
+        {
+            image.Resize(size.X, size.Y);
+            return true;
+        }
+        return false;
+    }
+
+    private void ThrowIfNoWorldDataProviderOrDisplayOptionsProvider([CallerMemberName] string callerName = "")
+    {
+        if (_worldDataProvider == null)
+        {
+            _logger.LogError($"{nameof(_worldDataProvider)} is not set");
+            throw new NullReferenceException($"{nameof(_worldDataProvider)} is not set");
+        }
+
+        if (_visualizationSettingsProvider == null)
+        {
+            _logger.LogError($"{nameof(_visualizationSettingsProvider)} is not set");
+            throw new NullReferenceException($"{nameof(_visualizationSettingsProvider)} is not set");
+        }
     }
 }

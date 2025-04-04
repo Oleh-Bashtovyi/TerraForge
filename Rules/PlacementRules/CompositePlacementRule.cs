@@ -1,7 +1,7 @@
 ﻿using Godot;
 using System.Collections.Generic;
 using System.Linq;
-using TerrainGenerationApp.Data;
+using TerrainGenerationApp.Data.Structure;
 
 namespace TerrainGenerationApp.Rules.PlacementRules;
 

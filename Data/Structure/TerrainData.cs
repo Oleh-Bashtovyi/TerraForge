@@ -2,7 +2,7 @@
 using TerrainGenerationApp.Extensions;
 using TerrainGenerationApp.Utilities;
 
-namespace TerrainGenerationApp.Data;
+namespace TerrainGenerationApp.Data.Structure;
 
 public class TerrainData
 {

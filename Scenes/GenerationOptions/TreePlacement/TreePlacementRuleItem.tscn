@@ -93,25 +93,15 @@ expand_icon = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="AddPlaceRuleButton" type="Button" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer"]
+[node name="AddPlaceRuleButton" type="MenuButton" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "➕"
+flat = false
 
 [node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "Placement rules:"
-
-[node name="PlacementRulesPopupMenu" type="PopupMenu" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-title = "Add placement rule"
-position = Vector2i(245, 440)
-size = Vector2i(155, 100)
-item_count = 2
-item_0/text = "🌊Above sea rule"
-item_0/id = 0
-item_1/text = "⛰Slopes rule"
-item_1/id = 1
 
 [node name="PlaceRulesVBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
 unique_name_in_owner = true

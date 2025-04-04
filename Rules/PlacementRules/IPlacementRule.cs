@@ -1,5 +1,5 @@
 ﻿using Godot;
-using TerrainGenerationApp.Data;
+using TerrainGenerationApp.Data.Structure;
 
 namespace TerrainGenerationApp.Rules.PlacementRules;
 

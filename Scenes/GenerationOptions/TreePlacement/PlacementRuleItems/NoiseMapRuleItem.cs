@@ -69,6 +69,7 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
         _seedSlider.ValueChanged += OnSeedSValueChanged;
         _noiseThresholdSlider.ValueChanged += OnNoiseThresholdSliderValueChanged;
 
+        _generator.EnableWarping = false;
         _noiseImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
         _noiseTexture = ImageTexture.CreateFromImage(_noiseImage);
         _noiseTextureRect.Texture = _noiseTexture;
@@ -122,7 +123,7 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
     private void OnNoiseThresholdSliderValueChanged(double value)
     {
         _noiseThreshold = Mathf.Clamp((float)value, 0f, 1.0f);
-        _noiseThresholdLabel.Text = _noiseThreshold.ToString();
+        _noiseThresholdLabel.Text = _noiseThreshold.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 
@@ -147,7 +148,7 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
         Vector2 offset = _generator.Offset;
         offset.X = Mathf.RoundToInt(value);
         _generator.Offset = offset;
-        _offsetXLabel.Text = offset.X.ToString();
+        _offsetXLabel.Text = offset.X.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 
@@ -156,42 +157,42 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
         Vector2 offset = _generator.Offset;
         offset.Y = Mathf.RoundToInt(value);
         _generator.Offset = offset;
-        _offsetYLabel.Text = offset.Y.ToString();
+        _offsetYLabel.Text = offset.Y.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 
     private void OnScaleSliderValueChanged(double value)
     {
         _generator.Scale = (float)value;
-        _scaleLabel.Text = value.ToString();
+        _scaleLabel.Text = value.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 
     private void OnPersistanceSliderValueChanged(double value)
     {
         _generator.Persistance = (float)value;
-        _persistenceLabel.Text = value.ToString();
+        _persistenceLabel.Text = value.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 
     private void OnLacunaritySliderValueChanged(double value)
     {
         _generator.Lacunarity = (float)value;
-        _lacunarityLabel.Text = value.ToString();
+        _lacunarityLabel.Text = value.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 
     private void OnOctavesSliderValueChanged(double value)
     {
         _generator.Octaves = Mathf.RoundToInt(value);
-        _octavesLabel.Text = _generator.Octaves.ToString();
+        _octavesLabel.Text = _generator.Octaves.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 
     private void OnSeedSValueChanged(double value)
     {
         var _seed = Mathf.RoundToInt(value);
-        _seedLabel.Text = _seed.ToString();
+        _seedLabel.Text = _seed.ToString("0.##");
         _generator.Seed = _seed;
         InvokeParametersChangedEvent();
     }

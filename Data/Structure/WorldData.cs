@@ -1,6 +1,6 @@
 ﻿using Godot;
 
-namespace TerrainGenerationApp.Data;
+namespace TerrainGenerationApp.Data.Structure;
 
 public class WorldData : IWorldData
 {

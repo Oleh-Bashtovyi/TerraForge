@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TerrainGenerationApp.Extensions;
 
-namespace TerrainGenerationApp.Data;
+namespace TerrainGenerationApp.Data.Structure;
 
 public class TreesData
 {

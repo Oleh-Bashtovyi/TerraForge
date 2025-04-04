@@ -1,7 +1,8 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using TerrainGenerationApp.Data;
+using TerrainGenerationApp.Data.Display;
+using TerrainGenerationApp.Data.Structure;
 using TerrainGenerationApp.Extensions;
 using TerrainGenerationApp.Utilities;
 
@@ -9,7 +10,7 @@ namespace TerrainGenerationApp.Scenes.GameComponents.TerrainScene3D;
 
 public partial class TerrainScene3D : Node3D
 {
-	private readonly PackedScene _treeScene = GD.Load<PackedScene>("res://Scenes/Objects/Tree_1.tscn");
+	//private readonly PackedScene _treeScene = GD.Load<PackedScene>("res://Scenes/Objects/Tree_1.tscn");
 
 
     private const int MeshResolution = 10;
@@ -21,7 +22,7 @@ public partial class TerrainScene3D : Node3D
     private Node3D _treesContainer;
 
 	private IWorldDataProvider _worldDataProvider;
-    private IDisplayOptionsProvider _displayOptionsProvider;
+    private IWorldVisualizationSettingsProvider _worldVisualizationSettingsProvider;
     private Gradient _terrainGradient;
 	private Gradient _waterGradient;
 
@@ -47,9 +48,9 @@ public partial class TerrainScene3D : Node3D
 	}
 
 
-    public void SetDisplayOptionsProvider(IDisplayOptionsProvider provider)
+    public void SetDisplayOptionsProvider(IWorldVisualizationSettingsProvider provider)
     {
-        _displayOptionsProvider = provider;
+        _worldVisualizationSettingsProvider = provider;
     }
 
 
@@ -132,7 +133,7 @@ public partial class TerrainScene3D : Node3D
             float cellSizeX = meshSizeX / treeMapWidth;
             float cellSizeZ = meshSizeZ / treeMapHeight;
             var random = new Random();
-            var packedScene = _displayOptionsProvider.TreeModels[item.TreeId];
+            var packedScene = _worldVisualizationSettingsProvider.TreeModels[item.TreeId];
             //var packedScene = _treeScene;
 
             for (var y = 0; y < treeMapHeight; y++)

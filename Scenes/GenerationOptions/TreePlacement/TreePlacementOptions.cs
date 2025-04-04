@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TerrainGenerationApp.Data;
+using TerrainGenerationApp.Data.Structure;
 using TerrainGenerationApp.Enums;
 using TerrainGenerationApp.Generators.Trees;
 using TerrainGenerationApp.Scenes.Loaded;

@@ -1,12 +1,12 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using TerrainGenerationApp.Data;
+using TerrainGenerationApp.Data.Display;
 using TerrainGenerationApp.Enums;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 
-public partial class MapDisplayOptions : Control, IDisplayOptionsProvider
+public partial class MapWorldVisualizationSettings : Control, IWorldVisualizationSettingsProvider
 {
     private CheckBox _displayGrey;
     private CheckBox _displayColors;
