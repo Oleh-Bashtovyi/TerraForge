@@ -49,7 +49,7 @@ public class PerlinNoise
     private float _scale = 25.0f;
     private Vector2 _offset = Vector2.Zero;
     private int _octaves = 4;
-    private float _persistance = 0.5f;
+    private float _persistence = 0.5f;
     private float _lacunarity = 2.0f;
     private SUBTYPE _curSubtype = SUBTYPE.PERLIN;
     private float _warpingStrength = 1.0f;
@@ -133,10 +133,10 @@ public class PerlinNoise
         set => _octaves = value;
     }
 
-    public float Persistance
+    public float Persistence
     {
-        get => _persistance;
-        set => _persistance = value;
+        get => _persistence;
+        set => _persistence = value;
     }
 
     public float Lacunarity
@@ -211,7 +211,7 @@ public class PerlinNoise
         {
             value += Perlin1D(x * frequency) * amplitude;
             maxValue += amplitude;
-            amplitude *= _persistance;
+            amplitude *= _persistence;
             frequency *= _lacunarity;
         }
 
@@ -234,7 +234,7 @@ public class PerlinNoise
         {
             v += Perlin2D(x * f, y * f) * a;
             m += a;
-            a *= _persistance;
+            a *= _persistence;
             f *= _lacunarity;
         }
 
@@ -253,7 +253,7 @@ public class PerlinNoise
         {
             value += Perlin3D(x * frequency, y * frequency, z * frequency) * amplitude;
             maxValue += amplitude;
-            amplitude *= _persistance;
+            amplitude *= _persistence;
             frequency *= _lacunarity;
         }
 

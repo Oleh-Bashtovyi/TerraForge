@@ -1,202 +1,147 @@
-using Godot;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.PerlinNoise;
 
 public partial class PerlinOptions : BaseGeneratorOptions
 {
-	private Domain.Generators.PerlinNoise _generator;
-	private int _seed = 0;
+	private readonly Domain.Generators.PerlinNoise _generator = new();
 
-	// UI Element references
-	private Label _mapHeightLabel;
-	private Label _mapWidthLabel;
-	private Label _offsetXLabel;
-	private Label _offsetYLabel;
-	private Label _scaleLabel;
-	private Label _persistenceLabel;
-	private Label _lacunarityLabel;
-	private Label _octavesLabel;
-	private Label _seedLabel;
-	private Label _warpingStrengthLabel;
-	private Label _warpingSizeLabel;
-	private Slider _mapHeightSlider;
-    private Slider _mapWidthSlider;
-    private Slider _offsetXSlider;
-    private Slider _offsetYSlider;
-    private Slider _scaleSlider;
-	private Slider _lacunaritySlider;
-	private Slider _persistanceSlider;
-    private Slider _octavesSlider;
-    private Slider _seedSlider;
-    private Slider _warpingStrengthSlider;
-    private Slider _warpingSizeSlider;
-    private CheckButton _useWarpingCheckButton;
-
-	public Domain.Generators.PerlinNoise Generator
-	{
-		get => _generator;
-		set => _generator = value;
-	}
-
-	public override void _Ready()
-	{
-		if (_generator == null)
-		{
-			_generator = new Generators.PerlinNoise();
-		}
-
-		// Get UI references
-		_mapHeightLabel = GetNode<Label>("%MapHeightLabel");
-		_mapWidthLabel = GetNode<Label>("%MapWidthLabel");
-		_offsetXLabel = GetNode<Label>("%OffsetXLabel");
-		_offsetYLabel = GetNode<Label>("%OffsetYLabel");
-		_scaleLabel = GetNode<Label>("%ScaleLabel");
-		_persistenceLabel = GetNode<Label>("%PersistanceLabel");
-		_lacunarityLabel = GetNode<Label>("%LacunarityLabel");
-		_octavesLabel = GetNode<Label>("%OctavesLabel");
-		_seedLabel = GetNode<Label>("%SeedL");
-		_warpingStrengthLabel = GetNode<Label>("%WarpingStrengthL");
-		_warpingSizeLabel = GetNode<Label>("%WarpingSizeL");
-		_useWarpingCheckButton = GetNode<CheckButton>("%UseWarpingCheckButton");
-		_mapHeightSlider = GetNode<Slider>("%MapHeightSlider");
-        _mapWidthSlider = GetNode<Slider>("%MapWidthSlider");
-        _offsetXSlider = GetNode<Slider>("%OffsetXSlider");
-        _offsetYSlider = GetNode<Slider>("%OffsetYSlider");
-        _scaleSlider = GetNode<Slider>("%ScaleSlider");
-        _persistanceSlider = GetNode<Slider>("%PersistanceSlider");
-        _lacunaritySlider = GetNode<Slider>("%LacunaritySlider");
-        _octavesSlider = GetNode<Slider>("%OctavesSlider");
-        _seedSlider = GetNode<Slider>("%SeedSlider");
-        _warpingStrengthSlider = GetNode<Slider>("%WarpingStrengthSlider");
-        _warpingSizeSlider = GetNode<Slider>("%WarpingSizeSlider");
+    [LineInputValue(Description = "Map height:")]
+    [InputRange(1, 400)]
+    [Rounded]
+    [Step(1.0f)]
+    public int MapHeight
+    {
+        get => _generator.MapHeight;
+        set
+        {
+            _generator.MapHeight = value;
+            InvokeParametersChangedEvent();
+        }
     }
 
+    [LineInputValue(Description = "Map width:")]
+    [InputRange(1, 400)]
+    [Rounded]
+    [Step(1.0f)]
+    public int MapWidth
+    {
+        get => _generator.MapWidth;
+        set
+        {
+            _generator.MapWidth = value;
+            InvokeParametersChangedEvent();
+        }
+    }
 
-	public override float[,] GenerateMap()
+    [LineInputValue(Description = "Seed:")]
+    [InputRange(0, 10000)]
+    [Rounded]
+    [Step(1.0f)]
+    public int Seed
+    {
+        get => _generator.Seed;
+        set
+        {
+            _generator.Seed = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [LineInputValue(Description = "Octaves:")]
+	[InputRange(1, 10)]
+	[Rounded]
+    [Step(1.0f)]
+    public int Octaves
+    {
+		get => _generator.Octaves;
+        set
+        {
+			_generator.Octaves = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [LineInputValue(Description = "Scale:")]
+    [InputRange(0.1f, 100f)]
+    [Step(0.1f)]
+    public float Frequency
+    {
+        get => _generator.Scale;
+        set
+        {
+            _generator.Scale = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [LineInputValue(Description = "Lacunarity:")]
+    [InputRange(0.001f, 10f)]
+    [Step(0.001f)]
+    public float Lacunarity
+    {
+        get => _generator.Lacunarity;
+        set
+        {
+            _generator.Lacunarity = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [LineInputValue(Description = "Persistence:")]
+    [InputRange(0.001f, 1f)]
+    [Step(0.001f)]
+    public float Persistence
+    {
+        get => _generator.Persistence;
+        set
+        {
+            _generator.Persistence = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [LineInputValue(Description = "Offset X:")]
+    [InputRange(-1000f, 1000f)]
+    [Step(0.1f)]
+    public float OffsetX
+    {
+        get => _generator.Offset.X;
+        set
+        {
+            var offset = _generator.Offset;
+            offset.X = value;
+            _generator.Offset = offset;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [LineInputValue(Description = "Offset Y:")]
+    [InputRange(-1000f, 1000f)]
+    [Step(0.1f)]
+    public float OffsetY
+    {
+        get => _generator.Offset.Y;
+        set
+        {
+            var offset = _generator.Offset;
+            offset.Y = value;
+            _generator.Offset = offset;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    public Domain.Generators.PerlinNoise Generator => _generator;
+
+    public override void _Ready()
+    {
+        Generator.EnableWarping = false;
+        InputLineManager.CreateInputLinesForObject(this, this);
+    }
+
+    public override float[,] GenerateMap()
 	{
 		return _generator.GenerateMap();
 	}
-
-    public override void DisableAllOptions()
-    {
-        _mapHeightSlider.Editable = false;
-        _mapWidthSlider.Editable = false;
-        _offsetXSlider.Editable = false;
-        _offsetYSlider.Editable = false;
-        _scaleSlider.Editable = false;
-        _persistanceSlider.Editable = false;
-        _lacunaritySlider.Editable = false;
-        _octavesSlider.Editable = false;
-        _seedSlider.Editable = false;
-        _warpingStrengthSlider.Editable = false;
-        _warpingSizeSlider.Editable = false;
-    }
-
-    public override void EnableAllOptions()
-    {
-        _mapHeightSlider.Editable = true;
-        _mapWidthSlider.Editable = true;
-        _offsetXSlider.Editable = true;
-        _offsetYSlider.Editable = true;
-        _scaleSlider.Editable = true;
-        _persistanceSlider.Editable = true;
-        _lacunaritySlider.Editable = true;
-        _octavesSlider.Editable = true;
-        _seedSlider.Editable = true;
-        _warpingStrengthSlider.Editable = true;
-        _warpingSizeSlider.Editable = true;
-    }
-
-
-    private void OnMapHeightSliderValueChanged(float value)
-	{
-		_generator.MapHeight = Mathf.RoundToInt(value);
-		_mapHeightLabel.Text = _generator.MapHeight.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnMapWidthSliderValueChanged(float value)
-	{
-		_generator.MapWidth = Mathf.RoundToInt(value);
-		_mapWidthLabel.Text = _generator.MapWidth.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnOffsetXSliderValueChanged(float value)
-	{
-		Vector2 offset = _generator.Offset;
-		offset.X = Mathf.RoundToInt(value);
-		_generator.Offset = offset;
-		_offsetXLabel.Text = offset.X.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnOffsetYSliderValueChanged(float value)
-	{
-		Vector2 offset = _generator.Offset;
-		offset.Y = Mathf.RoundToInt(value);
-		_generator.Offset = offset;
-		_offsetYLabel.Text = offset.Y.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnScaleSliderValueChanged(float value)
-	{
-		_generator.Scale = value;
-		_scaleLabel.Text = value.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnPersistanceSliderValueChanged(float value)
-	{
-		_generator.Persistance = value;
-		_persistenceLabel.Text = value.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnLacunaritySliderValueChanged(float value)
-	{
-		_generator.Lacunarity = value;
-		_lacunarityLabel.Text = value.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnOctavesSliderValueChanged(float value)
-	{
-		_generator.Octaves = Mathf.RoundToInt(value);
-		_octavesLabel.Text = _generator.Octaves.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnSeedSValueChanged(float value)
-	{
-		_seed = Mathf.RoundToInt(value);
-		_seedLabel.Text = _seed.ToString();
-		_generator.Seed = _seed;
-        InvokeParametersChangedEvent();
-    }
-
-
-	private void OnWarpingStrengthSValueChanged(float value)
-	{
-		_generator.WarpingStrength = value;
-		_warpingStrengthLabel.Text = value.ToString();
-		InvokeParametersChangedEvent();
-	}
-
-	private void OnWarpingSizeSValueChanged(float value)
-	{
-		_generator.WarpingSize = value;
-		_warpingSizeLabel.Text = value.ToString();
-        InvokeParametersChangedEvent();
-}
-
-	private void OnUseWarpingCheckButtonToggled(bool toggledOn)
-	{
-		_generator.EnableWarping = toggledOn;
-        InvokeParametersChangedEvent();
-}
-
-
-
 }

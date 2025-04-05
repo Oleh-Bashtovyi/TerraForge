@@ -69,7 +69,9 @@ public class TerrainVisualizationSettings
                 }
 
                 var baseColor = _terrainGradient.Sample(h - worldData.SeaLevel);
-                return baseColor;
+                var slope = worldData.TerrainData.SlopeAt(row, col);
+                var slopeColor = GetSlopeColor(baseColor, slope, h);
+                return slopeColor;
             default:
                 throw new NotImplementedException("Can not handle color get operation idk");
         }
@@ -80,7 +82,7 @@ public class TerrainVisualizationSettings
     {
         var pointCount = _terrainGradient.GetPointCount();
 
-        for (int i = 0; i < pointCount; i++)
+        for (int i = 0; i < pointCount - 1; i++)
         {
             _terrainGradient.RemovePoint(0);
         }
@@ -90,7 +92,7 @@ public class TerrainVisualizationSettings
     {
         var pointCount = _waterGradient.GetPointCount();
 
-        for (int i = 0; i < pointCount; i++)
+        for (int i = 0; i < pointCount - 1; i++)
         {
             _waterGradient.RemovePoint(0);
         }
@@ -133,10 +135,10 @@ public class TerrainVisualizationSettings
 
 
 
-    private Color GetSlopeColor(Color baseColor, float slope, float elevation, float slopeThreshold)
+    private Color GetSlopeColor(Color baseColor, float slope, float elevation)
     {
         // Normalize slope value (to fit within 0-1 range)
-        float slopeFactor = MathF.Min(slope * slopeThreshold, 1.0f);
+        float slopeFactor = MathF.Min(slope * SlopeThreshold, 1.0f);
 
         // Darken based on steepness
         float r = baseColor.R * (1.0f - slopeFactor);

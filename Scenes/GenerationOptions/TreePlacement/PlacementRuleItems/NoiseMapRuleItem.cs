@@ -1,34 +1,17 @@
 ﻿using Godot;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Rules.PlacementRules;
+using TerrainGenerationApp.Scenes.GenerationOptions.PerlinNoise;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
 
 public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 {
-    private Label _mapHeightLabel;
-    private Label _mapWidthLabel;
-    private Label _offsetXLabel;
-    private Label _offsetYLabel;
-    private Label _scaleLabel;
-    private Label _persistenceLabel;
-    private Label _lacunarityLabel;
-    private Label _octavesLabel;
-    private Label _seedLabel;
-    private Slider _mapHeightSlider;
-    private Slider _mapWidthSlider;
-    private Slider _offsetXSlider;
-    private Slider _offsetYSlider;
-    private Slider _scaleSlider;
-    private Slider _lacunaritySlider;
-    private Slider _persistanceSlider;
-    private Slider _octavesSlider;
-    private Slider _seedSlider;
+    private PerlinOptions _perlinOptions;
     private Label _noiseThresholdLabel;
     private Slider _noiseThresholdSlider;
     private TextureRect _noiseTextureRect;
 
-    private readonly Domain.Generators.PerlinNoise _generator = new();
     private Image _noiseImage;
     private ImageTexture _noiseTexture;
     private float _noiseThreshold = 0.5f;
@@ -37,48 +20,27 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
     public override void _Ready()
     {
         base._Ready();
-        _mapHeightLabel = GetNode<Label>("%MapHeightLabel");
-        _mapWidthLabel = GetNode<Label>("%MapWidthLabel");
-        _offsetXLabel = GetNode<Label>("%OffsetXLabel");
-        _offsetYLabel = GetNode<Label>("%OffsetYLabel");
-        _scaleLabel = GetNode<Label>("%ScaleLabel");
-        _persistenceLabel = GetNode<Label>("%PersistanceLabel");
-        _lacunarityLabel = GetNode<Label>("%LacunarityLabel");
-        _octavesLabel = GetNode<Label>("%OctavesLabel");
-        _seedLabel = GetNode<Label>("%SeedLabel");
-        _mapHeightSlider = GetNode<Slider>("%MapHeightSlider");
-        _mapWidthSlider = GetNode<Slider>("%MapWidthSlider");
-        _offsetXSlider = GetNode<Slider>("%OffsetXSlider");
-        _offsetYSlider = GetNode<Slider>("%OffsetYSlider");
-        _scaleSlider = GetNode<Slider>("%ScaleSlider");
-        _persistanceSlider = GetNode<Slider>("%PersistanceSlider");
-        _lacunaritySlider = GetNode<Slider>("%LacunaritySlider");
-        _octavesSlider = GetNode<Slider>("%OctavesSlider");
-        _seedSlider = GetNode<Slider>("%SeedSlider");
+        _perlinOptions = GetNode<PerlinOptions>("%PerlinOptions");
         _noiseThresholdLabel = GetNode<Label>("%NoiseThresholdLabel");
         _noiseThresholdSlider = GetNode<Slider>("%NoiseThresholdSlider");
         _noiseTextureRect = GetNode<TextureRect>("%NoiseTextureRect");
-        _mapHeightSlider.ValueChanged += OnMapHeightSliderValueChanged;
-        _mapWidthSlider.ValueChanged += OnMapWidthSliderValueChanged;
-        _offsetXSlider.ValueChanged += OnOffsetXSliderValueChanged;
-        _offsetYSlider.ValueChanged += OnOffsetYSliderValueChanged;
-        _scaleSlider.ValueChanged += OnScaleSliderValueChanged;
-        _persistanceSlider.ValueChanged += OnPersistanceSliderValueChanged;
-        _lacunaritySlider.ValueChanged += OnLacunaritySliderValueChanged;
-        _octavesSlider.ValueChanged += OnOctavesSliderValueChanged;
-        _seedSlider.ValueChanged += OnSeedSValueChanged;
         _noiseThresholdSlider.ValueChanged += OnNoiseThresholdSliderValueChanged;
+        _perlinOptions.ParametersChanged += _perlinOptions_ParametersChanged;
 
-        _generator.EnableWarping = false;
         _noiseImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
         _noiseTexture = ImageTexture.CreateFromImage(_noiseImage);
         _noiseTextureRect.Texture = _noiseTexture;
         RedrawMap();
     }
 
+    private void _perlinOptions_ParametersChanged()
+    {
+        InvokeParametersChangedEvent();
+    }
+
     public override IPlacementRule GetPlacementRule()
     {
-        var map = _generator.GenerateMap();
+        var map = _perlinOptions.GenerateMap();
         var rule = new NoiseMapRule(map, _noiseThreshold);
         return rule;
     }
@@ -87,10 +49,10 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
     {
         if (_sizeChanged)
         {
-            _noiseImage.Resize(_generator.MapWidth, _generator.MapHeight);
+            _noiseImage.Resize(_perlinOptions.MapWidth, _perlinOptions.MapHeight);
         }
 
-        var map = _generator.GenerateMap();
+        var map = _perlinOptions.GenerateMap();
 
         for (int y = 0; y < map.Height(); y++)
         {
@@ -116,6 +78,13 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 
     private void InvokeParametersChangedEvent()
     {
+        var size = new Vector2I(_perlinOptions.MapWidth, _perlinOptions.MapHeight);
+        
+        if (_noiseImage.GetSize() != size)
+        {
+            _sizeChanged = true;
+        }
+
         RedrawMap();
         InvokeRuleParametersChangedEvent();
     }
@@ -124,75 +93,6 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
     {
         _noiseThreshold = Mathf.Clamp((float)value, 0f, 1.0f);
         _noiseThresholdLabel.Text = _noiseThreshold.ToString("0.##");
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnMapHeightSliderValueChanged(double value)
-    {
-        _generator.MapHeight = Mathf.RoundToInt(value);
-        _mapHeightLabel.Text = _generator.MapHeight.ToString();
-        _sizeChanged = true;
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnMapWidthSliderValueChanged(double value)
-    {
-        _generator.MapWidth = Mathf.RoundToInt(value);
-        _mapWidthLabel.Text = _generator.MapWidth.ToString();
-        _sizeChanged = true;
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnOffsetXSliderValueChanged(double value)
-    {
-        Vector2 offset = _generator.Offset;
-        offset.X = Mathf.RoundToInt(value);
-        _generator.Offset = offset;
-        _offsetXLabel.Text = offset.X.ToString("0.##");
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnOffsetYSliderValueChanged(double value)
-    {
-        Vector2 offset = _generator.Offset;
-        offset.Y = Mathf.RoundToInt(value);
-        _generator.Offset = offset;
-        _offsetYLabel.Text = offset.Y.ToString("0.##");
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnScaleSliderValueChanged(double value)
-    {
-        _generator.Scale = (float)value;
-        _scaleLabel.Text = value.ToString("0.##");
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnPersistanceSliderValueChanged(double value)
-    {
-        _generator.Persistance = (float)value;
-        _persistenceLabel.Text = value.ToString("0.##");
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnLacunaritySliderValueChanged(double value)
-    {
-        _generator.Lacunarity = (float)value;
-        _lacunarityLabel.Text = value.ToString("0.##");
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnOctavesSliderValueChanged(double value)
-    {
-        _generator.Octaves = Mathf.RoundToInt(value);
-        _octavesLabel.Text = _generator.Octaves.ToString("0.##");
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnSeedSValueChanged(double value)
-    {
-        _generator.Seed = Mathf.RoundToInt(value);
-        _seedLabel.Text = _generator.Seed.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 }

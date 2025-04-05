@@ -100,6 +100,10 @@ public class TreesData
         _layers.Clear();
     }
 
+    public bool HasLayer(string layerName)
+    {
+        return _layers.ContainsKey(layerName);
+    }
 
     public void AddLayer(string layerName, bool[,] layer)
     {

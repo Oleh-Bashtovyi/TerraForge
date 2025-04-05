@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://djhdbxgy1amyg" path="res://Scenes/GameComponents/TerrainScene3D/TerrainScene3D.tscn" id="2_kmdfo"]
 [ext_resource type="PackedScene" uid="uid://ckgwmiiux24bu" path="res://Scenes/GameComponents/GenerationMenu/MapGenerationMenu.tscn" id="4_2ko6c"]
 [ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/GameComponents/TerrainScene2D/TerrainScene2D.tscn" id="4_a0xit"]
-[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/GameComponents/DisplayOptions/TerrainVisualizationSettings.tscn" id="6_kwpie"]
+[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/GameComponents/DisplayOptions/TerrainVisualizationOptions.tscn" id="6_kwpie"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_mxk2f"]
 noise_type = 5
@@ -91,11 +91,8 @@ offset_bottom = -226.0
 [node name="MapDisplayOptions" parent="Generation_Layer/RightPannel" instance=ExtResource("6_kwpie")]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-offset_top = -231.0
-offset_bottom = -54.0
-grow_vertical = 0
+offset_top = 420.0
+offset_bottom = -50.0
 
 [node name="ButtonsContainer" type="MarginContainer" parent="Generation_Layer/RightPannel"]
 layout_mode = 1

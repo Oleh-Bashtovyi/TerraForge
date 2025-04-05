@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using TerrainGenerationApp.Domain.Enums;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 
@@ -9,8 +11,7 @@ public partial class TerrainVisualizationOptions : Control
     private CheckBox _displayGrey;
     private CheckBox _displayColors;
     private CheckBox _displayGradient;
-    private Label _slopeThresholdLabel;
-    private Slider _slopeThresholdSlider;
+    private VBoxContainer _optionsContainer;
 
     private MapDisplayFormat _curDisplayFormat = MapDisplayFormat.Grey;
     private float _curSlopeThreshold = 0.2f;
@@ -27,6 +28,10 @@ public partial class TerrainVisualizationOptions : Control
             OnDisplayOptionsChanged?.Invoke();
         }
     }
+
+    [LineInputValue(Description = "Slope threshold")]
+    [InputRange(0.0f, 1.0f)]
+    [Step(0.01f)]
     public float CurSlopeThreshold
     {
         get => _curSlopeThreshold;
@@ -43,8 +48,9 @@ public partial class TerrainVisualizationOptions : Control
         _displayGrey = GetNode<CheckBox>("%DisplayGrey");
         _displayColors = GetNode<CheckBox>("%DisplayColors");
         _displayGradient = GetNode<CheckBox>("%DisplayGradient");
-        _slopeThresholdLabel = GetNode<Label>("%SlopeThresholdL");
-        _slopeThresholdSlider = GetNode<Slider>("%SlopeThresholdSlider");
+        _optionsContainer = GetNode<VBoxContainer>("%OptionsContainer");
+        InputLineManager.CreateInputLinesForObject(this, _optionsContainer);
+
         _displayGradient.ButtonPressed = false;
         _displayGrey.ButtonPressed = false;
         _displayColors.ButtonPressed = true;
@@ -52,16 +58,5 @@ public partial class TerrainVisualizationOptions : Control
         _displayColors.Toggled += (_) => CurDisplayFormat = MapDisplayFormat.Colors;
         _displayGradient.Toggled += (_) => CurDisplayFormat = MapDisplayFormat.GradientColors;
         CurDisplayFormat = MapDisplayFormat.Colors;
-
-        // Display features
-        _slopeThresholdSlider.Value = CurSlopeThreshold;
-        _slopeThresholdLabel.Text = CurSlopeThreshold.ToString("0.##");
-        _slopeThresholdSlider.ValueChanged += SlopeThresholdSliderOnValueChanged;
-    }
-
-    private void SlopeThresholdSliderOnValueChanged(double value)
-    {
-        CurSlopeThreshold = (float)value;
-        _slopeThresholdLabel.Text = CurSlopeThreshold.ToString("0.##");
     }
 }

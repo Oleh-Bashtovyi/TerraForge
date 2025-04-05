@@ -71,7 +71,15 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
         // !!!
         // !!!
 
+        foreach (var item in ColorPallets.DefaultTerrainColors)
+        {
+            _worldVisualizationSettings.TerrainSettings.AddTerrainGradientPoint(item.Key, item.Value);
+        }
 
+        foreach (var item in ColorPallets.DefaultWaterColors)
+        {
+            _worldVisualizationSettings.TerrainSettings.AddWaterGradientPoint(item.Key, item.Value);
+        }
 
 
 
@@ -140,9 +148,9 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
 
     private void TreePlacementRuleItemOnTreeColorChanged(object sender, TreeColorChangedEventArgs e)
     {
-        if (_terrainVisualizationOptions.TreeColors.ContainsKey(e.TreeId))
+        if (_worldData.TreesData.HasLayer(e.TreeId))
         {
-            _terrainVisualizationOptions.TreeColors[e.TreeId] = e.NewColor;
+            _worldVisualizationSettings.TreeSettings.SetTreesLayerColor(e.TreeId, e.NewColor);
             _terrainScene2D.RedrawTreesImage();
             _terrainScene2D.UpdateTreesTexture();
         }
@@ -268,8 +276,11 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
         _worldData.TreesData.SetLayers(trees);
         var treesColors = _treePlacementOptions.GetTreesColors();
         var treesModels = _treePlacementOptions.GetTreesModels();
-        _terrainVisualizationOptions.TreeColors = treesColors;
-        _terrainVisualizationOptions.TreeModels = treesModels;
+
+        _worldVisualizationSettings.TreeSettings.ClearTreesLayersColors();
+        _worldVisualizationSettings.TreeSettings.ClearTreesLayersScenes();
+        _worldVisualizationSettings.TreeSettings.SetTreeLayersColors(treesColors);
+        _worldVisualizationSettings.TreeSettings.SetTreeLayersScenes(treesModels);
         await RedrawTreesAsync();
         _logger.LogMethodEnd();
     }
@@ -299,6 +310,7 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
     {
         _logger.LogMethodStart();
         _terrainScene2D.RedrawTerrainImage();
+        _logger.Log("Waiting for Process frame...");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _terrainScene2D.UpdateTerrainTexture();
         _logger.LogMethodEnd();

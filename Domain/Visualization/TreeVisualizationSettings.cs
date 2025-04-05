@@ -74,9 +74,34 @@ public class TreeVisualizationSettings
         return _treesLayersColors.GetValueOrDefault(treeLayerId, DefaultTreeColor);
     }
 
+    public void SetTreesLayerColor(string treeLayerId, Color color)
+    {
+        _treesLayersColors[treeLayerId] = color;
+    }
+
     public PackedScene? GetTreesLayerScene(string treeLayerId)
     {
         return _treesLayersScenes.GetValueOrDefault(treeLayerId, null);
+    }
+
+    public void SetTreeLayersColors(Dictionary<string, Color> dict)
+    {
+        _treesLayersColors.Clear();
+
+        foreach (var item in dict)
+        {
+            _treesLayersColors[item.Key] = item.Value;
+        }
+    }
+
+    public void SetTreeLayersScenes(Dictionary<string, PackedScene> dict)
+    {
+        _treesLayersScenes.Clear();
+        
+        foreach (var item in dict)
+        {
+            _treesLayersScenes[item.Key] = item.Value;
+        }
     }
 
     public void ClearTreesLayersColors()

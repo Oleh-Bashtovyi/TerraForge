@@ -7,14 +7,15 @@ using TerrainGenerationApp.Domain.Enums;
 using TerrainGenerationApp.Domain.Generators.Trees;
 using TerrainGenerationApp.Domain.Rules.TreeRules;
 using TerrainGenerationApp.Domain.Utils;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.LoadedScenes;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
 
 public partial class TreePlacementOptions : VBoxContainer
 {
-    private Slider _frequencySlider;
-    private Label _frequencyLabel;
+    private VBoxContainer _optionsContainer;
     private VBoxContainer _rulesContainer;
 	private Button _addRuleButton;
 
@@ -30,24 +31,29 @@ public partial class TreePlacementOptions : VBoxContainer
     public event EventHandler OnTreePlacementRuleItemsOrderChanged;
     public event EventHandler OnTreePlacementRulesChanged;
 
+    [LineInputValue(Description = "Frequency")]
+    [InputRange(0.0f, 5.0f)]
+    [Step(0.1f)]
+    public float Frequency
+    {
+        get => _frequency;
+        set
+        {
+            _frequency = value;
+        }
+    }
+
     public TreesApplier TreesApplier => _treesApplier;
 
 	public override void _Ready()
 	{
-		_rulesContainer = GetNode<VBoxContainer>("%RulesContainer");
+        _optionsContainer = GetNode<VBoxContainer>("%OptionsContainer");
+        _rulesContainer = GetNode<VBoxContainer>("%RulesContainer");
 		_addRuleButton = GetNode<Button>("%AddRuleButton");
-        _frequencySlider = GetNode<Slider>("%FrequencySlider");
-        _frequencyLabel = GetNode<Label>("%FrequencyLabel");
+        InputLineManager.CreateInputLinesForObject(this, _optionsContainer);
 
         _addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
-        _frequencySlider.ValueChanged += _frequencySlider_ValueChanged;
 	}
-
-    private void _frequencySlider_ValueChanged(double value)
-    {
-        _frequency = (float)value;
-        _frequencyLabel.Text = _frequency.ToString("0.##");
-    }
 
     public void DisableAllOptions()
     {

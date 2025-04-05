@@ -13,32 +13,17 @@ script = ExtResource("1_fjvus")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 2
-text = "Tree placements rules"
+text = "General options"
 horizontal_alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 2
-
-[node name="L" type="Label" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
-text = "Frequency:"
-
-[node name="FrequencyLabel" type="Label" parent="HBoxContainer"]
+[node name="OptionsContainer" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-text = "1"
 
-[node name="FrequencySlider" type="HSlider" parent="HBoxContainer"]
-unique_name_in_owner = true
+[node name="Label2" type="Label" parent="."]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 7.0
-min_value = 0.1
-max_value = 4.0
-step = 0.1
-value = 1.0
+text = "Tree placements rules"
+horizontal_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2

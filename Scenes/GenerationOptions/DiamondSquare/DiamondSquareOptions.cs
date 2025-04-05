@@ -1,75 +1,62 @@
-using System;
-using Godot;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.DiamondSquare;
 
 public partial class DiamondSquareOptions : BaseGeneratorOptions
 {
-	private Label _terrainPowerLabel;
-	private Label _roughnessLabel;
-	private Label _seedLabel;
-	private Slider _terrainPowerSlider;
-    private Slider _roughnessSlider;
-    private Slider _seedSlider;
-	
-    private int _seed = 0;
-	private int _terrainPower = 8;
-	private float _roughness = 5f;
+    private int _seed = 42;
+	private int _terrainPower = 5;
+	private float _roughness = 3.0f;
 
+    [LineInputValue(Description = "Terrain power:")]
+    [InputRange(1, 10)]
+    [Rounded]
+    [Step(1.0f)]
+    public int TerrainPower
+    {
+        get => _terrainPower;
+        set
+        {
+            _terrainPower = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [LineInputValue(Description = "Seed:")]
+    [InputRange(0, 10000)]
+    [Rounded]
+    [Step(1.0f)]
+    public int Seed
+    {
+        get => _seed;
+        set
+        {
+            _seed = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [LineInputValue(Description = "Roughness:")]
+    [InputRange(0.1f, 10f)]
+    [Step(0.1f)]
+    public float Roughness
+    {
+        get => _roughness;
+        set
+        {
+            _roughness = value;
+            InvokeParametersChangedEvent();
+        }
+    }
 
     public override void _Ready()
-	{
-		_terrainPowerSlider = GetNode<Slider>("%TerrainPowerSlider");
-		_roughnessSlider = GetNode<Slider>("%RoughnessSlider");
-        _seedSlider = GetNode<Slider>("%SeedSlider");
-        _terrainPowerLabel = GetNode<Label>("%TerrainPowerLabel");
-		_roughnessLabel = GetNode<Label>("%RoughnessLabel");
-		_seedLabel = GetNode<Label>("%SeedLabel");
-
-        _terrainPowerSlider.ValueChanged += OnTerrainPowerSliderValueChanged;
-        _roughnessSlider.ValueChanged += OnRoughnessValueChanged;
-        _seedSlider.ValueChanged += OnSeedValueChanged;
-    }
-
-    private void OnSeedValueChanged(double value)
     {
-        _seed = Mathf.RoundToInt(value);
-        _seedLabel.Text = _seed.ToString();
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnRoughnessValueChanged(double value)
-    {
-        _roughness = (float)value;
-        _roughnessLabel.Text = value.ToString();
-        InvokeParametersChangedEvent();
-    }
-
-    private void OnTerrainPowerSliderValueChanged(double value)
-    {
-        _terrainPower = Mathf.RoundToInt(value);
-        var size = (int)Math.Pow(2, _terrainPower) + 1;
-        _terrainPowerLabel.Text = _terrainPower.ToString();
-        _terrainPowerSlider.TooltipText = $"Size of map (2^terrain_power + 1). Currently: {size}x{size}";
-        InvokeParametersChangedEvent();
+        InputLineManager.CreateInputLinesForObject(this, this);
     }
 
     public override float[,] GenerateMap()
 	{
-		return Domain.Generators.DiamondSquare.GenerateMap(_terrainPower, _roughness, _seed);
+		return Domain.Generators.DiamondSquare.GenerateMap(TerrainPower, Roughness, Seed);
 	}
-
-    public override void EnableAllOptions()
-    {
-        _terrainPowerSlider.Editable = true;
-        _roughnessSlider.Editable = true;
-        _seedSlider.Editable = true;
-    }
-
-    public override void DisableAllOptions()
-    {
-        _terrainPowerSlider.Editable = false;
-        _roughnessSlider.Editable = false;
-        _seedSlider.Editable = false;
-    }
 }

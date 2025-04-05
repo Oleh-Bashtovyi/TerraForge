@@ -5,6 +5,8 @@ using TerrainGenerationApp.Domain.Generators.DomainWarping;
 using TerrainGenerationApp.Domain.Generators.Islands;
 using TerrainGenerationApp.Domain.Generators.Trees;
 using TerrainGenerationApp.Domain.Generators.WaterErosion;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.GenerationOptions;
 using TerrainGenerationApp.Scenes.GenerationOptions.DomainWarping;
 using TerrainGenerationApp.Scenes.GenerationOptions.Island;
@@ -22,12 +24,7 @@ public partial class MapGenerationMenu : Control
     private BaseGeneratorOptions _diamondSquareOptions;
     private BaseGeneratorOptions _worleyOptions;
     private BaseGeneratorOptions _perlinOptions;
-    private Label _smoothCyclesLabel;
-    private Label _noiseInfluenceLabel;
-    private Label _seaLevelLabel;
-    private Slider _smoothCyclesSlider;
-    private Slider _noiseInfluenceSlider;
-    private Slider _seaLevelSlider;
+    private VBoxContainer _adjustmentsContainer;
     private CheckBox _domainWarpingCheckBox;
     private CheckBox _waterErosionCheckbox;
     private CheckBox _islandsOptionsCheckbox;
@@ -53,17 +50,10 @@ public partial class MapGenerationMenu : Control
     public event EventHandler OnWaterLevelChanged;
     public event EventHandler GenerationParametersChanged;
 
-    public float CurSeaLevel
-    {
-        get => _curSeaLevel;
-        private set
-        {
-            _curSeaLevel = (float)Mathf.Clamp(value, 0.0, 1.0);
-            GD.Print("SEA LEVEL CHANGED!");
-            OnWaterLevelChanged?.Invoke(this, EventArgs.Empty);
-        }
-    }
-	public float CurNoiseInfluence
+    [LineInputValue(Description = "Noise influence:", Category = "Adjustments")]
+    [InputRange(0.01f, 4.0f)]
+    [Step(0.01f)]
+    public float CurNoiseInfluence
 	{
 		get => _curNoiseInfluence;
 		private set
@@ -72,7 +62,12 @@ public partial class MapGenerationMenu : Control
 			HandleParametersChanged();
 		}
 	}
-	public int CurSmoothCycles
+
+    [LineInputValue(Description = "Smooth cycles:", Category = "Adjustments")]
+    [InputRange(0, MaxSmoothCycles)]
+    [Step(1.0f)]
+    [Rounded]
+    public int CurSmoothCycles
 	{
 		get => _curSmoothCycles;
 		private set
@@ -81,7 +76,21 @@ public partial class MapGenerationMenu : Control
 			HandleParametersChanged();
 		}
 	}
-	public bool EnableDomainWarping
+
+    [LineInputValue(Description = "Sea level:", Category = "Adjustments")]
+    [InputRange(0.0f, 1.0f)]
+    [Step(0.01f)]
+    public float CurSeaLevel
+    {
+        get => _curSeaLevel;
+        private set
+        {
+            _curSeaLevel = (float)Mathf.Clamp(value, 0.0, 1.0);
+            OnWaterLevelChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    public bool EnableDomainWarping
 	{
 		get => _enableDomainWarping;
 		private set
@@ -124,16 +133,9 @@ public partial class MapGenerationMenu : Control
         _diamondSquareOptions = GetNode<BaseGeneratorOptions>("%DiamondSquareOptions");
         _generatorDropdownMenu = GetNode<OptionButton>("%GeneratorDropdownMenu");
 
-        // Manipulate map
-        _seaLevelLabel = GetNode<Label>("%SeaLevelLabel");
-        _smoothCyclesLabel = GetNode<Label>("%SmoothCyclesLabel");
-        _noiseInfluenceLabel = GetNode<Label>("%NoiseInfluenceLabel");
-        _seaLevelSlider = GetNode<Slider>("%SeaLevelSlider");
-        _smoothCyclesSlider = GetNode<Slider>("%SmoothCyclesSlider");
-        _noiseInfluenceSlider = GetNode<Slider>("%NoiseInfluenceSlider");
-        _seaLevelSlider.ValueChanged += OnSeaLevelSliderOnValueChanged;
-        _smoothCyclesSlider.ValueChanged += OnSmoothCyclesSliderValueChanged;
-        _noiseInfluenceSlider.ValueChanged += OnNoiseInfluenceSliderValueChanged;
+        // Adjustments
+        _adjustmentsContainer = GetNode<VBoxContainer>("%AdjustmentsContainer");
+        InputLineManager.CreateInputLinesForObject(this, _adjustmentsContainer, "Adjustments");
 
         // Features enabling
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
@@ -188,9 +190,14 @@ public partial class MapGenerationMenu : Control
     public void DisableAllOptions()
     {
         _selectedGenerator?.DisableAllOptions();
-        _noiseInfluenceSlider.Editable = false;
-        _smoothCyclesSlider.Editable = false;
-        _seaLevelSlider.Editable = false;
+
+        foreach (var child in _adjustmentsContainer.GetChildren())
+        {
+            if (child is InputLine inputLine)
+            {
+                inputLine.DisableInput();
+            }
+        }
 
         _domainWarpingCheckBox.Disabled = true;
         _waterErosionCheckbox.Disabled = true;
@@ -204,9 +211,14 @@ public partial class MapGenerationMenu : Control
     public void EnableAllOptions()
     {
         _selectedGenerator?.EnableAllOptions();
-        _noiseInfluenceSlider.Editable = true;
-        _smoothCyclesSlider.Editable = true;
-        _seaLevelSlider.Editable = true;
+
+        foreach (var child in _adjustmentsContainer.GetChildren())
+        {
+            if (child is InputLine inputLine)
+            {
+                inputLine.EnableInput();
+            }
+        }
 
         _domainWarpingCheckBox.Disabled = false;
         _waterErosionCheckbox.Disabled = false;
@@ -243,21 +255,6 @@ public partial class MapGenerationMenu : Control
         }
         _selectedGenerator = cur;
     }
-    private void OnSeaLevelSliderOnValueChanged(double value)
-    {
-        CurSeaLevel = (float)value;
-        _seaLevelLabel.Text = CurSeaLevel.ToString("0.##");
-    }
-	private void OnSmoothCyclesSliderValueChanged(double value)
-	{
-		CurSmoothCycles = Mathf.RoundToInt(value);
-		_smoothCyclesLabel.Text = CurSmoothCycles.ToString();
-	}
-	private void OnNoiseInfluenceSliderValueChanged(double value)
-	{
-		CurNoiseInfluence = (float)value;
-		_noiseInfluenceLabel.Text = CurNoiseInfluence.ToString("0.##");
-	}
 	private void OnWaterErosionCheckBoxToggled(bool toggledOn)
 	{
 		_waterErosionOptions.Visible = toggledOn;

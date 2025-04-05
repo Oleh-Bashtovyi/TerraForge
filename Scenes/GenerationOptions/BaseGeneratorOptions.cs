@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions;
 
@@ -8,37 +9,40 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions;
 /// </summary>
 public partial class BaseGeneratorOptions : VBoxContainer
 {
-    /// <summary>
-    /// Event triggered when parameters are changed.
-    /// </summary>
     public event Action ParametersChanged;
 
-    /// <summary>
-    /// Generates a map with default implementation.
-    /// </summary>
-    /// <returns>A 2D array of floats representing the map.</returns>
+    public override void _Ready()
+    {
+        InputLineManager.CreateInputLinesForObject(this, this);
+    }
+
     public virtual float[,] GenerateMap()
     {
         return new float[1, 1];
     }
 
-    /// <summary>
-    /// Disables all options. To be overridden in derived classes.
-    /// </summary>
-    public virtual void DisableAllOptions()
+    public void DisableAllOptions()
     {
+        foreach (Node child in GetChildren())
+        {
+            if (child is InputLine inputLine)
+            {
+                inputLine.DisableInput();
+            }
+        }
     }
 
-    /// <summary>
-    /// Enables all options. To be overridden in derived classes.
-    /// </summary>
-    public virtual void EnableAllOptions()
+    public void EnableAllOptions()
     {
+        foreach (Node child in GetChildren())
+        {
+            if (child is InputLine inputLine)
+            {
+                inputLine.EnableInput();
+            }
+        }
     }
 
-    /// <summary>
-    /// Invokes the ParametersChanged event.
-    /// </summary>
     protected void InvokeParametersChangedEvent()
     {
         ParametersChanged?.Invoke();
