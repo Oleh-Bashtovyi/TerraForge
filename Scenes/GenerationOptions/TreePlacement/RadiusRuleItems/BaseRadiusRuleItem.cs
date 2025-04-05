@@ -1,14 +1,15 @@
 ﻿using Godot;
 using System;
-using TerrainGenerationApp.Rules.RadiusRules;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Domain.Rules.RadiusRules;
+using TerrainGenerationApp.Domain.Utils;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRuleItems;
 
 public partial class BaseRadiusRuleItem<TLoggerType> : PanelContainer, IRadiusRuleItem where TLoggerType : class
 {
-    protected readonly Logger<TLoggerType> _logger = new();
-    protected Button _deleteButton;
+    private Button _deleteButton;
+    
+    protected readonly Logger<TLoggerType> Logger = new();
 
     public event EventHandler OnRuleParametersChanged;
     public event EventHandler OnDeleteButtonPressed;
@@ -26,13 +27,13 @@ public partial class BaseRadiusRuleItem<TLoggerType> : PanelContainer, IRadiusRu
 
     protected void InvokeRuleParametersChangedEvent()
     {
-        _logger.Log($"Invoking {nameof(OnRuleParametersChanged)}");
+        Logger.Log($"Invoking {nameof(OnRuleParametersChanged)}");
         OnRuleParametersChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void DeleteButtonOnPressed()
     {
-        _logger.Log($"Invoking {nameof(OnDeleteButtonPressed)}");
+        Logger.Log($"Invoking {nameof(OnDeleteButtonPressed)}");
         OnDeleteButtonPressed?.Invoke(this, EventArgs.Empty);
     }
 }

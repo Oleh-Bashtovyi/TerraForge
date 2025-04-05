@@ -1,5 +1,5 @@
 using System;
-using TerrainGenerationApp.Rules.PlacementRules;
+using TerrainGenerationApp.Domain.Rules.PlacementRules;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
 

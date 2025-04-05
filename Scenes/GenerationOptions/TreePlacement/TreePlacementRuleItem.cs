@@ -2,12 +2,12 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TerrainGenerationApp.Generators.Trees;
-using TerrainGenerationApp.Rules.PlacementRules;
+using TerrainGenerationApp.Domain.Rules.PlacementRules;
+using TerrainGenerationApp.Domain.Rules.TreeRules;
+using TerrainGenerationApp.Domain.Utils;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRuleItems;
-using TerrainGenerationApp.Scenes.Loaded;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Scenes.LoadedScenes;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
 
@@ -66,9 +66,9 @@ public partial class TreePlacementRuleItem : PanelContainer
 
     private Dictionary<Type, PackedScene> _placementRuleScenes = new()
     {
-        { typeof(AboveSeaLevelRuleItem), LoadedScenes.ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE },
-        { typeof(SlopeRuleItem), LoadedScenes.SLOPE_PLACEMENT_RULE_ITEM_SCENE },
-        { typeof(NoiseMapRuleItem), LoadedScenes.NOISE_MAP_PLACEMENT_RULE_ITEM_SCENE }
+        { typeof(AboveSeaLevelRuleItem), TreePlacementRuleLoadedScenes.ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE },
+        { typeof(SlopeRuleItem), TreePlacementRuleLoadedScenes.SLOPE_PLACEMENT_RULE_ITEM_SCENE },
+        { typeof(NoiseMapRuleItem), TreePlacementRuleLoadedScenes.NOISE_MAP_PLACEMENT_RULE_ITEM_SCENE }
     };
 
 
@@ -254,7 +254,7 @@ public partial class TreePlacementRuleItem : PanelContainer
 			return;
         }
 
-		var scene = LoadedScenes.CONSTANT_RADIUS_RULE_ITEM_SCENE.Instantiate();
+		var scene = TreePlacementRuleLoadedScenes.CONSTANT_RADIUS_RULE_ITEM_SCENE.Instantiate();
         var item = scene as IRadiusRuleItem;
 
 		if (item == null)

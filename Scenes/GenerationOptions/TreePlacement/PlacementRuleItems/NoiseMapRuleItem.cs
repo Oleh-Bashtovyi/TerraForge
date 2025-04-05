@@ -1,6 +1,6 @@
 ﻿using Godot;
-using TerrainGenerationApp.Extensions;
-using TerrainGenerationApp.Rules.PlacementRules;
+using TerrainGenerationApp.Domain.Extensions;
+using TerrainGenerationApp.Domain.Rules.PlacementRules;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
 
@@ -28,7 +28,7 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
     private Slider _noiseThresholdSlider;
     private TextureRect _noiseTextureRect;
 
-    private readonly Generators.PerlinNoise _generator = new();
+    private readonly Domain.Generators.PerlinNoise _generator = new();
     private Image _noiseImage;
     private ImageTexture _noiseTexture;
     private float _noiseThreshold = 0.5f;
@@ -191,9 +191,8 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 
     private void OnSeedSValueChanged(double value)
     {
-        var _seed = Mathf.RoundToInt(value);
-        _seedLabel.Text = _seed.ToString("0.##");
-        _generator.Seed = _seed;
+        _generator.Seed = Mathf.RoundToInt(value);
+        _seedLabel.Text = _generator.Seed.ToString("0.##");
         InvokeParametersChangedEvent();
     }
 }

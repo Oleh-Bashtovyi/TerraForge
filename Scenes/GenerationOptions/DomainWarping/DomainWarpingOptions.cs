@@ -1,6 +1,6 @@
 using System;
 using Godot;
-using TerrainGenerationApp.Generators.DomainWarping;
+using TerrainGenerationApp.Domain.Generators.DomainWarping;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.DomainWarping;
 

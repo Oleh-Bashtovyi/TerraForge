@@ -4,7 +4,7 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.PerlinNoise;
 
 public partial class PerlinOptions : BaseGeneratorOptions
 {
-	private Generators.PerlinNoise _generator;
+	private Domain.Generators.PerlinNoise _generator;
 	private int _seed = 0;
 
 	// UI Element references
@@ -32,7 +32,7 @@ public partial class PerlinOptions : BaseGeneratorOptions
     private Slider _warpingSizeSlider;
     private CheckButton _useWarpingCheckButton;
 
-	public Generators.PerlinNoise Generator
+	public Domain.Generators.PerlinNoise Generator
 	{
 		get => _generator;
 		set => _generator = value;

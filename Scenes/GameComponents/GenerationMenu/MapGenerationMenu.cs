@@ -1,10 +1,10 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using TerrainGenerationApp.Generators.DomainWarping;
-using TerrainGenerationApp.Generators.Islands;
-using TerrainGenerationApp.Generators.Trees;
-using TerrainGenerationApp.Generators.WaterErosion;
+using TerrainGenerationApp.Domain.Generators.DomainWarping;
+using TerrainGenerationApp.Domain.Generators.Islands;
+using TerrainGenerationApp.Domain.Generators.Trees;
+using TerrainGenerationApp.Domain.Generators.WaterErosion;
 using TerrainGenerationApp.Scenes.GenerationOptions;
 using TerrainGenerationApp.Scenes.GenerationOptions.DomainWarping;
 using TerrainGenerationApp.Scenes.GenerationOptions.Island;
@@ -17,8 +17,6 @@ namespace TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
 public partial class MapGenerationMenu : Control
 {
 	private const int MaxSmoothCycles = 10;
-	private const float MaxNoiseInfluence = 3.0f;
-	private const float MinNoiseInfluence = -3.0f;
 
     private OptionButton _generatorDropdownMenu;
     private BaseGeneratorOptions _diamondSquareOptions;
@@ -30,7 +28,6 @@ public partial class MapGenerationMenu : Control
     private Slider _smoothCyclesSlider;
     private Slider _noiseInfluenceSlider;
     private Slider _seaLevelSlider;
-    private CheckBox _autoRegenerateCheckBox;
     private CheckBox _domainWarpingCheckBox;
     private CheckBox _waterErosionCheckbox;
     private CheckBox _islandsOptionsCheckbox;
@@ -40,10 +37,9 @@ public partial class MapGenerationMenu : Control
     private WaterErosionOptions _waterErosionOptions;
     private TreePlacementOptions _treePlacementOptions;
 
+	private int _curSmoothCycles = 0;
     private float _curNoiseInfluence = 1.0f;
     private float _curSeaLevel = 0.2f;
-	private int _curSmoothCycles = 0;
-	private bool _regenerateOnParametersChanged = false;
 	private bool _enableDomainWarping = false;
 	private bool _enableIslands = false;
 	private bool _enableTrees = false;
@@ -112,15 +108,6 @@ public partial class MapGenerationMenu : Control
 			HandleParametersChanged();
 		}
 	}
-	public bool RegenerateOnParametersChanged
-	{
-		get => _regenerateOnParametersChanged;
-		set
-		{
-			_regenerateOnParametersChanged = value;
-			HandleParametersChanged();
-		}
-	}
     public BaseGeneratorOptions SelectedGenerator => _selectedGenerator;
     public IDomainWarpingApplier DomainWarpingApplier => _domainWarpingApplier;
     public IIslandsApplier IslandsApplier => _islandApplier;
@@ -149,7 +136,6 @@ public partial class MapGenerationMenu : Control
         _noiseInfluenceSlider.ValueChanged += OnNoiseInfluenceSliderValueChanged;
 
         // Features enabling
-        _autoRegenerateCheckBox = GetNode<CheckBox>("%AutoRegenerateCheckBox");
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
         _waterErosionCheckbox = GetNode<CheckBox>("%WaterErosionCheckBox");
         _islandsOptionsCheckbox = GetNode<CheckBox>("%IslandOptionsCheckBox");
@@ -171,10 +157,6 @@ public partial class MapGenerationMenu : Control
         _islandApplier = _islandOptions.IslandApplier;
         _treesApplier = _treePlacementOptions.TreesApplier;
 
-        // This feature is currently under consideration, maybe it will be removed
-        RegenerateOnParametersChanged = true;
-        _autoRegenerateCheckBox.ButtonPressed = true;
-        _autoRegenerateCheckBox.Toggled += (toggleOn) => RegenerateOnParametersChanged = toggleOn;
 
         // Generator combobox
         _generators = new Dictionary<int, BaseGeneratorOptions>
@@ -264,7 +246,7 @@ public partial class MapGenerationMenu : Control
     private void OnSeaLevelSliderOnValueChanged(double value)
     {
         CurSeaLevel = (float)value;
-        _seaLevelLabel.Text = CurSeaLevel.ToString();
+        _seaLevelLabel.Text = CurSeaLevel.ToString("0.##");
     }
 	private void OnSmoothCyclesSliderValueChanged(double value)
 	{
@@ -274,7 +256,7 @@ public partial class MapGenerationMenu : Control
 	private void OnNoiseInfluenceSliderValueChanged(double value)
 	{
 		CurNoiseInfluence = (float)value;
-		_noiseInfluenceLabel.Text = CurNoiseInfluence.ToString();
+		_noiseInfluenceLabel.Text = CurNoiseInfluence.ToString("0.##");
 	}
 	private void OnWaterErosionCheckBoxToggled(bool toggledOn)
 	{

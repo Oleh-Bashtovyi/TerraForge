@@ -1,9 +1,9 @@
 using Godot;
 using System;
 using System.Runtime.CompilerServices;
-using TerrainGenerationApp.Data.Display;
-using TerrainGenerationApp.Data.Structure;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Domain.Core;
+using TerrainGenerationApp.Domain.Utils;
+using TerrainGenerationApp.Domain.Visualization;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.TerrainScene2D;
 

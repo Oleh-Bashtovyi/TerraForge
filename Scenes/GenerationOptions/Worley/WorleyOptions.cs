@@ -1,5 +1,5 @@
 using Godot;
-using TerrainGenerationApp.Generators;
+using TerrainGenerationApp.Domain.Generators;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.Worley;
 

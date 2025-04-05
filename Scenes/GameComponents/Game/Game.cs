@@ -1,42 +1,45 @@
 using Godot;
 using System;
 using System.Threading.Tasks;
-using TerrainGenerationApp.Data.Structure;
-using TerrainGenerationApp.Enums;
+using TerrainGenerationApp.Domain.Core;
+using TerrainGenerationApp.Domain.Enums;
+using TerrainGenerationApp.Domain.Utils;
+using TerrainGenerationApp.Domain.Utils.TerrainUtils;
+using TerrainGenerationApp.Domain.Visualization;
 using TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 using TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
 using TerrainGenerationApp.Scenes.GenerationOptions;
 using TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
-using TerrainGenerationApp.Utilities;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.Game;
 
-public partial class Game : Node3D, IWorldDataProvider
+public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSettingsProvider
 {
     private TerrainScene2D.TerrainScene2D _terrainScene2D;
     private TerrainScene3D.TerrainScene3D _terrainScene3D;
     private TreePlacementOptions _treePlacementOptions;
     private MapGenerationMenu _mapGenerationMenu;
-    private MapWorldVisualizationSettings _worldVisualizationSettings;
+    private TerrainVisualizationOptions _terrainVisualizationOptions;
     private Button _generateMapButton;
     private Button _applyWaterErosionButton;
     private Button _showIn2DButton;
     private Button _showIn3DButton;
 
     private readonly Logger<Game> _logger = new();
-    private WorldData _worldData;
+    private readonly WorldData _worldData = new();
+    private readonly WorldVisualizationSettings _worldVisualizationSettings = new();
     private Task? _generationTask;
     private Task? _waterErosionTask;
 
     public IWorldData WorldData => _worldData;
-
+    public IWorldVisualizationSettings Settings => _worldVisualizationSettings;
 
     public override void _Ready()
     {
         _terrainScene2D = GetNode<TerrainScene2D.TerrainScene2D>("%TerrainScene2D");
         _terrainScene3D = GetNode<TerrainScene3D.TerrainScene3D>("%TerrainScene3D");
         _mapGenerationMenu = GetNode<MapGenerationMenu>("%MapGenerationMenu");
-        _worldVisualizationSettings = GetNode<MapWorldVisualizationSettings>("%MapDisplayOptions");
+        _terrainVisualizationOptions = GetNode<TerrainVisualizationOptions>("%MapDisplayOptions");
         _generateMapButton = GetNode<Button>("%GenerateMapButton");
         //_applyWaterErosionButton = GetNode<Button>("%ApplyWaterErosionButton");
         _showIn2DButton = GetNode<Button>("%ShowIn2DButton");
@@ -44,12 +47,11 @@ public partial class Game : Node3D, IWorldDataProvider
         _showIn2DButton.Pressed += _showIn2DButton_Pressed;
         _showIn3DButton.Pressed += _showIn3DButton_Pressed;
 
-        _worldData = new();
         _worldData.SetSeaLevel(_mapGenerationMenu.CurSeaLevel);
         _terrainScene3D.SetWorldDataProvider(this);
         _terrainScene2D.SetWorldDataProvider(this);
-        _terrainScene2D.SetDisplayOptionsProvider(_worldVisualizationSettings);
-        _terrainScene3D.SetDisplayOptionsProvider(_worldVisualizationSettings);
+        _terrainScene2D.SetDisplayOptionsProvider(this);
+        _terrainScene3D.SetDisplayOptionsProvider(this);
 
         _treePlacementOptions = _mapGenerationMenu.TreePlacementOptions;
         _treePlacementOptions.OnTreePlacementRuleItemAdded += TreePlacementOptionsOnOnTreePlacementRuleItemAdded;
@@ -57,9 +59,27 @@ public partial class Game : Node3D, IWorldDataProvider
         //_treePlacementOptions.OnTreePlacementRulesChanged += TreePlacementOptionsOnOnTreePlacementRulesChanged;
 
 
+
+
+
+
+
+        // TODO: Populate terrain visualization settings with colors for gradients
+        // !!!
+        // !!!
+        // !!!
+        // !!!
+        // !!!
+
+
+
+
+
+
+
         _mapGenerationMenu.OnWaterLevelChanged += MapGenerationMenuOnOnWaterLevelChanged;
         //_mapGenerationMenu.GenerationParametersChanged += MapGenerationMenuOnGenerationParametersChanged;
-        _worldVisualizationSettings.OnDisplayOptionsChanged += WorldVisualizationSettingsOnOnWorldVisualizationSettingsChanged;
+        _terrainVisualizationOptions.OnDisplayOptionsChanged += TerrainVisualizationOptionsOnOnTerrainVisualizationOptionsChanged;
         _generateMapButton.Pressed += GenerateMapButtonOnPressed;
         //_applyWaterErosionButton.Pressed += ApplyWaterErosionButtonOnPressed;
     }
@@ -102,7 +122,7 @@ public partial class Game : Node3D, IWorldDataProvider
         finally
         {
             await EnableGenerationOptions();
-            await SetGenerationTipAsync(string.Empty);
+            await SetGenerationTitleTipAsync(string.Empty);
             _logger.LogMethodEnd();
             GD.Print("==============================================================");
         }
@@ -120,15 +140,15 @@ public partial class Game : Node3D, IWorldDataProvider
 
     private void TreePlacementRuleItemOnTreeColorChanged(object sender, TreeColorChangedEventArgs e)
     {
-        if (_worldVisualizationSettings.TreeColors.ContainsKey(e.TreeId))
+        if (_terrainVisualizationOptions.TreeColors.ContainsKey(e.TreeId))
         {
-            _worldVisualizationSettings.TreeColors[e.TreeId] = e.NewColor;
+            _terrainVisualizationOptions.TreeColors[e.TreeId] = e.NewColor;
             _terrainScene2D.RedrawTreesImage();
             _terrainScene2D.UpdateTreesTexture();
         }
     }
 
-    private void WorldVisualizationSettingsOnOnWorldVisualizationSettingsChanged()
+    private void TerrainVisualizationOptionsOnOnTerrainVisualizationOptionsChanged()
     {
         _terrainScene2D.RedrawAllImages();
         _terrainScene2D.UpdateAllTextures();
@@ -182,7 +202,7 @@ public partial class Game : Node3D, IWorldDataProvider
         finally
         {
             await EnableGenerationOptions();
-            await SetGenerationTipAsync(string.Empty);
+            await SetGenerationTitleTipAsync(string.Empty);
             _logger.LogMethodEnd();
             GD.Print("==============================================================");
         }
@@ -190,16 +210,16 @@ public partial class Game : Node3D, IWorldDataProvider
     private async Task GenerateTerrainAsync(BaseGeneratorOptions generator)
     {
         _logger.LogMethodStart();
-        await SetGenerationTipAsync("Generating map...");
+        await SetGenerationTitleTipAsync("Generating map...");
         var map = generator.GenerateMap();
         _worldData.TerrainData.SetTerrain(map);
-        await RedrawWithResizeTerrainAsync();
+        await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }
     private async Task ApplyInfluenceAsync()
     {
         _logger.LogMethodStart();
-        await SetGenerationTipAsync("Applying influence...");
+        await SetGenerationTitleTipAsync("Applying influence...");
         var map = _worldData.TerrainData.HeightMap;
         MapHelpers.MultiplyHeight(map, _mapGenerationMenu.CurNoiseInfluence);
         _worldData.TerrainData.SetTerrain(map);
@@ -209,7 +229,7 @@ public partial class Game : Node3D, IWorldDataProvider
     private async Task ApplyTerrainSmoothingAsync()
     {
         _logger.LogMethodStart();
-        await SetGenerationTipAsync("Smoothing...");
+        await SetGenerationTitleTipAsync("Smoothing...");
         var map = _worldData.TerrainData.HeightMap;
         for (int i = 0; i < _mapGenerationMenu.CurSmoothCycles; i++)
         {
@@ -223,7 +243,7 @@ public partial class Game : Node3D, IWorldDataProvider
     private async Task ApplyIslandsAsync()
     {
         _logger.LogMethodStart();
-        await SetGenerationTipAsync("Making islands...");
+        await SetGenerationTitleTipAsync("Making islands...");
         var map = _worldData.TerrainData.HeightMap;
         map = _mapGenerationMenu.IslandsApplier.ApplyIslands(map);
         _worldData.TerrainData.SetTerrain(map);
@@ -233,7 +253,7 @@ public partial class Game : Node3D, IWorldDataProvider
     private async Task ApplyDomainWarpingAsync()
     {
         _logger.LogMethodStart();
-        await SetGenerationTipAsync("Applying domain warping...");
+        await SetGenerationTitleTipAsync("Applying domain warping...");
         var map = _worldData.TerrainData.HeightMap;
         map = _mapGenerationMenu.DomainWarpingApplier.ApplyWarping(map);
         _worldData.TerrainData.SetTerrain(map);
@@ -243,13 +263,13 @@ public partial class Game : Node3D, IWorldDataProvider
     private async Task GenerateTrees()
     {
         _logger.LogMethodStart();
-        await SetGenerationTipAsync("Generating trees...");
+        await SetGenerationTitleTipAsync("Generating trees...");
         var trees = _treePlacementOptions.GenerateTrees(_worldData);
         _worldData.TreesData.SetLayers(trees);
         var treesColors = _treePlacementOptions.GetTreesColors();
         var treesModels = _treePlacementOptions.GetTreesModels();
-        _worldVisualizationSettings.TreeColors = treesColors;
-        _worldVisualizationSettings.TreeModels = treesModels;
+        _terrainVisualizationOptions.TreeColors = treesColors;
+        _terrainVisualizationOptions.TreeModels = treesModels;
         await RedrawTreesAsync();
         _logger.LogMethodEnd();
     }
@@ -275,14 +295,6 @@ public partial class Game : Node3D, IWorldDataProvider
         _terrainScene2D.UpdateAllTextures();
         _logger.LogMethodEnd();
     }
-    private async Task RedrawWithResizeTerrainAsync()
-    {
-        GD.Print($"<START><ASYNC> - {nameof(RedrawWithResizeTerrainAsync)}");
-        _terrainScene2D.RedrawTerrainImage();
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _terrainScene2D.SetTerrainImageToTexture();
-        GD.Print($"<END><ASYNC> - {nameof(RedrawWithResizeTerrainAsync)}");
-    }
     private async Task RedrawTerrainAsync()
     {
         _logger.LogMethodStart();
@@ -296,21 +308,20 @@ public partial class Game : Node3D, IWorldDataProvider
         _logger.LogMethodStart();
         _terrainScene2D.RedrawTreesImage();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _terrainScene2D.SetTreesImageToTexture();
+        _terrainScene2D.UpdateTreesTexture();
         _logger.LogMethodEnd();
     }
-    private async Task SetGenerationTipAsync(string tip)
+    private async Task SetGenerationTitleTipAsync(string tip)
     {
-        _logger.Log($"Generation tip: {tip}", LogMark.Start);
+        _logger.Log($"Generation title tip: {tip}", LogMark.Start);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _terrainScene2D.SetTitleTip(tip);
-        _logger.Log($"Generation tip: {tip}", LogMark.End);
+        _logger.Log($"Generation title tip: {tip}", LogMark.End);
     }
-
     private async Task GenerateMeshAsync()
     {
         _logger.LogMethodStart();
-        await SetGenerationTipAsync("Generating mesh...");
+        await SetGenerationTitleTipAsync("Generating mesh...");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _terrainScene3D.GenerateMesh();
         _logger.LogMethodEnd();

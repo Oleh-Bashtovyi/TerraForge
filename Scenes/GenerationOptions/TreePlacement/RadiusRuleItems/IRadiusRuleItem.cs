@@ -1,5 +1,5 @@
 ﻿using System;
-using TerrainGenerationApp.Rules.RadiusRules;
+using TerrainGenerationApp.Domain.Rules.RadiusRules;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRuleItems;
 

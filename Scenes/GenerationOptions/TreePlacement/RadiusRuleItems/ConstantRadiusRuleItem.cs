@@ -1,5 +1,5 @@
 ﻿using Godot;
-using TerrainGenerationApp.Rules.RadiusRules;
+using TerrainGenerationApp.Domain.Rules.RadiusRules;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRuleItems;
 
@@ -19,7 +19,7 @@ public partial class ConstantRadiusRuleItem : BaseRadiusRuleItem<ConstantRadiusR
         base._Ready();
         _radiusLineEdit = GetNode<LineEdit>("%RadiusLineEdit");
         _radius = 5.0f;
-        _radiusLineEdit.Text = _radius.ToString();
+        _radiusLineEdit.Text = _radius.ToString("0.###");
         _radiusLineEdit.EditingToggled += RadiusLineEditOnEditingToggled;
     }
 
@@ -34,15 +34,15 @@ public partial class ConstantRadiusRuleItem : BaseRadiusRuleItem<ConstantRadiusR
                 if (!Mathf.IsEqualApprox(result, _radius))
                 {
                     _radius = result;
-                    _radiusLineEdit.Text = _radius.ToString();
-                    _logger.Log($"Radius changed to {_radius}");
+                    _radiusLineEdit.Text = _radius.ToString("0.###");
+                    Logger.Log($"Radius changed to {_radius}");
                     InvokeRuleParametersChangedEvent();
                 }
             }
             else
             {
                 // Restore original value if parsing fails
-                _radiusLineEdit.Text = _radius.ToString();
+                _radiusLineEdit.Text = _radius.ToString("0.###");
             }
         }
     }

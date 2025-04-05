@@ -1,14 +1,15 @@
 ﻿using Godot;
 using System;
-using TerrainGenerationApp.Rules.PlacementRules;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Domain.Rules.PlacementRules;
+using TerrainGenerationApp.Domain.Utils;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
 
 public partial class BasePlacementRuleItem<TLoggerType> : PanelContainer, IPlacementRuleItem where TLoggerType : class
 {
-    protected readonly Logger<TLoggerType> _logger = new();
-    protected Button _deleteButton;
+    private Button _deleteButton;
+
+    protected readonly Logger<TLoggerType> Logger = new();
 
     public event EventHandler OnRuleParametersChanged;
     public event EventHandler OnDeleteButtonPressed;
@@ -26,13 +27,13 @@ public partial class BasePlacementRuleItem<TLoggerType> : PanelContainer, IPlace
 
     protected void InvokeRuleParametersChangedEvent()
     {
-        _logger.Log($"Invoking {nameof(OnRuleParametersChanged)}");
+        Logger.Log($"Invoking {nameof(OnRuleParametersChanged)}");
         OnRuleParametersChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void DeleteButtonOnPressed()
     {
-        _logger.Log($"Invoking {nameof(OnDeleteButtonPressed)}");
+        Logger.Log($"Invoking {nameof(OnDeleteButtonPressed)}");
         OnDeleteButtonPressed?.Invoke(this, EventArgs.Empty);
     }
 }

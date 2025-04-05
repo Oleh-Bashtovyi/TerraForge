@@ -1,6 +1,5 @@
 using Godot;
-using TerrainGenerationApp.Generators.WaterErosion;
-
+using TerrainGenerationApp.Domain.Generators.WaterErosion;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.WaterErosion;
 

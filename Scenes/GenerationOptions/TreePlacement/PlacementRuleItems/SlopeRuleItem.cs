@@ -1,5 +1,5 @@
 ﻿using Godot;
-using TerrainGenerationApp.Rules.PlacementRules;
+using TerrainGenerationApp.Domain.Rules.PlacementRules;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
 
@@ -18,8 +18,8 @@ public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
         _upperBoundLineEdit = GetNode<LineEdit>("%UpperBoundLineEdit");
         _lowerBound = 0.1f;
         _upperBound = 0.2f;
-        _lowerBoundLineEdit.Text = _lowerBound.ToString();
-        _upperBoundLineEdit.Text = _upperBound.ToString();
+        _lowerBoundLineEdit.Text = _lowerBound.ToString("0.##");
+        _upperBoundLineEdit.Text = _upperBound.ToString("0.##");
         _lowerBoundLineEdit.EditingToggled += LowerBoundLineEditOnEditingToggled;
         _upperBoundLineEdit.EditingToggled += UpperBoundLineEditOnEditingToggled;
     }
@@ -40,15 +40,15 @@ public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
                 if (!Mathf.IsEqualApprox(result, _upperBound))
                 {
                     _upperBound = (float)Mathf.Clamp(result, _lowerBound, 1.0);
-                    _upperBoundLineEdit.Text = _upperBound.ToString();
-                    _logger.Log($"Upper bound changed to: {_upperBound}");
+                    _upperBoundLineEdit.Text = _upperBound.ToString("0.##");
+                    Logger.Log($"Upper bound changed to: {_upperBound}");
                     InvokeRuleParametersChangedEvent();
                 }
             }
             else
             {
                 // Restore original value if parsing fails
-                _upperBoundLineEdit.Text = _upperBound.ToString();
+                _upperBoundLineEdit.Text = _upperBound.ToString("0.##");
             }
         }
     }
@@ -62,15 +62,15 @@ public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
                 if (!Mathf.IsEqualApprox(result, _lowerBound))
                 {
                     _lowerBound = (float)Mathf.Clamp(result, 0.0, _upperBound);
-                    _lowerBoundLineEdit.Text = _lowerBound.ToString();
-                    _logger.Log($"Lower bound changed to: {_lowerBound}");
+                    _lowerBoundLineEdit.Text = _lowerBound.ToString("0.##");
+                    Logger.Log($"Lower bound changed to: {_lowerBound}");
                     InvokeRuleParametersChangedEvent();
                 }
             }
             else
             {
                 // Restore original value if parsing fails
-                _lowerBoundLineEdit.Text = _lowerBound.ToString();
+                _lowerBoundLineEdit.Text = _lowerBound.ToString("0.##");
             }
         }
     }

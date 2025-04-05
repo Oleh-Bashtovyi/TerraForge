@@ -56,7 +56,7 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
 
     public override float[,] GenerateMap()
 	{
-		return Generators.DiamondSquare.GenerateMap(_terrainPower, _roughness, _seed);
+		return Domain.Generators.DiamondSquare.GenerateMap(_terrainPower, _roughness, _seed);
 	}
 
     public override void EnableAllOptions()

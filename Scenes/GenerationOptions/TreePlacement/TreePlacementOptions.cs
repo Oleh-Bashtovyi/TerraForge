@@ -2,11 +2,12 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TerrainGenerationApp.Data.Structure;
-using TerrainGenerationApp.Enums;
-using TerrainGenerationApp.Generators.Trees;
-using TerrainGenerationApp.Scenes.Loaded;
-using TerrainGenerationApp.Utilities;
+using TerrainGenerationApp.Domain.Core;
+using TerrainGenerationApp.Domain.Enums;
+using TerrainGenerationApp.Domain.Generators.Trees;
+using TerrainGenerationApp.Domain.Rules.TreeRules;
+using TerrainGenerationApp.Domain.Utils;
+using TerrainGenerationApp.Scenes.LoadedScenes;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
 
@@ -19,8 +20,8 @@ public partial class TreePlacementOptions : VBoxContainer
 
     private readonly Logger<TreePlacementOptions> _logger = new();
 	private readonly List<TreePlacementRuleItem> _treePlacementRules = new();
+    private readonly TreesApplier _treesApplier = new();
     private List<TreePlacementRule> _cachedRules = new();
-    private TreesApplier _treesApplier;
     private bool _isRulesCacheDirty = true;
     private float _frequency = 1.0f;
 
@@ -40,14 +41,12 @@ public partial class TreePlacementOptions : VBoxContainer
 
         _addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
         _frequencySlider.ValueChanged += _frequencySlider_ValueChanged;
-
-		_treesApplier = new();
 	}
 
     private void _frequencySlider_ValueChanged(double value)
     {
         _frequency = (float)value;
-        _frequencyLabel.Text = _frequency.ToString();
+        _frequencyLabel.Text = _frequency.ToString("0.##");
     }
 
     public void DisableAllOptions()
@@ -100,7 +99,7 @@ public partial class TreePlacementOptions : VBoxContainer
     {
         _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} ADDING...");
 
-        var scene = LoadedScenes.TREE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
+        var scene = TreePlacementRuleLoadedScenes.TREE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
         var item = scene as TreePlacementRuleItem;
 
         if (item == null)
