@@ -1,10 +1,12 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Generators.DomainWarping;
 using TerrainGenerationApp.Domain.Generators.Islands;
 using TerrainGenerationApp.Domain.Generators.Trees;
 using TerrainGenerationApp.Domain.Generators.WaterErosion;
+using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 using TerrainGenerationApp.Scenes.BuildingBlocks;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.GenerationOptions;
@@ -18,6 +20,18 @@ namespace TerrainGenerationApp.Scenes.GameComponents.GenerationMenu;
 
 public partial class MapGenerationMenu : Control
 {
+    public enum MapInterpolationType
+    {
+        [OptionDescription("Linear")]
+        Linear,
+        [OptionDescription("Highlight high areas")]
+        HighlightHighValues,
+        [OptionDescription("Highlight low areas")]
+        HighlightLowValues,
+        [OptionDescription("Highlight extremes")]
+        HighlightExtremes
+    }
+
 	private const int MaxSmoothCycles = 10;
 
     private OptionButton _generatorDropdownMenu;
@@ -40,7 +54,8 @@ public partial class MapGenerationMenu : Control
 	private bool _enableDomainWarping = false;
 	private bool _enableIslands = false;
 	private bool _enableTrees = false;
-	private Dictionary<int, BaseGeneratorOptions> _generators = new();
+    private MapInterpolationType _mapInterpolationType = MapInterpolationType.Linear;
+    private Dictionary<int, BaseGeneratorOptions> _generators = new();
 	private BaseGeneratorOptions _selectedGenerator;
 	private DomainWarpingApplier _domainWarpingApplier;
 	private WaterErosionApplier _waterErosionApplier;
@@ -50,9 +65,19 @@ public partial class MapGenerationMenu : Control
     public event EventHandler OnWaterLevelChanged;
     public event EventHandler GenerationParametersChanged;
 
-    [LineInputValue(Description = "Noise influence:", Category = "Adjustments")]
-    [InputRange(0.01f, 4.0f)]
-    [Step(0.01f)]
+    [InputLine(Description = "Map interpolation:", Category = "Adjustments")]
+    public MapInterpolationType CurMapInterpolationType
+    {
+        get => _mapInterpolationType;
+        set
+        {
+            _mapInterpolationType = value;
+            HandleParametersChanged();
+        }
+    }
+
+    [InputLine(Description = "Noise influence:", Category = "Adjustments")]
+    [InputLineSlider(0.01f, 4.0f, 0.01f)]
     public float CurNoiseInfluence
 	{
 		get => _curNoiseInfluence;
@@ -63,10 +88,8 @@ public partial class MapGenerationMenu : Control
 		}
 	}
 
-    [LineInputValue(Description = "Smooth cycles:", Category = "Adjustments")]
-    [InputRange(0, MaxSmoothCycles)]
-    [Step(1.0f)]
-    [Rounded]
+    [InputLine(Description = "Smooth cycles:", Category = "Adjustments")]
+    [InputLineSlider(0, MaxSmoothCycles)]
     public int CurSmoothCycles
 	{
 		get => _curSmoothCycles;
@@ -77,9 +100,8 @@ public partial class MapGenerationMenu : Control
 		}
 	}
 
-    [LineInputValue(Description = "Sea level:", Category = "Adjustments")]
-    [InputRange(0.0f, 1.0f)]
-    [Step(0.01f)]
+    [InputLine(Description = "Sea level:", Category = "Adjustments")]
+    [InputLineSlider(0.0f, 1.0f, 0.01f)]
     public float CurSeaLevel
     {
         get => _curSeaLevel;
@@ -187,13 +209,38 @@ public partial class MapGenerationMenu : Control
         _generatorDropdownMenu.ItemSelected += OnGeneratorDropdownMenuItemSelected;
     }
 
+    public void ApplySelectedInterpolation(float[,] map)
+    {
+        GD.Print("Now using: " + CurMapInterpolationType);
+        for (int y = 0; y < map.Height(); y++)
+        {
+            for (int x = 0; x < map.Width(); x++)
+            {
+                switch (CurMapInterpolationType)
+                {
+                    case MapInterpolationType.Linear:
+                        break;
+                    case MapInterpolationType.HighlightHighValues:
+                        map[y, x] = Interpolations.HighlightHighValues(map[y, x]);
+                        break;
+                    case MapInterpolationType.HighlightLowValues:
+                        map[y, x] = Interpolations.HighlightLowValues(map[y, x]);
+                        break;
+                    case MapInterpolationType.HighlightExtremes:
+                        map[y, x] = Interpolations.HighlightExtremes(map[y, x]);
+                        break;
+                }
+            }
+        }
+    }
+
     public void DisableAllOptions()
     {
         _selectedGenerator?.DisableAllOptions();
 
         foreach (var child in _adjustmentsContainer.GetChildren())
         {
-            if (child is InputLine inputLine)
+            if (child is InputLineBase inputLine)
             {
                 inputLine.DisableInput();
             }
@@ -214,7 +261,7 @@ public partial class MapGenerationMenu : Control
 
         foreach (var child in _adjustmentsContainer.GetChildren())
         {
-            if (child is InputLine inputLine)
+            if (child is InputLineBase inputLine)
             {
                 inputLine.EnableInput();
             }
@@ -228,7 +275,6 @@ public partial class MapGenerationMenu : Control
         _waterErosionOptions.EnableAllOptions();
         _islandOptions.EnableAllOptions();
         _treePlacementOptions.EnableAllOptions();
-
     }
 	private void HideAllGeneratorsOptions()
 	{

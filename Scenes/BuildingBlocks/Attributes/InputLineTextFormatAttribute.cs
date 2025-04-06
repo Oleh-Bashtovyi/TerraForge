@@ -3,7 +3,7 @@
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
-public class RoundedAttribute : Attribute
+public class InputLineTextFormatAttribute(string format) : Attribute
 {
-    public bool IsRounded { get; set; } = true;
+    public string Format { get; } = format;
 }

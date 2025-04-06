@@ -7,10 +7,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
 {
 	private readonly Domain.Generators.PerlinNoise _generator = new();
 
-    [LineInputValue(Description = "Map height:")]
-    [InputRange(1, 400)]
-    [Rounded]
-    [Step(1.0f)]
+    [InputLine(Description = "Map height:")]
+    [InputLineSlider(1, 400)]
     public int MapHeight
     {
         get => _generator.MapHeight;
@@ -21,10 +19,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Map width:")]
-    [InputRange(1, 400)]
-    [Rounded]
-    [Step(1.0f)]
+    [InputLine(Description = "Map width:")]
+    [InputLineSlider(1, 400)]
     public int MapWidth
     {
         get => _generator.MapWidth;
@@ -35,10 +31,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Seed:")]
-    [InputRange(0, 10000)]
-    [Rounded]
-    [Step(1.0f)]
+    [InputLine(Description = "Seed:")]
+    [InputLineSlider(0, 10_000)]
     public int Seed
     {
         get => _generator.Seed;
@@ -49,10 +43,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Octaves:")]
-	[InputRange(1, 10)]
-	[Rounded]
-    [Step(1.0f)]
+    [InputLine(Description = "Octaves:")]
+    [InputLineSlider(0, 10)]
     public int Octaves
     {
 		get => _generator.Octaves;
@@ -63,9 +55,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Scale:")]
-    [InputRange(0.1f, 100f)]
-    [Step(0.1f)]
+    [InputLine(Description = "Scale:")]
+    [InputLineSlider(0.1f, 100f, 0.1f)]
     public float Frequency
     {
         get => _generator.Scale;
@@ -76,9 +67,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Lacunarity:")]
-    [InputRange(0.001f, 10f)]
-    [Step(0.001f)]
+    [InputLine(Description = "Lacunarity:")]
+    [InputLineSlider(0.001f, 10f, 0.001f)]
     public float Lacunarity
     {
         get => _generator.Lacunarity;
@@ -89,9 +79,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Persistence:")]
-    [InputRange(0.001f, 1f)]
-    [Step(0.001f)]
+    [InputLine(Description = "Persistence:")]
+    [InputLineSlider(0.001f, 3f, 0.001f)]
     public float Persistence
     {
         get => _generator.Persistence;
@@ -102,9 +91,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Offset X:")]
-    [InputRange(-1000f, 1000f)]
-    [Step(0.1f)]
+    [InputLine(Description = "Offset X:")]
+    [InputLineSlider(-1000f, 1000f, 0.1f)]
     public float OffsetX
     {
         get => _generator.Offset.X;
@@ -117,9 +105,8 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Offset Y:")]
-    [InputRange(-1000f, 1000f)]
-    [Step(0.1f)]
+    [InputLine(Description = "Offset Y:")]
+    [InputLineSlider(-1000f, 1000f, 0.1f)]
     public float OffsetY
     {
         get => _generator.Offset.Y;
@@ -136,6 +123,7 @@ public partial class PerlinOptions : BaseGeneratorOptions
 
     public override void _Ready()
     {
+        base._Ready();
         Generator.EnableWarping = false;
         InputLineManager.CreateInputLinesForObject(this, this);
     }

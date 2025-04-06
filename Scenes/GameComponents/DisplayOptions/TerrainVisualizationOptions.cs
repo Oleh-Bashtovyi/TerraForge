@@ -29,9 +29,8 @@ public partial class TerrainVisualizationOptions : Control
         }
     }
 
-    [LineInputValue(Description = "Slope threshold")]
-    [InputRange(0.0f, 1.0f)]
-    [Step(0.01f)]
+    [InputLine(Description = "Slope threshold")]
+    [InputLineSlider(0.0f, 1.0f, 0.01f)]
     public float CurSlopeThreshold
     {
         get => _curSlopeThreshold;

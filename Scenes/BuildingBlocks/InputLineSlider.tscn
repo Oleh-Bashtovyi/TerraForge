@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://rdqavtj2n065"]
 
-[ext_resource type="Script" uid="uid://cp7uwqgjdgj2p" path="res://Scenes/BuildingBlocks/InputLine.cs" id="1_6n12i"]
+[ext_resource type="Script" uid="uid://cp7uwqgjdgj2p" path="res://Scenes/BuildingBlocks/InputLineSlider.cs" id="1_eofy6"]
 
 [node name="InputLine" type="HBoxContainer"]
 anchors_preset = 14
@@ -12,7 +12,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 10
-script = ExtResource("1_6n12i")
+script = ExtResource("1_eofy6")
 
 [node name="DescriptionLabel" type="Label" parent="."]
 unique_name_in_owner = true
@@ -20,6 +20,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
 size_flags_stretch_ratio = 6.0
+theme_override_font_sizes/font_size = 16
 text = "Description:"
 autowrap_mode = 3
 

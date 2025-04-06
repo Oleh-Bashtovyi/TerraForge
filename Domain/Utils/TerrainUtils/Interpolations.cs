@@ -15,7 +15,7 @@ public static class Interpolations
     /// <summary>
     /// Highlights high values using a quadratic function
     /// </summary>
-    public static float HighlightHighValues(float value, float power = 2.0f)
+    public static float HighlightHighValues(float value, float power = 0.5f)
     {
         return (float)Math.Pow(value, power);
     }
@@ -23,7 +23,7 @@ public static class Interpolations
     /// <summary>
     /// Highlights low values using a root function
     /// </summary>
-    public static float HighlightLowValues(float value, float power = 0.5f)
+    public static float HighlightLowValues(float value, float power = 2.0f)
     {
         return (float)Math.Pow(value, power);
     }

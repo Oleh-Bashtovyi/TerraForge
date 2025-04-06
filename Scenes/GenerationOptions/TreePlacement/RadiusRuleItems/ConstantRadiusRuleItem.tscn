@@ -1,6 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://chradgh8i1xgl"]
 
 [ext_resource type="Script" uid="uid://bx75ls3o6fhvk" path="res://Scenes/GenerationOptions/TreePlacement/RadiusRuleItems/ConstantRadiusRuleItem.cs" id="1_mnhef"]
+[ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/GenerationOptions/OptionsContainer.tscn" id="2_vplw7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0bdya"]
 content_margin_left = 5.0
@@ -12,9 +13,6 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-
-[sub_resource type="LabelSettings" id="LabelSettings_3df8e"]
-font_size = 12
 
 [node name="ConstantRadiusRuleItem" type="PanelContainer"]
 anchors_preset = 14
@@ -49,24 +47,10 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 5
-
-[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer"]
-layout_mode = 2
-text = "Radius:"
-label_settings = SubResource("LabelSettings_3df8e")
-
-[node name="RadiusLineEdit" type="LineEdit" parent="HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer/HBoxContainer"]
+[node name="OptionsContainer" parent="HBoxContainer/VBoxContainer/MarginContainer" instance=ExtResource("2_vplw7")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 12
+OptionsFontSize = 12
 
 [node name="DeleteButton" type="Button" parent="HBoxContainer"]
 unique_name_in_owner = true

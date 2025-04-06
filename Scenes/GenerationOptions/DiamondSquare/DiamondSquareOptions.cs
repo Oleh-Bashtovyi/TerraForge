@@ -9,10 +9,8 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
 	private int _terrainPower = 5;
 	private float _roughness = 3.0f;
 
-    [LineInputValue(Description = "Terrain power:")]
-    [InputRange(1, 10)]
-    [Rounded]
-    [Step(1.0f)]
+    [InputLine(Description = "Terrain power:")]
+    [InputLineSlider(1, 10)]
     public int TerrainPower
     {
         get => _terrainPower;
@@ -23,10 +21,8 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Seed:")]
-    [InputRange(0, 10000)]
-    [Rounded]
-    [Step(1.0f)]
+    [InputLine(Description = "Seed:")]
+    [InputLineSlider(1, 10_000)]
     public int Seed
     {
         get => _seed;
@@ -37,9 +33,8 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
         }
     }
 
-    [LineInputValue(Description = "Roughness:")]
-    [InputRange(0.1f, 10f)]
-    [Step(0.1f)]
+    [InputLine(Description = "Roughness:")]
+    [InputLineSlider(0.1f, 10f, 0.1f)]
     public float Roughness
     {
         get => _roughness;
@@ -52,6 +47,7 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
 
     public override void _Ready()
     {
+        base._Ready();
         InputLineManager.CreateInputLinesForObject(this, this);
     }
 

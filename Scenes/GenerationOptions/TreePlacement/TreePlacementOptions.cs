@@ -31,9 +31,8 @@ public partial class TreePlacementOptions : VBoxContainer
     public event EventHandler OnTreePlacementRuleItemsOrderChanged;
     public event EventHandler OnTreePlacementRulesChanged;
 
-    [LineInputValue(Description = "Frequency")]
-    [InputRange(0.0f, 5.0f)]
-    [Step(0.1f)]
+    [InputLine(Description = "Frequency")]
+    [InputLineSlider(0.0f, 5.0f, 0.1f)]
     public float Frequency
     {
         get => _frequency;
@@ -47,6 +46,7 @@ public partial class TreePlacementOptions : VBoxContainer
 
 	public override void _Ready()
 	{
+        base._Ready();
         _optionsContainer = GetNode<VBoxContainer>("%OptionsContainer");
         _rulesContainer = GetNode<VBoxContainer>("%RulesContainer");
 		_addRuleButton = GetNode<Button>("%AddRuleButton");

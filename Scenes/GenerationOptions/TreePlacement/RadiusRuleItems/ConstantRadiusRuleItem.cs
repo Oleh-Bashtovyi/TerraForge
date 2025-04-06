@@ -1,13 +1,37 @@
-﻿using Godot;
-using TerrainGenerationApp.Domain.Rules.RadiusRules;
+﻿using TerrainGenerationApp.Domain.Rules.RadiusRules;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRuleItems;
 
 public partial class ConstantRadiusRuleItem : BaseRadiusRuleItem<ConstantRadiusRuleItem>
 {
-    private LineEdit _radiusLineEdit;
+    private OptionsContainer _optionsContainer;
 
-    private float _radius;
+    private float _radius = 3.0f;
+
+    private OptionsContainer OptionsContainer
+    {
+        get
+        {
+            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
+            return _optionsContainer;
+        }
+    }
+
+    [InputLine(Description = "Radius:")]
+    [InputLineSlider(0.0f, 100.0f, 0.1f)]
+    [InputLineTextFormat("0.#")]
+    public float Radius
+    {
+        get => _radius;
+        set
+        {
+            _radius = value;
+            Logger.Log($"Radius changed to: {_radius}");
+            InvokeRuleParametersChangedEvent();
+        }
+    }
 
     public override IRadiusRule GetRadiusRule()
     {
@@ -17,33 +41,6 @@ public partial class ConstantRadiusRuleItem : BaseRadiusRuleItem<ConstantRadiusR
     public override void _Ready()
     {
         base._Ready();
-        _radiusLineEdit = GetNode<LineEdit>("%RadiusLineEdit");
-        _radius = 5.0f;
-        _radiusLineEdit.Text = _radius.ToString("0.###");
-        _radiusLineEdit.EditingToggled += RadiusLineEditOnEditingToggled;
-    }
-
-    private void RadiusLineEditOnEditingToggled(bool toggledOn)
-    {
-        if (toggledOn == false)
-        {
-            var text = _radiusLineEdit.Text;
-
-            if (float.TryParse(text, out float result))
-            {
-                if (!Mathf.IsEqualApprox(result, _radius))
-                {
-                    _radius = result;
-                    _radiusLineEdit.Text = _radius.ToString("0.###");
-                    Logger.Log($"Radius changed to {_radius}");
-                    InvokeRuleParametersChangedEvent();
-                }
-            }
-            else
-            {
-                // Restore original value if parsing fails
-                _radiusLineEdit.Text = _radius.ToString("0.###");
-            }
-        }
+        InputLineManager.CreateInputLinesForObject(this, OptionsContainer);
     }
 }

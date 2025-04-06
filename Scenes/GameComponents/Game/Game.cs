@@ -189,6 +189,7 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
             WorldData.TreesData.ClearLayers();
 
             await GenerateTerrainAsync(generator);
+            await ApplyMapInterpolation();
             await ApplyInfluenceAsync();
             await ApplyTerrainSmoothingAsync();
 
@@ -220,6 +221,17 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Generating map...");
         var map = generator.GenerateMap();
+        _worldData.TerrainData.SetTerrain(map);
+        await RedrawTerrainAsync();
+        _logger.LogMethodEnd();
+    }
+
+    private async Task ApplyMapInterpolation()
+    {
+        _logger.LogMethodStart();
+        await SetGenerationTitleTipAsync("Applying interpolation...");
+        var map = _worldData.TerrainData.HeightMap;
+        _mapGenerationMenu.ApplySelectedInterpolation(map);
         _worldData.TerrainData.SetTerrain(map);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();

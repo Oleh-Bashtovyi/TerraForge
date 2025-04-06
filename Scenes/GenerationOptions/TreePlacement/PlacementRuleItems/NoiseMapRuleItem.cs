@@ -1,15 +1,16 @@
 ﻿using Godot;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Rules.PlacementRules;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.GenerationOptions.PerlinNoise;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementRuleItems;
 
 public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 {
+    private OptionsContainer _optionsContainer;
     private PerlinOptions _perlinOptions;
-    private Label _noiseThresholdLabel;
-    private Slider _noiseThresholdSlider;
     private TextureRect _noiseTextureRect;
 
     private Image _noiseImage;
@@ -17,14 +18,35 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
     private float _noiseThreshold = 0.5f;
     private bool _sizeChanged = true;
 
+    private OptionsContainer OptionsContainer
+    {
+        get
+        {
+            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
+            return _optionsContainer;
+        }
+    }
+
+    [InputLine(Description = "Noise threshold:")]
+    [InputLineSlider(0.0f, 1.0f, 0.001f)]
+    [InputLineTextFormat("0.###")]
+    public float NoiseThreshold
+    {
+        get => _noiseThreshold;
+        set
+        {
+            _noiseThreshold = value;
+            Logger.Log($"Lower bound changed to: {_noiseThreshold}");
+            InvokeRuleParametersChangedEvent();
+        }
+    }
+
     public override void _Ready()
     {
         base._Ready();
+        InputLineManager.CreateInputLinesForObject(this, OptionsContainer);
         _perlinOptions = GetNode<PerlinOptions>("%PerlinOptions");
-        _noiseThresholdLabel = GetNode<Label>("%NoiseThresholdLabel");
-        _noiseThresholdSlider = GetNode<Slider>("%NoiseThresholdSlider");
         _noiseTextureRect = GetNode<TextureRect>("%NoiseTextureRect");
-        _noiseThresholdSlider.ValueChanged += OnNoiseThresholdSliderValueChanged;
         _perlinOptions.ParametersChanged += _perlinOptions_ParametersChanged;
 
         _noiseImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
@@ -87,12 +109,5 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 
         RedrawMap();
         InvokeRuleParametersChangedEvent();
-    }
-
-    private void OnNoiseThresholdSliderValueChanged(double value)
-    {
-        _noiseThreshold = Mathf.Clamp((float)value, 0f, 1.0f);
-        _noiseThresholdLabel.Text = _noiseThreshold.ToString("0.##");
-        InvokeParametersChangedEvent();
     }
 }

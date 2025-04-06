@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bwb0up3nuvay2"]
+[gd_scene load_steps=6 format=3 uid="uid://bwb0up3nuvay2"]
 
 [ext_resource type="Script" uid="uid://ddfb4m5xdjaa0" path="res://Scenes/GenerationOptions/TreePlacement/PlacementRuleItems/NoiseMapRuleItem.cs" id="1_gjdrv"]
 [ext_resource type="PackedScene" uid="uid://dibwtw2cnl4pf" path="res://Scenes/GenerationOptions/PerlinNoise/PerlinOptions.tscn" id="2_fgcox"]
+[ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/GenerationOptions/OptionsContainer.tscn" id="2_psq66"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0bdya"]
 content_margin_left = 5.0
@@ -68,35 +69,10 @@ size_flags_horizontal = 4
 texture = SubResource("CanvasTexture_uj310")
 expand_mode = 1
 
-[node name="NoiseThreshold" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="L" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/NoiseThreshold"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-size_flags_stretch_ratio = 3.0
-text = "Noise threshold:"
-
-[node name="NoiseThresholdLabel" type="Label" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/NoiseThreshold"]
+[node name="OptionsContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_psq66")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 1
-text = "0.5"
-horizontal_alignment = 2
-
-[node name="NoiseThresholdSlider" type="HSlider" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/NoiseThreshold"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-size_flags_stretch_ratio = 7.0
-min_value = 0.01
-max_value = 1.0
-step = 0.01
-value = 0.5
+OptionsFontSize = 12
 
 [node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -111,6 +87,7 @@ horizontal_alignment = 1
 [node name="PerlinOptions" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_fgcox")]
 unique_name_in_owner = true
 layout_mode = 2
+OptionsFontSize = 12
 
 [node name="DeleteButton" type="Button" parent="HBoxContainer"]
 unique_name_in_owner = true

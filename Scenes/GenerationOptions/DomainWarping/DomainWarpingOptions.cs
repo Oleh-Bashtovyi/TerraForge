@@ -1,64 +1,50 @@
-using System;
-using Godot;
 using TerrainGenerationApp.Domain.Generators.DomainWarping;
+using TerrainGenerationApp.Scenes.BuildingBlocks;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 
 namespace TerrainGenerationApp.Scenes.GenerationOptions.DomainWarping;
 
-public partial class DomainWarpingOptions : VBoxContainer
+public partial class DomainWarpingOptions : OptionsContainer
 {
-	public event Action ParametersChanged;
+    private readonly DomainWarpingApplier _domainWarpingApplier = new();
+    private float _warpingStrength = 1.0f;
+	private float _noiseScale = 1.0f;
 
-    private float _warpingStrength;
-	private float _noiseScale;
-	private Label _strengthLabel;
-	private Label _noiseScaleLabel;
-	private Slider _strengthSlider;
-    private Slider _noiseScaleSlider;
+    [InputLine(Description = "Strength")]
+    [InputLineSlider(0.1f, 100.0f, 0.1f)]
+    public float WarpingStrength
+    {
+		get => _warpingStrength;
+        set
+        {
+			_warpingStrength = value;
+            _domainWarpingApplier.WarpingStrength = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [InputLine(Description = "Scale")]
+    [InputLineSlider(0.1f, 50.0f, 0.1f)]
+    public float NoiseScale
+    {
+        get => _noiseScale;
+        set
+        {
+            _noiseScale = value;
+            _domainWarpingApplier.XNoise.Scale = value;
+            _domainWarpingApplier.YNoise.Scale = value;
+            InvokeParametersChangedEvent();
+        }
+    }
 
 
-    private DomainWarpingApplier _domainWarpingApplier;
-	public DomainWarpingApplier DomainWarpingApplier
+	public DomainWarpingApplier DomainWarpingApplier => _domainWarpingApplier;
+
+    public override void _Ready()
 	{
-		get => _domainWarpingApplier;
-	}
-
-	public override void _Ready()
-	{
-		_strengthLabel = GetNode<Label>("%StrengthL");
-		_noiseScaleLabel = GetNode<Label>("%NoiseScaleL");
-		_strengthSlider = GetNode<Slider>("%StrengthSlider");
-        _noiseScaleSlider = GetNode<Slider>("%NoiseScaleSlider");
-        _domainWarpingApplier = new();
-		_domainWarpingApplier.XNoise.Scale = 8;
+        base._Ready();
+        _domainWarpingApplier.XNoise.Scale = 8;
 		_domainWarpingApplier.YNoise.Scale = 8;
-	}
-
-    public void DisableAllOptions()
-    {
-		_strengthSlider.Editable = false;
-        _noiseScaleSlider.Editable = false;
+        InputLineManager.CreateInputLinesForObject(this, this);
     }
-
-    public void EnableAllOptions()
-    {
-        _strengthSlider.Editable = true;
-        _noiseScaleSlider.Editable = true;
-    }
-
-
-
-    private void OnStrengthSValueChanged(float value)
-	{
-		_domainWarpingApplier.WarpingStrength = value;
-		_strengthLabel.Text = value.ToString();
-        ParametersChanged?.Invoke();
-    }
-
-	private void OnNoiseScaleSValueChanged(float value)
-	{
-		_domainWarpingApplier.XNoise.Scale = value;
-		_domainWarpingApplier.YNoise.Scale = value;
-		_noiseScaleLabel.Text = value.ToString();
-		ParametersChanged?.Invoke();
-	}
 }

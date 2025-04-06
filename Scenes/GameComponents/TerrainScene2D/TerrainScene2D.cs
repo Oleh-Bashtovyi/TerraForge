@@ -156,6 +156,7 @@ public partial class TerrainScene2D : Control
     {
         if (@event is InputEventMouseMotion)
         {
+            _logger.Log("Mouse moved over texture rect");
             Vector2 localPosition = _terrainTextureRect.GetLocalMousePosition();
             var h = _worldDataProvider.WorldData.TerrainData.TerrainMapHeight;
             var w = _worldDataProvider.WorldData.TerrainData.TerrainMapWidth;
@@ -176,6 +177,7 @@ public partial class TerrainScene2D : Control
 
     private void OnMapTextureRectMouseExited()
     {
+        _logger.Log("Exiting texture rect");
         _cellInfoLabel.Text = "";
     }
 
