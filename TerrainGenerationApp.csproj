@@ -5,7 +5,13 @@
     <RootNamespace>TerrainGenerationApp</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Scenes\FeaturesOptions\**" />
     <Compile Remove="Scenes\GenerationOptions\TreePlacementOptions\**" />
+    <EmbeddedResource Remove="Scenes\FeaturesOptions\**" />
     <EmbeddedResource Remove="Scenes\GenerationOptions\TreePlacementOptions\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Scenes\BuildingBlocks\Separators\" />
+    <Folder Include="Scenes\GeneratorOptions\" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,137 @@
+[gd_scene load_steps=4 format=3 uid="uid://oihfvosl22b7"]
+
+[ext_resource type="Script" uid="uid://bp31idpywmwc1" path="res://Scenes/FeatureOptions/TreePlacement/TreePlacementRuleItem.cs" id="1_qqfdb"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qo2xr"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.2484, 0.2484, 0.2484, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="LabelSettings" id="LabelSettings_lse0g"]
+
+[node name="TreePlacementRuleItem" type="PanelContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_qo2xr")
+script = ExtResource("1_qqfdb")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LeftVBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 5
+
+[node name="TreeColorPickerButton" type="ColorPickerButton" parent="HBoxContainer/LeftVBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "col"
+color = Color(0, 0.768627, 0, 1)
+
+[node name="MoveUpButton" type="Button" parent="HBoxContainer/LeftVBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🔼"
+
+[node name="MoveDownButton" type="Button" parent="HBoxContainer/LeftVBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🔽"
+
+[node name="CenterVBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="IdHBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
+layout_mode = 2
+text = "Tree id:"
+label_settings = SubResource("LabelSettings_lse0g")
+
+[node name="TreeIdLineEdit" type="LineEdit" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DeleteButton" type="Button" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🗑"
+
+[node name="TextureBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/TextureBoxContainer"]
+layout_mode = 2
+text = "Model in 3d:"
+
+[node name="ModelOptionButton" type="OptionButton" parent="HBoxContainer/CenterVBoxContainer/TextureBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_stretch_ratio = 0.85
+expand_icon = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AddPlaceRuleButton" type="MenuButton" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "➕"
+flat = false
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Placement rules:"
+
+[node name="PlaceRulesVBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NoPlaceRulesLabel" type="Label" parent="HBoxContainer/CenterVBoxContainer/PlaceRulesVBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "There is no any rule"
+horizontal_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AddRadiusRuleButton" type="Button" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "✏️"
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Radius rule:"
+
+[node name="RadiusRuleVBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NoRadiusRuleLabel" type="Label" parent="HBoxContainer/CenterVBoxContainer/RadiusRuleVBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "There is no any rule"
+horizontal_alignment = 1

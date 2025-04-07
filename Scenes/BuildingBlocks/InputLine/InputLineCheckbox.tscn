@@ -1,0 +1,27 @@
+[gd_scene load_steps=2 format=3 uid="uid://tydfqotp66pi"]
+
+[ext_resource type="Script" uid="uid://br8e7nt2kfrx3" path="res://Scenes/BuildingBlocks/InputLine/InputLineCheckbox.cs" id="1_rav7b"]
+
+[node name="InputLineCheckbox" type="HBoxContainer"]
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+script = ExtResource("1_rav7b")
+
+[node name="DescriptionLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 6.0
+text = "Description:"
+
+[node name="Checkbox" type="CheckButton" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 6.0

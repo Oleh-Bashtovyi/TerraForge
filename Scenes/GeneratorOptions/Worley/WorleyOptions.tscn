@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://qs7cvr1k61r1"]
+
+[ext_resource type="Script" uid="uid://beetbpesxql8s" path="res://Scenes/GeneratorOptions/Worley/WorleyOptions.cs" id="1_ms1by"]
+
+[node name="WorleyOptions" type="VBoxContainer"]
+theme_override_constants/separation = 5
+script = ExtResource("1_ms1by")

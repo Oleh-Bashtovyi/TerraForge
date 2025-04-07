@@ -1,0 +1,136 @@
+[gd_scene load_steps=2 format=3 uid="uid://ds5ici2o3bfy0"]
+
+[ext_resource type="Script" uid="uid://bwgrssimc17rr" path="res://Scenes/FeatureOptions/WaterErosion/WaterErosionOptions.cs" id="1_4mot0"]
+
+[node name="WaterErosionOptions" type="VBoxContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_4mot0")
+
+[node name="Iterations" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="Iterations"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Iterations:"
+
+[node name="IterationsLabel" type="Label" parent="Iterations"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "30"
+horizontal_alignment = 2
+
+[node name="IterationsSlider" type="HSlider" parent="Iterations"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 1.0
+max_value = 2000.0
+value = 30.0
+rounded = true
+
+[node name="RainPower" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="RainPower"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Rain power:"
+
+[node name="RainPowerLabel" type="Label" parent="RainPower"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0.01"
+horizontal_alignment = 2
+
+[node name="RainPowerSlider" type="HSlider" parent="RainPower"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 0.005
+max_value = 0.5
+step = 0.005
+value = 0.01
+
+[node name="RainChance" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="RainChance"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Rain chance:"
+
+[node name="RainChanceLabel" type="Label" parent="RainChance"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0.5"
+horizontal_alignment = 2
+
+[node name="RainChanceSlider" type="HSlider" parent="RainChance"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 0.01
+max_value = 1.0
+step = 0.01
+value = 0.5
+
+[node name="RainRateType" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="L" type="Label" parent="RainRateType"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 4.0
+text = "Rain rate type:"
+
+[node name="RainRateTypeOptions" type="OptionButton" parent="RainRateType"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 7.0
+
+[node name="RainType" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="L" type="Label" parent="RainType"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 4.0
+text = "Rain type:"
+
+[node name="RainTypeOptions" type="OptionButton" parent="RainType"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 7.0
+
+[connection signal="value_changed" from="Iterations/IterationsSlider" to="." method="_on_iterations_slider_value_changed"]
+[connection signal="value_changed" from="RainPower/RainPowerSlider" to="." method="_on_rain_power_slider_value_changed"]
+[connection signal="value_changed" from="RainChance/RainChanceSlider" to="." method="_on_rain_chance_slider_value_changed"]
+[connection signal="item_selected" from="RainRateType/RainRateTypeOptions" to="." method="_on_rain_rate_type_options_item_selected"]
+[connection signal="item_selected" from="RainType/RainTypeOptions" to="." method="_on_rain_rate_type_options_item_selected"]

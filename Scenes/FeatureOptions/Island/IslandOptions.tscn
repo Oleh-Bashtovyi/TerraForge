@@ -1,0 +1,254 @@
+[gd_scene load_steps=2 format=3 uid="uid://cs3qk4i5r62mw"]
+
+[ext_resource type="Script" uid="uid://cvrbc7qlwoud7" path="res://Scenes/FeatureOptions/Island/IslandOptions.cs" id="1_ckg7v"]
+
+[node name="IslandOptions" type="VBoxContainer"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_ckg7v")
+
+[node name="IslandType" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="L" type="Label" parent="IslandType"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 4.0
+text = "Island type:"
+
+[node name="IslandTypeOptions" type="OptionButton" parent="IslandType"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 7.0
+
+[node name="DistanceFunction" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="L" type="Label" parent="DistanceFunction"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 4.0
+text = "Distance function:"
+
+[node name="DistanceFunctionOptions" type="OptionButton" parent="DistanceFunction"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 7.0
+
+[node name="RadiusAroundIslands" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="RadiusAroundIslands"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Radius around islands:"
+
+[node name="RadiusLabel" type="Label" parent="RadiusAroundIslands"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "50"
+horizontal_alignment = 2
+
+[node name="RadiusSlider" type="HSlider" parent="RadiusAroundIslands"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 1.0
+max_value = 200.0
+value = 50.0
+
+[node name="IslandsCount" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="IslandsCount"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Islands count:"
+
+[node name="IslandsCountLabel" type="Label" parent="IslandsCount"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "1"
+horizontal_alignment = 2
+
+[node name="IslandsCountSlider" type="HSlider" parent="IslandsCount"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+min_value = 1.0
+max_value = 8.0
+value = 1.0
+rounded = true
+
+[node name="MinDistanceFactor" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="MinDistanceFactor"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Min distance factor:"
+
+[node name="MinDistanceFactorLabel" type="Label" parent="MinDistanceFactor"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0.2"
+horizontal_alignment = 2
+
+[node name="MinDistanceFactorSlider" type="HSlider" parent="MinDistanceFactor"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+max_value = 1.0
+step = 0.01
+value = 0.2
+
+[node name="HorizontalOffset" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="HorizontalOffset"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Horizontal offset:"
+
+[node name="HorizontalOffsetLabel" type="Label" parent="HorizontalOffset"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0.3"
+horizontal_alignment = 2
+
+[node name="HorizontalOffsetSlider" type="HSlider" parent="HorizontalOffset"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+max_value = 1.0
+step = 0.01
+value = 0.3
+
+[node name="VerticalOffset" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="VerticalOffset"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Vertical offset:"
+
+[node name="VerticalOffsetLabel" type="Label" parent="VerticalOffset"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0.3"
+horizontal_alignment = 2
+
+[node name="VerticalOffsetSlider" type="HSlider" parent="VerticalOffset"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+max_value = 1.0
+step = 0.01
+value = 0.3
+
+[node name="MixStrength" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="MixStrength"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Mix strength:"
+
+[node name="MixStrengthLabel" type="Label" parent="MixStrength"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0.8
+"
+horizontal_alignment = 2
+
+[node name="MixStrengthSlider" type="HSlider" parent="MixStrength"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+max_value = 1.0
+step = 0.01
+value = 0.8
+
+[node name="Seed" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="L" type="Label" parent="Seed"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 3.0
+text = "Seed:"
+
+[node name="SeedLabel" type="Label" parent="Seed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "0"
+horizontal_alignment = 2
+
+[node name="SeedSlider" type="HSlider" parent="Seed"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 7.0
+max_value = 10000.0
+rounded = true
+
+[connection signal="item_selected" from="IslandType/IslandTypeOptions" to="." method="_on_island_type_options_item_selected"]
+[connection signal="item_selected" from="DistanceFunction/DistanceFunctionOptions" to="." method="_on_distance_function_options_item_selected"]
+[connection signal="value_changed" from="RadiusAroundIslands/RadiusSlider" to="." method="_on_radius_slider_value_changed"]
+[connection signal="value_changed" from="IslandsCount/IslandsCountSlider" to="." method="_on_islands_count_slider_value_changed"]
+[connection signal="value_changed" from="MinDistanceFactor/MinDistanceFactorSlider" to="." method="_on_min_distance_factor_slider_value_changed"]
+[connection signal="value_changed" from="HorizontalOffset/HorizontalOffsetSlider" to="." method="_on_horizontal_offset_slider_value_changed"]
+[connection signal="value_changed" from="VerticalOffset/VerticalOffsetSlider" to="." method="_on_vertical_offset_slider_value_changed"]
+[connection signal="value_changed" from="MixStrength/MixStrengthSlider" to="." method="_on_mix_strength_slider_value_changed"]
+[connection signal="value_changed" from="Seed/SeedSlider" to="." method="_on_seed_slider_value_changed"]
