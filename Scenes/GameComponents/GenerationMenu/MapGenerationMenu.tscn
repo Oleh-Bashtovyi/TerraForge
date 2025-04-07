@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://ckgwmiiux24bu"]
+[gd_scene load_steps=12 format=3 uid="uid://ckgwmiiux24bu"]
 
 [ext_resource type="Script" uid="uid://c8djttepxw168" path="res://Scenes/GameComponents/GenerationMenu/MapGenerationMenu.cs" id="1_5x4vo"]
 [ext_resource type="PackedScene" uid="uid://c2fscxswvxfxo" path="res://Scenes/GenerationOptions/DiamondSquare/DiamondSquareOptions.tscn" id="1_fu6da"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dibwtw2cnl4pf" path="res://Scenes/GenerationOptions/PerlinNoise/PerlinOptions.tscn" id="3_o8gpn"]
 [ext_resource type="PackedScene" uid="uid://bagl6klwbcex2" path="res://Scenes/GenerationOptions/DomainWarping/DomainWarpingOptions.tscn" id="4_b8rru"]
 [ext_resource type="PackedScene" uid="uid://ds5ici2o3bfy0" path="res://Scenes/GenerationOptions/WaterErosion/WaterErosionOptions.tscn" id="5_3mgfn"]
+[ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/GenerationOptions/OptionsContainer.tscn" id="5_odnn8"]
 [ext_resource type="PackedScene" uid="uid://cs3qk4i5r62mw" path="res://Scenes/GenerationOptions/Island/IslandOptions.tscn" id="6_mscmd"]
 [ext_resource type="PackedScene" uid="uid://c111y36ggt3us" path="res://Scenes/GenerationOptions/TreePlacement/TreePlacementOptions.tscn" id="7_oqg8v"]
 
@@ -132,7 +133,7 @@ layout_mode = 2
 text = "Adjustments:"
 label_settings = SubResource("LabelSettings_l3s0y")
 
-[node name="AdjustmentsContainer" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="AdjustmentsContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("5_odnn8")]
 unique_name_in_owner = true
 layout_mode = 2
 

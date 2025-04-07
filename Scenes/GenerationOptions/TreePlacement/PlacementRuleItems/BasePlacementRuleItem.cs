@@ -8,11 +8,21 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementR
 public partial class BasePlacementRuleItem<TLoggerType> : PanelContainer, IPlacementRuleItem where TLoggerType : class
 {
     private Button _deleteButton;
+    private OptionsContainer _optionsContainer;
 
     protected readonly Logger<TLoggerType> Logger = new();
 
     public event EventHandler OnRuleParametersChanged;
     public event EventHandler OnDeleteButtonPressed;
+
+    protected OptionsContainer OptionsContainer
+    {
+        get
+        {
+            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
+            return _optionsContainer;
+        }
+    }
 
     public override void _Ready()
     {
@@ -23,6 +33,18 @@ public partial class BasePlacementRuleItem<TLoggerType> : PanelContainer, IPlace
     public virtual IPlacementRule GetPlacementRule()
     {
         throw new NotImplementedException("Placement rule must be implemented in child class");
+    }
+
+    public virtual void EnableAllOptions()
+    {
+        OptionsContainer.EnableAllOptions();
+        _deleteButton.Disabled = false;
+    }
+
+    public virtual void DisableAllOptions()
+    {
+        OptionsContainer.DisableAllOptions();
+        _deleteButton.Disabled = true;
     }
 
     protected void InvokeRuleParametersChangedEvent()

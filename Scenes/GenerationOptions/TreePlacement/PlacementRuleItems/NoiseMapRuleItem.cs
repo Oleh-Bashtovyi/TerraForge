@@ -9,7 +9,6 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementR
 
 public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 {
-    private OptionsContainer _optionsContainer;
     private PerlinOptions _perlinOptions;
     private TextureRect _noiseTextureRect;
 
@@ -17,16 +16,7 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
     private ImageTexture _noiseTexture;
     private float _noiseThreshold = 0.5f;
     private bool _sizeChanged = true;
-
-    private OptionsContainer OptionsContainer
-    {
-        get
-        {
-            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
-            return _optionsContainer;
-        }
-    }
-
+    
     [InputLine(Description = "Noise threshold:")]
     [InputLineSlider(0.0f, 1.0f, 0.001f)]
     [InputLineTextFormat("0.###")]
@@ -47,7 +37,7 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
         InputLineManager.CreateInputLinesForObject(this, OptionsContainer);
         _perlinOptions = GetNode<PerlinOptions>("%PerlinOptions");
         _noiseTextureRect = GetNode<TextureRect>("%NoiseTextureRect");
-        _perlinOptions.ParametersChanged += _perlinOptions_ParametersChanged;
+        _perlinOptions.ParametersChanged += PerlinOptionsOnParametersChanged;
 
         _noiseImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
         _noiseTexture = ImageTexture.CreateFromImage(_noiseImage);
@@ -55,7 +45,19 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
         RedrawMap();
     }
 
-    private void _perlinOptions_ParametersChanged()
+    public override void EnableAllOptions()
+    {
+        base.EnableAllOptions();
+        _perlinOptions.EnableAllOptions();
+    }
+
+    public override void DisableAllOptions()
+    {
+        base.DisableAllOptions();
+        _perlinOptions.DisableAllOptions();
+    }
+
+    private void PerlinOptionsOnParametersChanged()
     {
         InvokeParametersChangedEvent();
     }
@@ -96,7 +98,6 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 
         _sizeChanged = false;
     }
-
 
     private void InvokeParametersChangedEvent()
     {

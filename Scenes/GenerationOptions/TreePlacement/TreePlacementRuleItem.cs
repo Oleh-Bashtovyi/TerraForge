@@ -71,8 +71,6 @@ public partial class TreePlacementRuleItem : PanelContainer
         { typeof(NoiseMapRuleItem), TreePlacementRuleLoadedScenes.NOISE_MAP_PLACEMENT_RULE_ITEM_SCENE }
     };
 
-
-
     public override void _Ready()
 	{
 		_treeIdLineEdit = GetNode<LineEdit>("%TreeIdLineEdit");
@@ -116,6 +114,34 @@ public partial class TreePlacementRuleItem : PanelContainer
         popup.IdPressed += PlacementRulesPopupMenuOnIdPressed;
     }
 
+    public void EnableAllOptions()
+    {
+        _treeIdLineEdit.Editable = true;
+        _treeColorPickerButton.Disabled = false;
+        _addPlacementRuleButton.Disabled = false;
+        _addRadiusRuleButton.Disabled = false;
+        _deleteButton.Disabled = false;
+        _modelOptionButton.Disabled = false;
+        _moveUpButton.Disabled = false;
+        _moveDownButton.Disabled = false;
+        _placementRules.ForEach(x => x.EnableAllOptions());
+        _radiusRule?.EnableAllOptions();
+    }
+
+    public void DisableAllOptions()
+    {
+        _treeIdLineEdit.Editable = false;
+        _treeColorPickerButton.Disabled = true;
+        _addPlacementRuleButton.Disabled = true;
+        _addRadiusRuleButton.Disabled = true;
+        _deleteButton.Disabled = true;
+        _modelOptionButton.Disabled = true;
+        _moveUpButton.Disabled = true;
+        _moveDownButton.Disabled = true;
+        _placementRules.ForEach(x => x.DisableAllOptions());
+        _radiusRule?.DisableAllOptions();
+    }
+
     private void _addPlacementRuleButton_AboutToPopup()
     {
         _logger.Log($"<{nameof(TreeId)}: {TreeId}> - POPUP ABOUT TO SHOW");
@@ -156,7 +182,6 @@ public partial class TreePlacementRuleItem : PanelContainer
         AddPlacementRule(scene);
     }
 
-
     private void AddPlacementRule(PackedScene placementRuleScene)
     {
         _logger.Log($"<{nameof(TreeId)}: {TreeId}> - ADDING PLACEMENT RULE...");
@@ -181,10 +206,6 @@ public partial class TreePlacementRuleItem : PanelContainer
         _noPlaceRulesLabel.Visible = false;
         MarkAsDirty();
     }
-
-
-
-
 
     public TreePlacementRule GetTreePlacementRule()
     {
@@ -243,7 +264,6 @@ public partial class TreePlacementRuleItem : PanelContainer
         _logger.Log($"<{nameof(TreeId)}: {TreeId}> - MARKED AS DIRTY!");
         OnRulesChanged?.Invoke(this, EventArgs.Empty);
     }
-
 
     private void OnAddRadiusRuleButtonPressed()
     {
@@ -320,7 +340,6 @@ public partial class TreePlacementRuleItem : PanelContainer
 
         MarkAsDirty();
     }
-
 
     private void SubscribePlacementRuleItem(IPlacementRuleItem item)
     {

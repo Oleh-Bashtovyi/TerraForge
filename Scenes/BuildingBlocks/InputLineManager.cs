@@ -10,7 +10,7 @@ namespace TerrainGenerationApp.Scenes.BuildingBlocks;
 public static class InputLineManager
 {
     public static List<InputLineBase> CreateInputLinesForObject<T>
-        (T obj, Node container, string category = null, bool generateCategoryTitle = true) where T : class
+        (T obj, Node container, string category = null) where T : class
     {
         var inputLines = new List<InputLineBase>();
 

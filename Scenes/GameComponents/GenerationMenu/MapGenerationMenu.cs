@@ -38,7 +38,7 @@ public partial class MapGenerationMenu : Control
     private BaseGeneratorOptions _diamondSquareOptions;
     private BaseGeneratorOptions _worleyOptions;
     private BaseGeneratorOptions _perlinOptions;
-    private VBoxContainer _adjustmentsContainer;
+    private OptionsContainer _adjustmentsContainer;
     private CheckBox _domainWarpingCheckBox;
     private CheckBox _waterErosionCheckbox;
     private CheckBox _islandsOptionsCheckbox;
@@ -156,7 +156,7 @@ public partial class MapGenerationMenu : Control
         _generatorDropdownMenu = GetNode<OptionButton>("%GeneratorDropdownMenu");
 
         // Adjustments
-        _adjustmentsContainer = GetNode<VBoxContainer>("%AdjustmentsContainer");
+        _adjustmentsContainer = GetNode<OptionsContainer>("%AdjustmentsContainer");
         InputLineManager.CreateInputLinesForObject(this, _adjustmentsContainer, "Adjustments");
 
         // Features enabling

@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c111y36ggt3us"]
+[gd_scene load_steps=3 format=3 uid="uid://c111y36ggt3us"]
 
 [ext_resource type="Script" uid="uid://csqlftmmmxf4b" path="res://Scenes/GenerationOptions/TreePlacement/TreePlacementOptions.cs" id="1_fjvus"]
+[ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/GenerationOptions/OptionsContainer.tscn" id="2_8l3t1"]
 
 [node name="TreePlacementOptions" type="VBoxContainer"]
 anchors_preset = 15
@@ -16,7 +17,7 @@ layout_mode = 2
 text = "General options"
 horizontal_alignment = 1
 
-[node name="OptionsContainer" type="VBoxContainer" parent="."]
+[node name="OptionsContainer" parent="." instance=ExtResource("2_8l3t1")]
 unique_name_in_owner = true
 layout_mode = 2
 

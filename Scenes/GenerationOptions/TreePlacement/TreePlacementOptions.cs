@@ -15,7 +15,7 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement;
 
 public partial class TreePlacementOptions : VBoxContainer
 {
-    private VBoxContainer _optionsContainer;
+    private OptionsContainer _optionsContainer;
     private VBoxContainer _rulesContainer;
 	private Button _addRuleButton;
 
@@ -47,7 +47,7 @@ public partial class TreePlacementOptions : VBoxContainer
 	public override void _Ready()
 	{
         base._Ready();
-        _optionsContainer = GetNode<VBoxContainer>("%OptionsContainer");
+        _optionsContainer = GetNode<OptionsContainer>("%OptionsContainer");
         _rulesContainer = GetNode<VBoxContainer>("%RulesContainer");
 		_addRuleButton = GetNode<Button>("%AddRuleButton");
         InputLineManager.CreateInputLinesForObject(this, _optionsContainer);
@@ -55,16 +55,19 @@ public partial class TreePlacementOptions : VBoxContainer
         _addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
 	}
 
-    public void DisableAllOptions()
-    {
-        _addRuleButton.Disabled = true;
-    }
-
     public void EnableAllOptions()
     {
+        _optionsContainer.EnableAllOptions();
         _addRuleButton.Disabled = false;
+        _treePlacementRules.ForEach(x => x.EnableAllOptions());
     }
 
+    public void DisableAllOptions()
+    {
+        _optionsContainer.DisableAllOptions();
+        _addRuleButton.Disabled = true;
+        _treePlacementRules.ForEach(x => x.DisableAllOptions());
+    }
 
     public List<TreePlacementRule> GetRules()
     {
@@ -92,7 +95,6 @@ public partial class TreePlacementOptions : VBoxContainer
         var rules = GetRules().ToArray();
         return TreesApplier.GenerateTreesLayers(worldData, rules, _frequency);
     }
-
 
     private void TreePlacementRuleItemOnRulesChanged(object sender, EventArgs e)
     {

@@ -6,18 +6,8 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementR
 
 public partial class AboveSeaLevelRuleItem : BasePlacementRuleItem<AboveSeaLevelRuleItem>
 {
-    private OptionsContainer _optionsContainer;   
     private float _lowerBound = 0.1f;
     private float _upperBound = 0.2f;
-
-    private OptionsContainer OptionsContainer
-    {
-        get
-        {
-            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
-            return _optionsContainer;
-        }
-    }
 
     [InputLine(Description = "Lower bound:")]
     [InputLineSlider(0.0f, 1.0f, 0.001f)]

@@ -31,16 +31,15 @@ public partial class InputLineSlider : InputLineBase
         }
     }
 
-
     public override void _Ready()
     {
         Slider.ValueChanged += OnSliderValueChanged;
         LineEdit.TextSubmitted += OnLineEditTextSubmitted;
     }
 
-    private void OnLineEditTextSubmitted(string newtext)
+    private void OnLineEditTextSubmitted(string newText)
     {
-        if (float.TryParse(newtext, out var value))
+        if (float.TryParse(newText, out var value))
         {
             Slider.Value = value;
         }
@@ -79,7 +78,6 @@ public partial class InputLineSlider : InputLineBase
         base.SetFontSize(size);
         LineEdit.AddThemeFontSizeOverride("font_size", size);
     }
-
 
     public void SetAsInt()
     {

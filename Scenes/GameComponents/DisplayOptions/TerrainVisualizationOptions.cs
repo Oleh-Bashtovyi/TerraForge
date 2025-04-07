@@ -3,6 +3,7 @@ using System;
 using TerrainGenerationApp.Domain.Enums;
 using TerrainGenerationApp.Scenes.BuildingBlocks;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
+using TerrainGenerationApp.Scenes.GenerationOptions;
 
 namespace TerrainGenerationApp.Scenes.GameComponents.DisplayOptions;
 
@@ -11,13 +12,12 @@ public partial class TerrainVisualizationOptions : Control
     private CheckBox _displayGrey;
     private CheckBox _displayColors;
     private CheckBox _displayGradient;
-    private VBoxContainer _optionsContainer;
+    private OptionsContainer _optionsContainer;
 
     private MapDisplayFormat _curDisplayFormat = MapDisplayFormat.Grey;
     private float _curSlopeThreshold = 0.2f;
 
     public event Action OnDisplayOptionsChanged;
-
 
     public MapDisplayFormat CurDisplayFormat
     {
@@ -47,7 +47,7 @@ public partial class TerrainVisualizationOptions : Control
         _displayGrey = GetNode<CheckBox>("%DisplayGrey");
         _displayColors = GetNode<CheckBox>("%DisplayColors");
         _displayGradient = GetNode<CheckBox>("%DisplayGradient");
-        _optionsContainer = GetNode<VBoxContainer>("%OptionsContainer");
+        _optionsContainer = GetNode<OptionsContainer>("%OptionsContainer");
         InputLineManager.CreateInputLinesForObject(this, _optionsContainer);
 
         _displayGradient.ButtonPressed = false;
@@ -57,5 +57,21 @@ public partial class TerrainVisualizationOptions : Control
         _displayColors.Toggled += (_) => CurDisplayFormat = MapDisplayFormat.Colors;
         _displayGradient.Toggled += (_) => CurDisplayFormat = MapDisplayFormat.GradientColors;
         CurDisplayFormat = MapDisplayFormat.Colors;
+    }
+
+    public void EnableAllOptions()
+    {
+        _optionsContainer.EnableAllOptions();
+        _displayGrey.Disabled = false;
+        _displayColors.Disabled = false;
+        _displayGradient.Disabled = false;
+    }
+
+    public void DisableAllOptions()
+    {
+        _optionsContainer.DisableAllOptions();
+        _displayGrey.Disabled = true;
+        _displayColors.Disabled = true;
+        _displayGradient.Disabled = true;
     }
 }

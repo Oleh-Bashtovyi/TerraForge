@@ -6,18 +6,7 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRule
 
 public partial class ConstantRadiusRuleItem : BaseRadiusRuleItem<ConstantRadiusRuleItem>
 {
-    private OptionsContainer _optionsContainer;
-
     private float _radius = 3.0f;
-
-    private OptionsContainer OptionsContainer
-    {
-        get
-        {
-            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
-            return _optionsContainer;
-        }
-    }
 
     [InputLine(Description = "Radius:")]
     [InputLineSlider(0.0f, 100.0f, 0.1f)]
@@ -35,7 +24,7 @@ public partial class ConstantRadiusRuleItem : BaseRadiusRuleItem<ConstantRadiusR
 
     public override IRadiusRule GetRadiusRule()
     {
-        return new ConstantRadiusRule(_radius); 
+        return new ConstantRadiusRule(_radius);
     }
 
     public override void _Ready()

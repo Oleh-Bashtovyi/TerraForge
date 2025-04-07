@@ -7,22 +7,44 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.RadiusRule
 
 public partial class BaseRadiusRuleItem<TLoggerType> : PanelContainer, IRadiusRuleItem where TLoggerType : class
 {
+    private OptionsContainer _optionsContainer;
     private Button _deleteButton;
-    
+
     protected readonly Logger<TLoggerType> Logger = new();
 
     public event EventHandler OnRuleParametersChanged;
     public event EventHandler OnDeleteButtonPressed;
 
-    public virtual IRadiusRule GetRadiusRule()
+    protected OptionsContainer OptionsContainer
     {
-        throw new NotImplementedException("Radius rule must be implemented in child class");
+        get
+        {
+            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
+            return _optionsContainer;
+        }
     }
 
     public override void _Ready()
     {
         _deleteButton = GetNode<Button>("%DeleteButton");
         _deleteButton.Pressed += DeleteButtonOnPressed;
+    }
+
+    public virtual IRadiusRule GetRadiusRule()
+    {
+        throw new NotImplementedException("Radius rule must be implemented in child class");
+    }
+
+    public virtual void EnableAllOptions()
+    {
+        OptionsContainer.EnableAllOptions();
+        _deleteButton.Disabled = false;
+    }
+
+    public virtual void DisableAllOptions()
+    {
+        OptionsContainer.DisableAllOptions();
+        _deleteButton.Disabled = true;
     }
 
     protected void InvokeRuleParametersChangedEvent()

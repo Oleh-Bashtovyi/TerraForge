@@ -22,7 +22,6 @@ public partial class InputLineBase : HBoxContainer
 
     public virtual void SetFontSize(int size)
     {
-        GD.Print($"SETTING FONT SIZE! {size}");
         DescriptionLabel.AddThemeFontSizeOverride("font_size", size);
     }
 

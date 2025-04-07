@@ -6,18 +6,8 @@ namespace TerrainGenerationApp.Scenes.GenerationOptions.TreePlacement.PlacementR
 
 public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
 {
-    private OptionsContainer _optionsContainer;
     private float _lowerBound = 0.01f;
     private float _upperBound = 0.15f;
-
-    private OptionsContainer OptionsContainer
-    {
-        get
-        {
-            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
-            return _optionsContainer;
-        }
-    }
 
     [InputLine(Description = "Lower bound:")]
     [InputLineSlider(0.0f, 1.0f, 0.001f)]
@@ -46,7 +36,6 @@ public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
             InvokeRuleParametersChangedEvent();
         }
     }
-
 
     public override void _Ready()
     {

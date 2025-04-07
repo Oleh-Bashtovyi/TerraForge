@@ -9,4 +9,6 @@ public interface IRadiusRuleItem
     public event EventHandler OnDeleteButtonPressed;
 
     public IRadiusRule GetRadiusRule();
+    public void EnableAllOptions();
+    public void DisableAllOptions();
 }

@@ -38,4 +38,7 @@ This is course project focuses on **procedural terrain generation** for video ga
 ### 🌳Trees placement
 - **Article:** [Click](https://sighack.com/post/poisson-disk-sampling-bridsons-algorithm)
 
+### 3D Generation
+- **Repository 1:** [Click](https://github.com/Chevifier/Inifinte-Terrain-Generation)
+
 ## Application screenshots

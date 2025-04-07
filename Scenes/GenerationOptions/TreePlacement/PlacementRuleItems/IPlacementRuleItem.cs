@@ -9,4 +9,6 @@ public interface IPlacementRuleItem
 	public event EventHandler OnDeleteButtonPressed;
 
 	public IPlacementRule GetPlacementRule();
+    public void EnableAllOptions();
+    public void DisableAllOptions();
 }
