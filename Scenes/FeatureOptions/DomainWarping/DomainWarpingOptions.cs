@@ -2,6 +2,7 @@ using TerrainGenerationApp.Domain.Generators.DomainWarping;
 using TerrainGenerationApp.Scenes.BuildingBlocks;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
+using OptionsContainer = TerrainGenerationApp.Scenes.BuildingBlocks.Containers.OptionsContainer;
 
 namespace TerrainGenerationApp.Scenes.FeatureOptions.DomainWarping;
 

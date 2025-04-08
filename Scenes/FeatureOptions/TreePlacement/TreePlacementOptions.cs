@@ -8,6 +8,7 @@ using TerrainGenerationApp.Domain.Generators.Trees;
 using TerrainGenerationApp.Domain.Rules.TreeRules;
 using TerrainGenerationApp.Domain.Utils;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 using TerrainGenerationApp.Scenes.LoadedScenes;
 
@@ -15,7 +16,7 @@ namespace TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
 
 public partial class TreePlacementOptions : VBoxContainer
 {
-    private BuildingBlocks.OptionsContainer _optionsContainer;
+    private OptionsContainer _optionsContainer;
     private VBoxContainer _rulesContainer;
 	private Button _addRuleButton;
 
@@ -47,7 +48,7 @@ public partial class TreePlacementOptions : VBoxContainer
 	public override void _Ready()
 	{
         base._Ready();
-        _optionsContainer = GetNode<BuildingBlocks.OptionsContainer>("%OptionsContainer");
+        _optionsContainer = GetNode<OptionsContainer>("%OptionsContainer");
         _rulesContainer = GetNode<VBoxContainer>("%RulesContainer");
 		_addRuleButton = GetNode<Button>("%AddRuleButton");
         InputLineManager.CreateInputLinesForObject(this, _optionsContainer);

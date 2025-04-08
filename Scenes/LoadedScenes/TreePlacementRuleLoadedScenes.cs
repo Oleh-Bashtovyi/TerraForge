@@ -6,14 +6,14 @@ namespace TerrainGenerationApp.Scenes.LoadedScenes;
 public static class TreePlacementRuleLoadedScenes
 {
     public const string FOLDER_WITH_RADIUS_RULES =
-        "res://Scenes/GenerationOptions/TreePlacement/RadiusRuleItems/";
+        "res://Scenes/FeatureOptions/TreePlacement/RadiusRuleItems/";
 
     public const string FOLDER_WITH_TREE_PLACEMENT_RULES =
-        "res://Scenes/GenerationOptions/TreePlacement/PlacementRuleItems/";
+        "res://Scenes/FeatureOptions/TreePlacement/PlacementRuleItems/";
 
     public static readonly PackedScene TREE_PLACEMENT_RULE_ITEM_SCENE =
         ResourceLoader.Load<PackedScene>(
-            "res://Scenes/GenerationOptions/TreePlacement/TreePlacementRuleItem.tscn");
+            "res://Scenes/FeatureOptions/TreePlacement/TreePlacementRuleItem.tscn");
 
     public static readonly PackedScene ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE =
         ResourceLoader.Load<PackedScene>(

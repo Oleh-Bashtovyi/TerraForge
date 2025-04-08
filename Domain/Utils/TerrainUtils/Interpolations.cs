@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Godot;
+using System;
 
 namespace TerrainGenerationApp.Domain.Utils.TerrainUtils;
 
@@ -40,6 +41,21 @@ public static class Interpolations
         float interpolatedValue = (float)Math.Tanh(contrast * normalizedValue) / 2 + 0.5f;
 
         return interpolatedValue;
+    }
+
+    /// <summary>
+    /// Smooth step interpolation - smooth transition between two edges using a cubic polynomial y = 3*x^2 - 2*x^3
+    /// </summary>
+    /// <param name="edge0"></param>
+    /// <param name="edge1"></param>
+    /// <param name="x"></param>
+    /// <returns></returns>
+    public static float SmoothStep(float edge0, float edge1, float x)
+    {
+        // Scale, bias and saturate x to 0..1 range
+        x = Mathf.Clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+        // Evaluate polynomial
+        return x * x * (3 - 2 * x);
     }
 
     /// <summary>

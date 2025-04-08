@@ -1,6 +1,8 @@
+using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
+
 namespace TerrainGenerationApp.Scenes.GeneratorOptions;
 
-public partial class BaseGeneratorOptions : BuildingBlocks.OptionsContainer
+public partial class BaseGeneratorOptions : OptionsContainer
 {
     public virtual float[,] GenerateMap()
     {

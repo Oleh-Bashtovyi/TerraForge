@@ -2,12 +2,13 @@
 using System;
 using TerrainGenerationApp.Domain.Rules.RadiusRules;
 using TerrainGenerationApp.Domain.Utils;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 
 namespace TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement.RadiusRuleItems;
 
 public partial class BaseRadiusRuleItem<TLoggerType> : PanelContainer, IRadiusRuleItem where TLoggerType : class
 {
-    private BuildingBlocks.OptionsContainer _optionsContainer;
+    private OptionsContainer _optionsContainer;
     private Button _deleteButton;
 
     protected readonly Logger<TLoggerType> Logger = new();
@@ -15,11 +16,11 @@ public partial class BaseRadiusRuleItem<TLoggerType> : PanelContainer, IRadiusRu
     public event EventHandler OnRuleParametersChanged;
     public event EventHandler OnDeleteButtonPressed;
 
-    protected BuildingBlocks.OptionsContainer OptionsContainer
+    protected OptionsContainer OptionsContainer
     {
         get
         {
-            _optionsContainer ??= GetNode<BuildingBlocks.OptionsContainer>("%OptionsContainer");
+            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
             return _optionsContainer;
         }
     }

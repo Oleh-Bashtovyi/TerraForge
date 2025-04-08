@@ -6,21 +6,19 @@ using TerrainGenerationApp.Domain.Utils;
 
 namespace TerrainGenerationApp.Domain.Visualization;
 
-public class TreeVisualizationSettings
+public class TreeVisualSettings
 {
-    private readonly Logger<TerrainVisualizationSettings> _logger = new();
+    private readonly Logger<TerrainVisualSettings> _logger = new();
     private readonly Dictionary<string, Color> _treesLayersColors = new();
     private readonly Dictionary<string, PackedScene> _treesLayersScenes = new();
 
     public static readonly Color DefaultTreeColor = Colors.Red;
 
-    public TreeVisualizationSettings()
-    {
-
-    }
-
     public void RedrawTreesImage(Image image, IWorldData worldData)
     {
+        if (worldData.TreesData.GetLayers().Count == 0)
+            return;
+
         var imageSize = image.GetSize();
         var mapSize = worldData.TreesData.GetLayersSize();
 

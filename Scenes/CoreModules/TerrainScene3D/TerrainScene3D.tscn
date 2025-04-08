@@ -1,8 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://djhdbxgy1amyg"]
+[gd_scene load_steps=9 format=3 uid="uid://djhdbxgy1amyg"]
 
 [ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://Scenes/CoreModules/RtsCam/rtscam.tscn" id="1_0pwsw"]
 [ext_resource type="Script" uid="uid://bvj43k8vw4db8" path="res://Scenes/CoreModules/TerrainScene3D/TerrainScene3D.cs" id="1_kwx7t"]
-[ext_resource type="ArrayMesh" uid="uid://blpbk0tapj56x" path="res://Resources/meshes/TreeD3_Cylinder_002.res" id="3_kwx7t"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_44ply"]
 
@@ -24,7 +23,9 @@ albedo_color = Color(0.576471, 0.937255, 0.980392, 0.188235)
 material = SubResource("StandardMaterial3D_kwx7t")
 size = Vector2(100, 100)
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_bfuhh"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_05isa"]
+resource_local_to_scene = true
+height = 64.942
 
 [node name="TerrainScene3D" type="Node3D"]
 script = ExtResource("1_kwx7t")
@@ -33,24 +34,31 @@ script = ExtResource("1_kwx7t")
 environment = SubResource("Environment_1nusq")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 40, 0)
 
 [node name="Camera" parent="." instance=ExtResource("1_0pwsw")]
+transform = Transform3D(-0.707107, 0.40558, -0.579228, 0, 0.819152, 0.573576, 0.707107, 0.40558, -0.579228, 0, 32.0214, 0)
 
-[node name="WaterMesh" type="MeshInstance3D" parent="."]
+[node name="World" type="Node3D" parent="."]
+
+[node name="WaterMesh" type="MeshInstance3D" parent="World"]
 unique_name_in_owner = true
 mesh = SubResource("PlaneMesh_c773d")
+skeleton = NodePath("../..")
 
-[node name="TreesContainer" type="Node3D" parent="."]
+[node name="ChunksContainer" type="Node3D" parent="World"]
 unique_name_in_owner = true
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-visible = false
-mesh = SubResource("PlaneMesh_bfuhh")
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.0560829, 0.998426, 0, -0.998426, 0.0560829, 0, 0, 0)
-visible = false
-mesh = ExtResource("3_kwx7t")
-
-[node name="ChunksContainer" type="Node3D" parent="."]
+[node name="TreesContainer" type="Node3D" parent="World"]
 unique_name_in_owner = true
+
+[node name="YAxis" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_05isa")
+
+[node name="XAxis" type="MeshInstance3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 25.12, 0, 0)
+mesh = SubResource("CylinderMesh_05isa")
+
+[node name="ZAxis" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 25.915)
+mesh = SubResource("CylinderMesh_05isa")

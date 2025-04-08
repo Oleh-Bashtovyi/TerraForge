@@ -13,7 +13,7 @@ using TerrainGenerationApp.Scenes.GeneratorOptions;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.Game;
 
-public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSettingsProvider
+public partial class Game : Node3D
 {
     private TerrainScene2D.TerrainScene2D _terrainScene2D;
     private TerrainScene3D.TerrainScene3D _terrainScene3D;
@@ -27,12 +27,12 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
 
     private readonly Logger<Game> _logger = new();
     private readonly WorldData _worldData = new();
-    private readonly WorldVisualizationSettings _worldVisualizationSettings = new();
+    private readonly WorldVisualSettings _worldVisualSettings = new();
     private Task? _generationTask;
     private Task? _waterErosionTask;
 
     public IWorldData WorldData => _worldData;
-    public IWorldVisualizationSettings Settings => _worldVisualizationSettings;
+    public IWorldVisualSettings Settings => _worldVisualSettings;
 
     public override void _Ready()
     {
@@ -48,10 +48,10 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
         _showIn3DButton.Pressed += _showIn3DButton_Pressed;
 
         _worldData.SetSeaLevel(_mapGenerationMenu.CurSeaLevel);
-        _terrainScene3D.SetWorldDataProvider(this);
-        _terrainScene2D.SetWorldDataProvider(this);
-        _terrainScene2D.SetDisplayOptionsProvider(this);
-        _terrainScene3D.SetDisplayOptionsProvider(this);
+        _terrainScene3D.SetWorldData(WorldData);
+        _terrainScene2D.SetWorldData(WorldData);
+        _terrainScene2D.SetVisualSettings(Settings);
+        _terrainScene3D.SetDisplayOptionsProvider(Settings);
 
         _treePlacementOptions = _mapGenerationMenu.TreePlacementOptions;
         _treePlacementOptions.OnTreePlacementRuleItemAdded += TreePlacementOptionsOnOnTreePlacementRuleItemAdded;
@@ -73,12 +73,12 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
 
         foreach (var item in ColorPallets.DefaultTerrainColors)
         {
-            _worldVisualizationSettings.TerrainSettings.AddTerrainGradientPoint(item.Key, item.Value);
+            _worldVisualSettings.TerrainSettings.AddTerrainGradientPoint(item.Key, item.Value);
         }
 
         foreach (var item in ColorPallets.DefaultWaterColors)
         {
-            _worldVisualizationSettings.TerrainSettings.AddWaterGradientPoint(item.Key, item.Value);
+            _worldVisualSettings.TerrainSettings.AddWaterGradientPoint(item.Key, item.Value);
         }
 
 
@@ -150,7 +150,7 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
     {
         if (_worldData.TreesData.HasLayer(e.TreeId))
         {
-            _worldVisualizationSettings.TreeSettings.SetTreesLayerColor(e.TreeId, e.NewColor);
+            _worldVisualSettings.TreeSettings.SetTreesLayerColor(e.TreeId, e.NewColor);
             _terrainScene2D.RedrawTreesImage();
             _terrainScene2D.UpdateTreesTexture();
         }
@@ -158,6 +158,8 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
 
     private void TerrainVisualizationOptionsOnOnTerrainVisualizationOptionsChanged()
     {
+        _worldVisualSettings.TerrainSettings.SetMapDisplayFormat(_terrainVisualizationOptions.CurDisplayFormat);
+        _worldVisualSettings.TerrainSettings.SetSlopeThreshold(_terrainVisualizationOptions.CurSlopeThreshold);
         _terrainScene2D.RedrawAllImages();
         _terrainScene2D.UpdateAllTextures();
     }
@@ -202,7 +204,7 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
             if (_mapGenerationMenu.EnableTrees)
                 await GenerateTrees();
 
-            await GenerateMeshAsync();
+            await GenerateTerrainAsync();
         }
         catch (Exception e)
         {
@@ -289,10 +291,10 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
         var treesColors = _treePlacementOptions.GetTreesColors();
         var treesModels = _treePlacementOptions.GetTreesModels();
 
-        _worldVisualizationSettings.TreeSettings.ClearTreesLayersColors();
-        _worldVisualizationSettings.TreeSettings.ClearTreesLayersScenes();
-        _worldVisualizationSettings.TreeSettings.SetTreeLayersColors(treesColors);
-        _worldVisualizationSettings.TreeSettings.SetTreeLayersScenes(treesModels);
+        _worldVisualSettings.TreeSettings.ClearTreesLayersColors();
+        _worldVisualSettings.TreeSettings.ClearTreesLayersScenes();
+        _worldVisualSettings.TreeSettings.SetTreeLayersColors(treesColors);
+        _worldVisualSettings.TreeSettings.SetTreeLayersScenes(treesModels);
         await RedrawTreesAsync();
         _logger.LogMethodEnd();
     }
@@ -342,12 +344,31 @@ public partial class Game : Node3D, IWorldDataProvider, IWorldVisualizationSetti
         _terrainScene2D.SetTitleTip(tip);
         _logger.Log($"Generation title tip: {tip}", LogMark.End);
     }
-    private async Task GenerateMeshAsync()
+    private async Task GenerateTerrainAsync()
     {
         _logger.LogMethodStart();
-        await SetGenerationTitleTipAsync("Generating mesh...");
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _terrainScene3D.GenerateMesh();
+        await SetGenerationTitleTipAsync("Generating chunks...");
+        await ClearChunks();
+        await _terrainScene3D.InitWater();
+
+        while (_terrainScene3D.IsTerrainChunksGenerating())
+        {
+            _terrainScene3D.GenerateNextChunk();
+            await _terrainScene3D.ApplyCurrentChunkAsync();
+        }
+
+        while (_terrainScene3D.IsTreeChunksGenerating())
+        {
+            _terrainScene3D.GenerateNextTreeChunk();
+            await _terrainScene3D.ApplyCurrentTreeChunkAsync();
+        }
+
         _logger.LogMethodEnd();
+    }
+
+    private async Task ClearChunks()
+    {
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _terrainScene3D.ClearChunks();
     }
 }

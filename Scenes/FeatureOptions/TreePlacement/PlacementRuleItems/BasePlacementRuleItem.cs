@@ -2,24 +2,25 @@
 using System;
 using TerrainGenerationApp.Domain.Rules.PlacementRules;
 using TerrainGenerationApp.Domain.Utils;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 
 namespace TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement.PlacementRuleItems;
 
 public partial class BasePlacementRuleItem<TLoggerType> : PanelContainer, IPlacementRuleItem where TLoggerType : class
 {
     private Button _deleteButton;
-    private BuildingBlocks.OptionsContainer _optionsContainer;
+    private OptionsContainer _optionsContainer;
 
     protected readonly Logger<TLoggerType> Logger = new();
 
     public event EventHandler OnRuleParametersChanged;
     public event EventHandler OnDeleteButtonPressed;
 
-    protected BuildingBlocks.OptionsContainer OptionsContainer
+    protected OptionsContainer OptionsContainer
     {
         get
         {
-            _optionsContainer ??= GetNode<BuildingBlocks.OptionsContainer>("%OptionsContainer");
+            _optionsContainer ??= GetNode<OptionsContainer>("%OptionsContainer");
             return _optionsContainer;
         }
     }

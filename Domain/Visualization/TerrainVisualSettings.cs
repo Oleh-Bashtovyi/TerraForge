@@ -6,9 +6,9 @@ using TerrainGenerationApp.Domain.Utils;
 
 namespace TerrainGenerationApp.Domain.Visualization;
 
-public class TerrainVisualizationSettings
+public class TerrainVisualSettings
 {
-    private readonly Logger<TerrainVisualizationSettings> _logger = new();
+    private readonly Logger<TerrainVisualSettings> _logger = new();
     private readonly Gradient _terrainGradient;
     private readonly Gradient _waterGradient;
     private MapDisplayFormat _mapDisplayFormat;
@@ -17,7 +17,7 @@ public class TerrainVisualizationSettings
     public float SlopeThreshold => _slopeThreshold;
     public MapDisplayFormat MapDisplayFormat => _mapDisplayFormat;
 
-    public TerrainVisualizationSettings()
+    public TerrainVisualSettings()
     {
         _terrainGradient = new Gradient();
         _waterGradient = new Gradient();
@@ -48,12 +48,17 @@ public class TerrainVisualizationSettings
         _slopeThreshold = slopeThreshold;
     }
 
-    public Color GetColor(Vector2I pos, IWorldData worldData)
+    public Color GetColor(Vector2I pos, IWorldData worldData, bool includeSlope = true)
     {
-        return GetColor(pos.Y, pos.X, worldData);
+        return GetColor(pos.Y, pos.X, worldData, includeSlope);
     }
 
-    public Color GetColor(int row, int col, IWorldData worldData)
+    public Color GetColor(Vector2 pos, IWorldData worldData, bool includeSlope = true)
+    {
+        return GetColor(pos.Y, pos.X, worldData, includeSlope);
+    }
+
+    public Color GetColor(float row, float col, IWorldData worldData, bool includeSlope = true)
     {
         var h = worldData.TerrainData.HeightAt(row, col);
 
@@ -69,6 +74,10 @@ public class TerrainVisualizationSettings
                 }
 
                 var baseColor = _terrainGradient.Sample(h - worldData.SeaLevel);
+                if (!includeSlope)
+                {
+                    return baseColor;
+                }
                 var slope = worldData.TerrainData.SlopeAt(row, col);
                 var slopeColor = GetSlopeColor(baseColor, slope, h);
                 return slopeColor;

@@ -2,7 +2,7 @@
 using System;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
-namespace TerrainGenerationApp.Scenes.BuildingBlocks;
+namespace TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 
 public partial class OptionsContainer : VBoxContainer
 {

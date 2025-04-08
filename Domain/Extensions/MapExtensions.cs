@@ -1,9 +1,17 @@
 ﻿using Godot;
+using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 
 namespace TerrainGenerationApp.Domain.Extensions;
 
 public static class MapExtensions
 {
+    public enum InterpolationType
+    {
+        Bilinear,
+        SmoothStep,
+        Bicubic
+    }
+
     public static int Height<T>(this T[,] map) => map.GetLength(0);
 
     public static int Width<T>(this T[,] map) => map.GetLength(1);
@@ -25,31 +33,69 @@ public static class MapExtensions
         return map[row, col];
     }
 
-    public static float GetValueAt(this float[,] map, Vector2 position) => map.GetValueAt(position.Y, position.X);
+    public static float GetValueAt(this float[,] map, 
+        Vector2 position, 
+        InterpolationType interpolation = InterpolationType.Bilinear) => map.GetValueAt(position.Y, position.X, interpolation);
 
-    public static float GetValueAt(this float[,] map, float row, float col)
+    public static float GetValueAt(this float[,] map,
+        float row, 
+        float col, 
+        InterpolationType interpolation = InterpolationType.Bilinear)
     {
         row = Mathf.Clamp(row, 0f, map.Height() - 1);
         col = Mathf.Clamp(col, 0f, map.Width() - 1);
-        var row1 = Mathf.FloorToInt(row);
-        var row2 = Mathf.CeilToInt(row);
-        var col1 = Mathf.FloorToInt(col);
-        var col2 = Mathf.CeilToInt(col);
-        var v1 = Mathf.Lerp(map[row1, col1], map[row1, col2], col - col1);
-        var v2 = Mathf.Lerp(map[row2, col1], map[row2, col2], col - col1);
-        return Mathf.Lerp(v1, v2, row - row1);
+
+        if (interpolation == InterpolationType.Bilinear)
+        {
+            var row1 = Mathf.FloorToInt(row);
+            var row2 = Mathf.CeilToInt(row);
+            var col1 = Mathf.FloorToInt(col);
+            var col2 = Mathf.CeilToInt(col);
+            var v1 = Mathf.Lerp(map[row1, col1], map[row1, col2], col - col1);
+            var v2 = Mathf.Lerp(map[row2, col1], map[row2, col2], col - col1);
+            return Mathf.Lerp(v1, v2, row - row1);
+        }
+        else if (interpolation == InterpolationType.SmoothStep)
+        {
+            // Your existing code structure but with SmoothStep
+            var row1 = Mathf.FloorToInt(row);
+            var row2 = Mathf.CeilToInt(row);
+            var col1 = Mathf.FloorToInt(col);
+            var col2 = Mathf.CeilToInt(col);
+
+            // Using SmoothStep instead of Lerp
+            var t1 = Interpolations.SmoothStep(0, 1, col - col1);
+            var t2 = Interpolations.SmoothStep(0, 1, row - row1);
+
+            var v1 = Mathf.Lerp(map[row1, col1], map[row1, col2], t1);
+            var v2 = Mathf.Lerp(map[row2, col1], map[row2, col2], t1);
+            return Mathf.Lerp(v1, v2, t2);
+        }
+        else if (interpolation == InterpolationType.Bicubic)
+        {
+            return BicubicInterpolation(map, row, col);
+        }
+
+        return map[Mathf.FloorToInt(row), Mathf.FloorToInt(col)];
     }
 
-    public static float GetValueUsingIndexProgress(this float[,] map, float rowProgress, float colProgress)
+    public static float GetValueUsingIndexProgress(this float[,] map, 
+        float rowProgress, 
+        float colProgress, 
+        InterpolationType interpolation = InterpolationType.Bilinear)
     {
         var row = rowProgress * (map.Height() - 1);
         var col = colProgress * (map.Width() - 1);
-        return map.GetValueAt(row, col);
+        return map.GetValueAt(row, col, interpolation);
     }
 
-    public static float GetValueAtCenter(this float[,] map, Vector2I position) => map.GetValueAtCenter(position.Y, position.X);
+    public static float GetValueAtCenter(this float[,] map,
+        Vector2I position) => map.GetValueAtCenter(position.Y, position.X);
 
-    public static float GetValueAtCenter(this float[,] map, int row, int col) => map.GetValueAt(row + 0.5f, col + 0.5f);
+    public static float GetValueAtCenter(this float[,] map, 
+        int row, 
+        int col, 
+        InterpolationType interpolation = InterpolationType.Bilinear) => map.GetValueAt(row + 0.5f, col + 0.5f, interpolation);
 
     public static void SetValueAt<T>(this T[,] map, Vector2I position, T value) => map.SetValueAt(position.Y, position.X, value);
 
@@ -67,5 +113,57 @@ public static class MapExtensions
         var r = Mathf.Clamp(Mathf.RoundToInt(row), 0, map.Height() - 1);
         var c = Mathf.Clamp(Mathf.RoundToInt(col), 0, map.Width() - 1);
         map[r, c] = value;
+    }
+
+
+    private static float BicubicInterpolation(float[,] map, float row, float col)
+    {
+        int height = map.GetLength(0);
+        int width = map.GetLength(1);
+
+        // Clamp the coordinates
+        row = Mathf.Clamp(row, 0, height - 1);
+        col = Mathf.Clamp(col, 0, width - 1);
+
+        int x0 = Mathf.FloorToInt(col);
+        int y0 = Mathf.FloorToInt(row);
+
+        // Fractional parts
+        float xFrac = col - x0;
+        float yFrac = row - y0;
+
+        // Get 16 control points
+        float[,] p = new float[4, 4];
+
+        for (int y = -1; y <= 2; y++)
+        {
+            for (int x = -1; x <= 2; x++)
+            {
+                int xi = Mathf.Clamp(x0 + x, 0, width - 1);
+                int yi = Mathf.Clamp(y0 + y, 0, height - 1);
+                p[y + 1, x + 1] = map[yi, xi];
+            }
+        }
+
+        // Interpolate bicubically
+        float result = 0;
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                result += p[i, j] * CubicPolynomial(xFrac - 1 + j) * CubicPolynomial(yFrac - 1 + i);
+            }
+        }
+
+        return result;
+    }
+
+    private static float CubicPolynomial(float x)
+    {
+        // Cubic Hermite spline polynomial
+        x = Mathf.Abs(x);
+        if (x >= 2.0f) return 0;
+        if (x >= 1.0f) return (2 - x) * (2 - x) * (2 - x) / 6.0f;
+        return (4 - 6 * x * x + 3 * x * x * x) / 6.0f;
     }
 }

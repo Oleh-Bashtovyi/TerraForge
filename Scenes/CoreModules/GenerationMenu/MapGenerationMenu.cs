@@ -15,6 +15,7 @@ using TerrainGenerationApp.Scenes.FeatureOptions.Island;
 using TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
 using TerrainGenerationApp.Scenes.FeatureOptions.WaterErosion;
 using TerrainGenerationApp.Scenes.GeneratorOptions;
+using OptionsContainer = TerrainGenerationApp.Scenes.BuildingBlocks.Containers.OptionsContainer;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.GenerationMenu;
 

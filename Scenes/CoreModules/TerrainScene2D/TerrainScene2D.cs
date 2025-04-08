@@ -25,8 +25,8 @@ public partial class TerrainScene2D : Control
     private ImageTexture _terrainImageTexture;
     private ImageTexture _waterImageTexture;
     private ImageTexture _treesImageTexture;
-    private IWorldDataProvider _worldDataProvider;
-    private IWorldVisualizationSettingsProvider _visualizationSettingsProvider;
+    private IWorldVisualSettings _visualSettings;
+    private IWorldData _worldData;
 
     public override void _Ready()
     {
@@ -46,14 +46,14 @@ public partial class TerrainScene2D : Control
         _treesTextureRect.Texture = _treesImageTexture;
     }
 
-    public void SetWorldDataProvider(IWorldDataProvider provider)
+    public void SetWorldData(IWorldData data)
     {
-        _worldDataProvider = provider;
+        _worldData = data;
     }
 
-    public void SetDisplayOptionsProvider(IWorldVisualizationSettingsProvider provider)
+    public void SetVisualSettings(IWorldVisualSettings settings)
     {
-        _visualizationSettingsProvider = provider;
+        _visualSettings = settings;
     }
 
     public void SetTitleTip(string tip)
@@ -87,12 +87,11 @@ public partial class TerrainScene2D : Control
 
     public void RedrawTerrainImage()
     {
-        ThrowIfNoWorldDataProviderOrDisplayOptionsProvider();
+        ThrowIfNoWorldDataOrDisplayOptions();
 
         ResizeTerrainImageIfRequired();
 
-        var worldData = _worldDataProvider.WorldData;
-        _visualizationSettingsProvider.Settings.TerrainSettings.RedrawTerrainImage(_terrainImage, worldData);
+        _visualSettings.TerrainSettings.RedrawTerrainImage(_terrainImage, _worldData);
     }
 
     public void UpdateTerrainTexture()
@@ -110,7 +109,7 @@ public partial class TerrainScene2D : Control
 
     private void ResizeTerrainImageIfRequired()
     {
-        var terrainMapSize = _worldDataProvider.WorldData.TerrainData.GetMapSize();
+        var terrainMapSize = _worldData.TerrainData.GetMapSize();
         _terrainImageTextureResizeRequired = ResizeImageIfRequired(_terrainImage, terrainMapSize);
     }
 
@@ -122,14 +121,13 @@ public partial class TerrainScene2D : Control
 
     public void RedrawTreesImage()
     {
-        ThrowIfNoWorldDataProviderOrDisplayOptionsProvider();
+        ThrowIfNoWorldDataOrDisplayOptions();
 
         ResizeTreesImageIfRequired();
 
         ClearTreesImage();
 
-        var worldData = _worldDataProvider.WorldData;
-        _visualizationSettingsProvider.Settings.TreeSettings.RedrawTreesImage(_treesImage, worldData);
+        _visualSettings.TreeSettings.RedrawTreesImage(_treesImage, _worldData);
     }
 
     public void UpdateTreesTexture()
@@ -147,7 +145,7 @@ public partial class TerrainScene2D : Control
 
     private void ResizeTreesImageIfRequired()
     {
-        var treesMapSize = _worldDataProvider.WorldData.TreesData.GetLayersSize();
+        var treesMapSize = _worldData.TreesData.GetLayersSize();
         _treesImageTextureResizeRequired = ResizeImageIfRequired(_treesImage, treesMapSize);
     }
 
@@ -158,8 +156,8 @@ public partial class TerrainScene2D : Control
         {
             _logger.Log("Mouse moved over texture rect");
             Vector2 localPosition = _terrainTextureRect.GetLocalMousePosition();
-            var h = _worldDataProvider.WorldData.TerrainData.TerrainMapHeight;
-            var w = _worldDataProvider.WorldData.TerrainData.TerrainMapWidth;
+            var h = _worldData.TerrainData.TerrainMapHeight;
+            var w = _worldData.TerrainData.TerrainMapWidth;
 
             // Convert coordinates to map grid coordinates
             var cellX = (int)(localPosition.X / _terrainTextureRect.Size.X * w);
@@ -168,8 +166,8 @@ public partial class TerrainScene2D : Control
             // Check boundaries
             if (cellX >= 0 && cellX < w && cellY >= 0 && cellY < h)
             {
-                var height = _worldDataProvider.WorldData.TerrainData.HeightAt(cellY, cellX);
-                var slope = _worldDataProvider.WorldData.TerrainData.SlopeAt(cellY, cellX);
+                var height = _worldData.TerrainData.HeightAt(cellY, cellX);
+                var slope = _worldData.TerrainData.SlopeAt(cellY, cellX);
                 _cellInfoLabel.Text = string.Format("Cell: [ {0} ; {1} ] <---> Value: {2} <---> Slope: {3}", cellX, cellY, height, slope);
             }
         }
@@ -196,18 +194,18 @@ public partial class TerrainScene2D : Control
         return false;
     }
 
-    private void ThrowIfNoWorldDataProviderOrDisplayOptionsProvider([CallerMemberName] string callerName = "")
+    private void ThrowIfNoWorldDataOrDisplayOptions([CallerMemberName] string callerName = "")
     {
-        if (_worldDataProvider == null)
+        if (_worldData == null)
         {
-            _logger.LogError($"{nameof(_worldDataProvider)} is not set");
-            throw new NullReferenceException($"{nameof(_worldDataProvider)} is not set");
+            _logger.LogError($"{nameof(_worldData)} is not set");
+            throw new NullReferenceException($"{nameof(_worldData)} is not set");
         }
 
-        if (_visualizationSettingsProvider == null)
+        if (_visualSettings == null)
         {
-            _logger.LogError($"{nameof(_visualizationSettingsProvider)} is not set");
-            throw new NullReferenceException($"{nameof(_visualizationSettingsProvider)} is not set");
+            _logger.LogError($"{nameof(_visualSettings)} is not set");
+            throw new NullReferenceException($"{nameof(_visualSettings)} is not set");
         }
     }
 }

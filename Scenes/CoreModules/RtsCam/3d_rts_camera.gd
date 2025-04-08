@@ -1,102 +1,78 @@
 extends Camera3D
 
 # Camera movement settings
-@export_category("Camera movement settings")
-## Defines the speed of camera movement.
+@export_category("Camera Movement Settings")
+## Defines the speed of camera movement
 @export var camera_speed: float = 50.0
-## Defines how fast the camera can zoom.
-@export var camera_zoom_speed: float = 120.0
-## Defines how close you can zoom the camera.
-@export var camera_zoom_min: float = 10.0
-## Defines how far away you can zoom the camera.
-@export var camera_zoom_max: float = 200.0
-
-#Edge scrolling settings
-@export_category("Edge scrolling settings")
-## Defines how close to the edge the mouse has to be for the edge scrolling to trigger.
-@export var edge_scroll_margin: float = 20.0
-## Defines the speed of the edge scrolling.
-@export var edge_scroll_speed: float = 15.0
 
 # Camera rotation settings
-@export_category("Camera rotation settings")
-## Defines how fast the camera rotates.
-@export var rotation_speed: float = 2.0
+@export_category("Camera Rotation Settings")
+## Defines how fast the camera rotates
+@export var rotation_speed: float = 0.005
 
-# Current camera properties
-var current_height: float = 20.0
-var orbit_center: Vector3 = Vector3.ZERO
-var orbit_radius: float = 20.0
+# Camera position constraints
+@export_category("Movement Constraints")
+## Minimum X position allowed
+@export var min_x: float = -1000.0
+## Maximum X position allowed
+@export var max_x: float = 1000.0
+## Minimum Y position allowed
+@export var min_y: float = 0.0
+## Maximum Y position allowed
+@export var max_y: float = 500.0
+## Minimum Z position allowed
+@export var min_z: float = -1000.0
+## Maximum Z position allowed
+@export var max_z: float = 1000.0
 
-# Set initial position and rotation
+# Mouse state tracking
+var mouse_captured: bool = false
+
 func _ready():
-	_update_camera_position()
-	rotation_degrees.x = -45
+	# Initial setup
+	pass
 
 func _process(delta):
+	# Handle keyboard movement
 	var movement = Vector3.ZERO
 	
-	# capture movement keys
-	if Input.is_action_pressed("ui_right"):
-		movement.x += 1
-	if Input.is_action_pressed("ui_left"):
-		movement.x -= 1
-	if Input.is_action_pressed("ui_up"):
-		movement.z -= 1
-	if Input.is_action_pressed("ui_down"):
-		movement.z += 1
+	if Input.is_action_pressed("move_right"):
+		movement += transform.basis.x
+	if Input.is_action_pressed("move_left"):
+		movement -= transform.basis.x
+	if Input.is_action_pressed("move_forward"):
+		movement -= transform.basis.z
+	if Input.is_action_pressed("move_backward"):
+		movement += transform.basis.z
+	if Input.is_action_pressed("ui_select"): # Space key for up
+		movement += Vector3.UP
+	if Input.is_key_pressed(KEY_CTRL): # Ctrl key for down
+		movement -= Vector3.UP
 	
-	## Edge scrolling
-	#var mouse_pos = get_viewport().get_mouse_position()
-	#var viewport_size = get_viewport().size
-	#
-	#if mouse_pos.x < edge_scroll_margin:
-		#movement.x -= 1
-	#elif mouse_pos.x > viewport_size.x - edge_scroll_margin:
-		#movement.x += 1
-	#if mouse_pos.y < edge_scroll_margin:
-		#movement.z -= 1
-	#elif mouse_pos.y > viewport_size.y - edge_scroll_margin:
-		#movement.z += 1
-	
-	# Move the orbit center
+	# Apply movement
 	if movement.length() > 0:
-		movement = movement.normalized()
-		movement = movement.rotated(Vector3.UP, rotation.y)
-		orbit_center += movement * camera_speed * delta
-		_update_camera_position()
-
-func _input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and event.button_mask == MOUSE_BUTTON_RIGHT:
-		rotate_y(-event.relative.x * rotation_speed * get_process_delta_time())
-		_update_camera_position()
-
-
-func _unhandled_input(event):
-	# Camera zoom with mouse wheel
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			current_height = max(camera_zoom_min, current_height - camera_zoom_speed * get_process_delta_time())
-			orbit_radius = current_height * 1.5  # Adjust orbit radius based on height
-			_update_camera_position()
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			current_height = min(camera_zoom_max, current_height + camera_zoom_speed * get_process_delta_time())
-			orbit_radius = current_height * 1.5
-			_update_camera_position()
+		movement = movement.normalized() * camera_speed * delta
+		position += movement
 		
-	# Camera rotation with right mouse button
-	elif event is InputEventMouseMotion and event.button_mask == MOUSE_BUTTON_RIGHT:
-		rotate_y(-event.relative.x * rotation_speed * get_process_delta_time())
-		_update_camera_position()
+		# Apply constraints
+		position.x = clamp(position.x, min_x, max_x)
+		position.y = clamp(position.y, min_y, max_y)
+		position.z = clamp(position.z, min_z, max_z)
 
-func _update_camera_position():
-	# Calculate the camera's position based on its orbit parameters
-	var angle = rotation.y
-	var offset = Vector3(
-		sin(angle) * orbit_radius,
-		current_height,
-		cos(angle) * orbit_radius
-	)
-	position = orbit_center + offset
-	# Make the camera look at the orbit center
-	look_at(orbit_center, Vector3.UP)
+func _input(event):
+	# Camera rotation with right mouse button (in any direction)
+	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		# Horizontal rotation (around Y axis)
+		rotate_y(-event.relative.x * rotation_speed)
+		
+		# Vertical rotation (around X axis)
+		# Rotate around local X axis
+		var x_rotation = -event.relative.y * rotation_speed
+		
+		# Calculate what the new X rotation would be
+		var current_rot = rotation.x
+		var new_rot = current_rot + x_rotation
+		
+		# Prevent flipping by limiting vertical rotation between -89 and 89 degrees
+		if new_rot > -1.55 and new_rot < 1.55:
+			rotate_object_local(Vector3(1, 0, 0), x_rotation)
