@@ -4,11 +4,12 @@ using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 
+#nullable enable
 public partial class OptionsContainer : VBoxContainer
 {
     private int _optionsFontSize = 16;
 
-    public event Action ParametersChanged;
+    public event Action? ParametersChanged;
 
     /// <summary>
     /// The font size for the options in the container.
@@ -83,6 +84,26 @@ public partial class OptionsContainer : VBoxContainer
                 optionsContainer.EnableAllOptions();
             }
         }
+    }
+
+    public T? FindInputLine<T>(string id, bool recursive = false) where T : BaseInputLine
+    {
+        foreach (Node child in GetChildren())
+        {
+            if (child is T inputLine && inputLine.Id == id)
+            {
+                return inputLine;
+            }
+            if (recursive && child is OptionsContainer optionsContainer)
+            {
+                var foundInputLine = optionsContainer.FindInputLine<T>(id);
+                if (foundInputLine != null)
+                {
+                    return foundInputLine;
+                }
+            }
+        }
+        return null;
     }
 
     protected void InvokeParametersChangedEvent()

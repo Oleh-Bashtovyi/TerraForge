@@ -31,6 +31,8 @@ public partial class InputLineSlider : BaseInputLine
         }
     }
 
+    public float Value => (float)Slider.Value;
+
     public override void _Ready()
     {
         Slider.ValueChanged += OnSliderValueChanged;
@@ -102,7 +104,13 @@ public partial class InputLineSlider : BaseInputLine
     public void SetValue(float value)
     {
         Slider.Value = value;
-        LineEdit.Text = value.ToString(_textFormat);
+        LineEdit.Text = Slider.Value.ToString(_textFormat);
+    }
+
+    public void SetValueNoSignal(float value)
+    {
+        Slider.SetValueNoSignal(value);
+        LineEdit.Text = Slider.Value.ToString(_textFormat);
     }
 
     public void SetTextFormat(string textFormat)

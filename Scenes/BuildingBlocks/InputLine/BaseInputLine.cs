@@ -5,6 +5,7 @@ namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 public partial class BaseInputLine : HBoxContainer
 {
     private Label _descriptionLabel;
+    private string _id;
 
     protected Label DescriptionLabel
     {
@@ -13,6 +14,13 @@ public partial class BaseInputLine : HBoxContainer
             _descriptionLabel ??= GetNode<Label>("%DescriptionLabel");
             return _descriptionLabel;
         }
+    }
+
+    public string Id => _id;
+
+    public void SetId(string id)
+    {
+        _id = id;
     }
 
     public void SetDescription(string description)

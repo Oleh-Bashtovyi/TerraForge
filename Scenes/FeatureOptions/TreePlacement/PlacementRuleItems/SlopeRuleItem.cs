@@ -6,6 +6,8 @@ namespace TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement.PlacementRule
 
 public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
 {
+    private InputLineSlider _lowerBoundInput;
+    private InputLineSlider _upperBoundInput;
     private float _lowerBound = 0.01f;
     private float _upperBound = 0.15f;
 
@@ -19,6 +21,11 @@ public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
         {
             _lowerBound = value;
             Logger.Log($"Lower bound changed to: {_lowerBound}");
+            if (_lowerBound > _upperBound)
+            {
+                _upperBound = _lowerBound;
+                _upperBoundInput?.SetValueNoSignal(_upperBound);
+            }
             InvokeRuleParametersChangedEvent();
         }
     }
@@ -33,6 +40,11 @@ public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
         {
             _upperBound = value;
             Logger.Log($"Upper bound changed to: {_upperBound}");
+            if (_upperBound < _lowerBound)
+            {
+                _lowerBound = _upperBound;
+                _lowerBoundInput?.SetValueNoSignal(_lowerBound);
+            }
             InvokeRuleParametersChangedEvent();
         }
     }
@@ -41,6 +53,8 @@ public partial class SlopeRuleItem : BasePlacementRuleItem<SlopeRuleItem>
     {
         base._Ready();
         InputLineManager.CreateInputLinesForObject(this, OptionsContainer);
+        _lowerBoundInput = OptionsContainer.FindInputLine<InputLineSlider>(nameof(LowerBound));
+        _upperBoundInput = OptionsContainer.FindInputLine<InputLineSlider>(nameof(UpperBound));
     }
 
     public override IPlacementRule GetPlacementRule()

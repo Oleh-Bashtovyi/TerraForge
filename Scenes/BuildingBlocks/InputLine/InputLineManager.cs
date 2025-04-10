@@ -28,6 +28,7 @@ public static class InputLineManager
             // Check if it has LineInputValueAttribute
             var inputLineAttr = property.GetCustomAttribute<InputLineAttribute>();
             var inputLineSliderAttr = property.GetCustomAttribute<InputLineSliderAttribute>();
+            var inputLineComboboxAttr = property.GetCustomAttribute<InputLineComboboxAttribute>();
 
             if (inputLineAttr == null && inputLineSliderAttr == null)
                 continue;
@@ -50,13 +51,14 @@ public static class InputLineManager
             {
                 inputLine = CreateInputLineSliderForProperty(obj, property);
             }
-            else if (property.PropertyType.IsEnum)
+            else if (inputLineComboboxAttr != null)
             {
+                GD.Print($"Creating combobox for {property.Name}");
                 inputLine = CreateInputLineComboboxForProperty(obj, property);
             }
-
             if (inputLine != null)
             {
+                inputLine.SetId(property.Name);
                 container.AddChild(inputLine);
                 inputLines.Add(inputLine);
             }
@@ -166,10 +168,11 @@ public static class InputLineManager
 
 
 
-    private static InputLine.InputLineCombobox CreateInputLineComboboxForProperty<T>(T obj, PropertyInfo property) where T : class
+    private static InputLineCombobox CreateInputLineComboboxForProperty<T>(T obj, PropertyInfo property) where T : class
     {
         var inputLine = BuildingBlockLoadedScenes.INPUT_LINE_COMBOBOX.Instantiate<InputLine.InputLineCombobox>();
         var inputLineAttr = property.GetCustomAttribute<InputLineAttribute>();
+        var inputLineComboboxAttr = property.GetCustomAttribute<InputLineComboboxAttribute>();
 
         // Set description
         string description = string.IsNullOrEmpty(inputLineAttr!.Description) ? property.Name : inputLineAttr.Description;
@@ -181,48 +184,58 @@ public static class InputLineManager
             inputLine.TooltipText = inputLineAttr.Tooltip;
         }
 
-        if (!property.PropertyType.IsEnum)
+        var options = property.GetCustomAttributes<InputOptionAttribute>();
+
+        foreach (var option in options)
         {
-            throw new ArgumentException($"Property {property.Name} is not an enum type.");
-        }
-
-        // Get enum values
-        var enumType = property.PropertyType;
-        var enumValues = Enum.GetValues(enumType);
-
-        // Add enum values to the combobox
-        foreach (var enumValue in enumValues)
-        {
-            // Get the field info for this enum value
-            var fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
-
-            // Get the description attribute if present
-            var attribute = fieldInfo?.GetCustomAttribute<OptionDescriptionAttribute>();
-
-            var enumName = Enum.GetName(enumType, enumValue);
-
-            if (enumName != null)
-            {
-                inputLine.AddOption(attribute?.Description ?? enumValue.ToString(), (int)enumValue);
-            }
+            GD.Print($"Adding option {option.Text} with id {option.Id}");
+            inputLine.AddOption(option.Text, option.Id);    
         }
 
         // Set current value
-        inputLine.SetSelected(0);
+        if (inputLine.GetOptionsCount() > 0)
+        {
+            inputLine.SetSelected(0);
+        }
 
         // Subscribe to option change
-        inputLine.OnOptionIdChanged += (newId) =>
+        inputLine.OnOptionChanged += (args) =>
         {
-            if (property.PropertyType.IsEnum)
+            if (inputLineComboboxAttr!.Bind == ComboboxBind.Label)
             {
-                var enumValue = (Enum)Enum.ToObject(property.PropertyType, newId);
-                property.SetValue(obj, enumValue);
+                if (property.PropertyType != typeof(string))
+                {
+                    throw new ArgumentException($"Property {property.Name} is not a string type.");
+                }
+
+                property.SetValue(obj, args.Label);
+            }
+            else if (inputLineComboboxAttr.Bind == ComboboxBind.Id)
+            {
+                if (property.PropertyType != typeof(int))
+                {
+                    throw new ArgumentException($"Property {property.Name} is not an int type.");
+                }
+                property.SetValue(obj, args.Id);
+            }
+            else if (inputLineComboboxAttr.Bind == ComboboxBind.Index)
+            {
+                if (property.PropertyType != typeof(int))
+                {
+                    throw new ArgumentException($"Property {property.Name} is not an int type.");
+                }
+
+                property.SetValue(obj, args.Index);
             }
         };
 
-
         return inputLine;
     }
+
+
+
+
+
 
     private static InputLine.InputLineCheckbox CreateInputLineCheckboxForProperty<T>(T obj, PropertyInfo property) where T : class
     {

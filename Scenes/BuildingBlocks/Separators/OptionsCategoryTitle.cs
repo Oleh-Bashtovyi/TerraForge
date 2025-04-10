@@ -1,6 +1,6 @@
 ﻿using Godot;
 
-namespace TerrainGenerationApp.Scenes.BuildingBlocks;
+namespace TerrainGenerationApp.Scenes.BuildingBlocks.Separators;
 
 public partial class OptionsCategoryTitle : Label
 {

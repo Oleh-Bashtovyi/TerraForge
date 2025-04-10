@@ -3,11 +3,18 @@ using System;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
+public class OptionSelectedEventArgs(string label, int id, int index)
+{
+	public string Label { get; } = label;
+    public int Id { get; } = id;
+    public int Index { get; } = index;
+}
+
 public partial class InputLineCombobox : BaseInputLine
 {
 	private OptionButton _optionButton;
 
-	public event Action<int> OnOptionIdChanged;
+	public event Action<OptionSelectedEventArgs> OnOptionChanged;
 
 	public OptionButton OptionButton
 	{
@@ -29,15 +36,14 @@ public partial class InputLineCombobox : BaseInputLine
         OptionButton.Clear();
 	}
 
-	public void AddOption(string option)
-	{
-        OptionButton.AddItem(option);
-	}
+    public int GetOptionsCount()
+    {
+		return OptionButton.GetItemCount();
+    }
 
-	public void AddOption(string option, int id)
+	public void AddOption(string label, int id = -1)
 	{
-		GD.Print($"Adding: {option} Id: {id}");
-        OptionButton.AddItem(option, id);
+        OptionButton.AddItem(label, id);
 	}
 
 	public void SetSelected(int index)
@@ -63,7 +69,10 @@ public partial class InputLineCombobox : BaseInputLine
 
     private void OnOptionButtonItemSelected(long index)
 	{
-		var id = _optionButton.GetItemId((int)index);
-		OnOptionIdChanged?.Invoke(id);
+		var idx = (int)index;
+        var id = _optionButton.GetItemId(idx);
+		var text = _optionButton.GetItemText(idx);
+		var eventArgs = new OptionSelectedEventArgs(text, id, idx);
+        OnOptionChanged?.Invoke(eventArgs);
 	}
 }
