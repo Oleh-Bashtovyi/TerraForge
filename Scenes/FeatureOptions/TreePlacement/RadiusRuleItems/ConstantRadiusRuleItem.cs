@@ -9,8 +9,7 @@ public partial class ConstantRadiusRuleItem : BaseRadiusRuleItem<ConstantRadiusR
     private float _radius = 3.0f;
 
     [InputLine(Description = "Radius:")]
-    [InputLineSlider(0.0f, 50.0f, 0.1f)]
-    [InputLineTextFormat("0.#")]
+    [InputLineSlider(0.0f, 50.0f, 0.1f, format: "0.#")]
     public float Radius
     {
         get => _radius;

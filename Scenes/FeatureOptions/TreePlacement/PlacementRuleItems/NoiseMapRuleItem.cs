@@ -18,8 +18,7 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
     private bool _sizeChanged = true;
     
     [InputLine(Description = "Noise threshold:")]
-    [InputLineSlider(0.0f, 1.0f, 0.001f)]
-    [InputLineTextFormat("0.###")]
+    [InputLineSlider(0.0f, 1.0f, 0.001f, format: "0.###")]
     public float NoiseThreshold
     {
         get => _noiseThreshold;

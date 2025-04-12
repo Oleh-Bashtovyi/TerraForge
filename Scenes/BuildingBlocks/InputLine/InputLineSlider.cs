@@ -41,10 +41,13 @@ public partial class InputLineSlider : BaseInputLine
 
     private void OnLineEditTextSubmitted(string newText)
     {
-        if (float.TryParse(newText, out var value))
+        var normalizedText = newText.Trim().Replace(',', '.');
+
+        if (float.TryParse(normalizedText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var value))
         {
             Slider.Value = value;
         }
+
         LineEdit.Text = Slider!.Value.ToString(_textFormat);
     }
 

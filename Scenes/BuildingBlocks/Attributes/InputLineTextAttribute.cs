@@ -3,7 +3,7 @@
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 
 [AttributeUsage(AttributeTargets.Property)]
-public class InputLineTextFormatAttribute(string format) : Attribute
+public class InputLineTextAttribute(int maxLength = 50) : Attribute
 {
-    public string Format { get; } = format;
+    public int MaxLength { get; } = Math.Max(maxLength, 0);
 }

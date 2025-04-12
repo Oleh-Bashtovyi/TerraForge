@@ -1,21 +1,20 @@
 using Godot;
 using System;
-using System.Collections.Generic;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Generators.DomainWarping;
 using TerrainGenerationApp.Domain.Generators.Islands;
 using TerrainGenerationApp.Domain.Generators.Trees;
 using TerrainGenerationApp.Domain.Generators.WaterErosion;
 using TerrainGenerationApp.Domain.Utils.TerrainUtils;
-using TerrainGenerationApp.Scenes.BuildingBlocks;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 using TerrainGenerationApp.Scenes.FeatureOptions.DomainWarping;
 using TerrainGenerationApp.Scenes.FeatureOptions.Island;
 using TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
 using TerrainGenerationApp.Scenes.FeatureOptions.WaterErosion;
 using TerrainGenerationApp.Scenes.GeneratorOptions;
-using OptionsContainer = TerrainGenerationApp.Scenes.BuildingBlocks.Containers.OptionsContainer;
+
 
 namespace TerrainGenerationApp.Scenes.CoreModules.GenerationMenu;
 
@@ -23,23 +22,19 @@ public partial class MapGenerationMenu : Control
 {
     public enum MapInterpolationType
     {
-        [OptionDescription("Linear")]
         Linear,
-        [OptionDescription("Highlight high areas")]
         HighlightHighValues,
-        [OptionDescription("Highlight low areas")]
         HighlightLowValues,
-        [OptionDescription("Highlight extremes")]
         HighlightExtremes
     }
 
 	private const int MaxSmoothCycles = 10;
 
-    private OptionButton _generatorDropdownMenu;
     private BaseGeneratorOptions _diamondSquareOptions;
     private BaseGeneratorOptions _worleyOptions;
     private BaseGeneratorOptions _perlinOptions;
     private OptionsContainer _adjustmentsContainer;
+    private OptionsContainer _generatorsContainer;
     private CheckBox _domainWarpingCheckBox;
     private CheckBox _waterErosionCheckbox;
     private CheckBox _islandsOptionsCheckbox;
@@ -49,14 +44,13 @@ public partial class MapGenerationMenu : Control
     private WaterErosionOptions _waterErosionOptions;
     private TreePlacementOptions _treePlacementOptions;
 
-	private int _curSmoothCycles = 0;
+	private int _curSmoothCycles = 2;
     private float _curNoiseInfluence = 1.0f;
     private float _curSeaLevel = 0.2f;
-	private bool _enableDomainWarping = false;
-	private bool _enableIslands = false;
-	private bool _enableTrees = false;
+	private bool _enableDomainWarping;
+	private bool _enableIslands;
+	private bool _enableTrees;
     private MapInterpolationType _mapInterpolationType = MapInterpolationType.Linear;
-    private Dictionary<int, BaseGeneratorOptions> _generators = new();
 	private BaseGeneratorOptions _selectedGenerator;
 	private DomainWarpingApplier _domainWarpingApplier;
 	private WaterErosionApplier _waterErosionApplier;
@@ -66,7 +60,40 @@ public partial class MapGenerationMenu : Control
     public event EventHandler OnWaterLevelChanged;
     public event EventHandler GenerationParametersChanged;
 
-    [InputLine(Description = "Map interpolation:", Category = "Adjustments")]
+    [InputLine(Description = "Generator:", Category = "Generator selection", Id = "GeneratorOptions")]
+    [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
+    [InputOption("Diamond square", 1)]
+    [InputOption("Perlin noise", 2)]
+    [InputOption("Worley noise", 3)]
+    public int SelectedGeneratorItemId
+    {
+        set
+        {
+            _selectedGenerator = value switch
+            {
+                1 => _diamondSquareOptions,
+                2 => _perlinOptions,
+                3 => _worleyOptions,
+                _ => _selectedGenerator
+            };
+
+            _diamondSquareOptions.Hide();
+            _perlinOptions.Hide();
+            _worleyOptions.Hide();
+
+            if (_selectedGenerator != null)
+            {
+                _selectedGenerator.Show();
+            }
+        }
+    }
+
+    [InputLine(Description = "Map interpolation:", Category = "Adjustments", Id = "MapInterpolation")]
+    [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
+    [InputOption("Linear", id: (int)MapInterpolationType.Linear)]
+    [InputOption("Highlight high areas", id: (int)MapInterpolationType.HighlightHighValues)]
+    [InputOption("Highlight low areas", id: (int)MapInterpolationType.HighlightLowValues)]
+    [InputOption("Highlight extremes", id: (int)MapInterpolationType.HighlightExtremes)]
     public MapInterpolationType CurMapInterpolationType
     {
         get => _mapInterpolationType;
@@ -150,15 +177,17 @@ public partial class MapGenerationMenu : Control
 
     public override void _Ready()
     {
-        // Select and set generator options
+        // Generators and adjustments
         _perlinOptions = GetNode<BaseGeneratorOptions>("%PerlinOptions");
         _worleyOptions = GetNode<BaseGeneratorOptions>("%WorleyOptions");
         _diamondSquareOptions = GetNode<BaseGeneratorOptions>("%DiamondSquareOptions");
-        _generatorDropdownMenu = GetNode<OptionButton>("%GeneratorDropdownMenu");
-
-        // Adjustments
+        _generatorsContainer = GetNode<OptionsContainer>("%GeneratorsContainer");
         _adjustmentsContainer = GetNode<OptionsContainer>("%AdjustmentsContainer");
+        _diamondSquareOptions.ParametersChanged += HandleParametersChanged;
+        _perlinOptions.ParametersChanged += HandleParametersChanged;
+        _worleyOptions.ParametersChanged += HandleParametersChanged;
         InputLineManager.CreateInputLinesForObject(this, _adjustmentsContainer, "Adjustments");
+        InputLineManager.CreateInputLinesForObject(this, _generatorsContainer, "Generator selection");
 
         // Features enabling
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
@@ -181,38 +210,10 @@ public partial class MapGenerationMenu : Control
         _waterErosionApplier = _waterErosionOptions.WaterErosionApplier;
         _islandApplier = _islandOptions.IslandApplier;
         _treesApplier = _treePlacementOptions.TreesApplier;
-
-
-        // Generator combobox
-        _generators = new Dictionary<int, BaseGeneratorOptions>
-        {
-            { 1, _diamondSquareOptions },
-            { 2, _perlinOptions },
-            { 3, _worleyOptions }
-        };
-        HideAllGeneratorsOptions();
-
-        foreach (var options in _generators.Values)
-        {
-            options.ParametersChanged += HandleParametersChanged;
-        }
-
-        var firstSelectedIndex = 0;
-        _generatorDropdownMenu.Clear();
-        _generatorDropdownMenu.AddItem("Diamond square", 1);
-        _generatorDropdownMenu.AddItem("Perlin noise", 2);
-        _generatorDropdownMenu.AddItem("Worley noise", 3);
-        _generatorDropdownMenu.Selected = firstSelectedIndex;
-        var firstItemId = _generatorDropdownMenu.GetItemId(firstSelectedIndex);
-        var firstItemOptions = _generators[firstItemId];
-        firstItemOptions.Visible = true;
-        _selectedGenerator = firstItemOptions;
-        _generatorDropdownMenu.ItemSelected += OnGeneratorDropdownMenuItemSelected;
     }
 
     public void ApplySelectedInterpolation(float[,] map)
     {
-        GD.Print("Now using: " + CurMapInterpolationType);
         for (int y = 0; y < map.Height(); y++)
         {
             for (int x = 0; x < map.Width(); x++)
@@ -238,15 +239,7 @@ public partial class MapGenerationMenu : Control
     public void DisableAllOptions()
     {
         _selectedGenerator?.DisableAllOptions();
-
-        foreach (var child in _adjustmentsContainer.GetChildren())
-        {
-            if (child is BaseInputLine inputLine)
-            {
-                inputLine.DisableInput();
-            }
-        }
-
+        _adjustmentsContainer.DisableAllOptions();
         _domainWarpingCheckBox.Disabled = true;
         _waterErosionCheckbox.Disabled = true;
         _islandsOptionsCheckbox.Disabled = true;
@@ -259,15 +252,7 @@ public partial class MapGenerationMenu : Control
     public void EnableAllOptions()
     {
         _selectedGenerator?.EnableAllOptions();
-
-        foreach (var child in _adjustmentsContainer.GetChildren())
-        {
-            if (child is BaseInputLine inputLine)
-            {
-                inputLine.EnableInput();
-            }
-        }
-
+        _adjustmentsContainer.EnableAllOptions();
         _domainWarpingCheckBox.Disabled = false;
         _waterErosionCheckbox.Disabled = false;
         _islandsOptionsCheckbox.Disabled = false;
@@ -277,41 +262,23 @@ public partial class MapGenerationMenu : Control
         _islandOptions.EnableAllOptions();
         _treePlacementOptions.EnableAllOptions();
     }
-	private void HideAllGeneratorsOptions()
-	{
-		foreach (var generator in _generators.Values)
-        {
-            generator.Visible = false;
-        }
-	}
     private void HandleParametersChanged()
     {
         GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
     }
     
-    private void OnGeneratorDropdownMenuItemSelected(long index)
-    {
-        HideAllGeneratorsOptions();
-
-        int id = _generatorDropdownMenu.GetItemId((int)index);
-        var cur = _generators[id];
-
-        if (cur != null)
-        {
-            cur.Visible = true;
-        }
-        _selectedGenerator = cur;
-    }
 	private void OnWaterErosionCheckBoxToggled(bool toggledOn)
 	{
 		_waterErosionOptions.Visible = toggledOn;
 	}
-	private void OnDomainWarpingCheckBoxToggled(bool toggledOn)
+	
+    private void OnDomainWarpingCheckBoxToggled(bool toggledOn)
 	{
 		_domainWarpingOptions.Visible = toggledOn;
 		EnableDomainWarping = toggledOn;
 	}
-	private void OnIslandOptionsCheckBoxToggled(bool toggledOn)
+	
+    private void OnIslandOptionsCheckBoxToggled(bool toggledOn)
 	{
 		_islandOptions.Visible = toggledOn;
 		EnableIslands = toggledOn;

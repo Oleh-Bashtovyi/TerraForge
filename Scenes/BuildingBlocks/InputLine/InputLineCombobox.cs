@@ -1,5 +1,7 @@
 using Godot;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
@@ -13,8 +15,9 @@ public class OptionSelectedEventArgs(string label, int id, int index)
 public partial class InputLineCombobox : BaseInputLine
 {
 	private OptionButton _optionButton;
+	private bool _isOptionButtonConnected = false;
 
-	public event Action<OptionSelectedEventArgs> OnOptionChanged;
+    public event Action<OptionSelectedEventArgs> OnOptionChanged;
 
 	public OptionButton OptionButton
 	{
@@ -27,8 +30,11 @@ public partial class InputLineCombobox : BaseInputLine
 
 	public override void _Ready()
 	{
-		_optionButton = GetNode<OptionButton>("%OptionButtonInput");
-        OptionButton.ItemSelected += OnOptionButtonItemSelected;
+        if (!_isOptionButtonConnected)
+        {
+            OptionButton.ItemSelected += OnOptionButtonItemSelected;
+            _isOptionButtonConnected = true;
+        }
 	}
 
 	public void ClearOptions()
@@ -46,10 +52,29 @@ public partial class InputLineCombobox : BaseInputLine
         OptionButton.AddItem(label, id);
 	}
 
+    /// <summary>
+    /// Adds a list of options to the OptionButton. Int - ID, String - Label
+    /// </summary>
+    /// <param name="dict"></param>
+    public void AddOptions(IDictionary<int, string> dict)
+    {
+        foreach (var pair in dict)
+        {
+            OptionButton.AddItem(pair.Value, pair.Key);
+        }
+    }
+
 	public void SetSelected(int index)
 	{
+		if (!_isOptionButtonConnected)
+        {
+            _optionButton.ItemSelected += OnOptionButtonItemSelected;
+            _isOptionButtonConnected = true;
+        }
         OptionButton.Select(index);
-	}
+        OnOptionButtonItemSelected(OptionButton.Selected);
+
+    }
 
 	public override void EnableInput()
 	{

@@ -12,8 +12,7 @@ public partial class AboveSeaLevelRuleItem : BasePlacementRuleItem<AboveSeaLevel
     private float _upperBound = 0.2f;
 
     [InputLine(Description = "Lower bound:")]
-    [InputLineSlider(0.0f, 1.0f, 0.001f)]
-    [InputLineTextFormat("0.###")]
+    [InputLineSlider(0.0f, 1.0f, 0.001f, format: "0.###")]
     public float LowerBound
     {
         get => _lowerBound;
@@ -31,8 +30,7 @@ public partial class AboveSeaLevelRuleItem : BasePlacementRuleItem<AboveSeaLevel
     }
 
     [InputLine(Description = "Upper bound:")]
-    [InputLineSlider(0.0f, 1.0f, 0.001f)]
-    [InputLineTextFormat("0.###")]
+    [InputLineSlider(0.0f, 1.0f, 0.001f, format: "0.###")]
     public float UpperBound
     {
         get => _upperBound;

@@ -1,58 +1,82 @@
-﻿using Godot;
+using Godot;
 using System;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
 public partial class InputLineText : BaseInputLine
 {
-    private LineEdit _inputLineEdit;
+	private LineEdit _inputLineEdit;
+    private bool _hasInputError;
 
-    public event Action<string> OnTextChanged;
+	public event Action<string> OnTextChanged;
 
-    public LineEdit InputLineEdit
+	public LineEdit InputLineEdit
+	{
+		get
+		{
+			_inputLineEdit ??= GetNode<LineEdit>("%InputLineEdit");
+			return _inputLineEdit;
+		}
+	}
+
+	public override void _Ready()
+	{
+		var lineEdit = InputLineEdit;
+		lineEdit.EditingToggled += LineEditOnEditingToggled;
+	}
+
+	public void SetText(string text)
+	{
+		InputLineEdit.Text = text;
+		OnTextChanged?.Invoke(InputLineEdit.Text);
+	}
+
+	public override void EnableInput()
+	{
+		InputLineEdit.Editable = true;
+	}
+
+	public override void DisableInput()
+	{
+		InputLineEdit.Editable = false;
+	}
+
+    public void MarkError()
     {
-        get
+        if (!_hasInputError)
         {
-            _inputLineEdit ??= GetNode<LineEdit>("%InputLineEdit");
-            return _inputLineEdit;
+            _hasInputError = true;
+            InputLineEdit.AddThemeColorOverride("font_color", Colors.Red);
         }
     }
 
-    public override void _Ready()
+    public void UnmarkError()
     {
-        var lineEdit = InputLineEdit;
-        lineEdit.EditingToggled += LineEditOnEditingToggled;
+        if (_hasInputError)
+        {
+            _hasInputError = false;
+            InputLineEdit.RemoveThemeColorOverride("font_color");
+        }
     }
 
-    public void SetText(string text)
+    public void SetTextLength(int length)
     {
-        InputLineEdit.Text = text;
-        OnTextChanged?.Invoke(InputLineEdit.Text);
-    }
-
-    public override void EnableInput()
-    {
-        InputLineEdit.Editable = true;
-    }
-
-    public override void DisableInput()
-    {
-        InputLineEdit.Editable = false;
+		InputLineEdit.MaxLength = length;
     }
 
     public override void SetFontSize(int size)
-    {
-        base.SetFontSize(size);
-        InputLineEdit.AddThemeFontSizeOverride("font_size", size);
-    }
+	{
+		base.SetFontSize(size);
+		InputLineEdit.AddThemeFontSizeOverride("font_size", size);
+	}
 
-    private void LineEditOnEditingToggled(bool toggledOn)
-    {
-        if (toggledOn)
-        {
-            return;
-        }
+	private void LineEditOnEditingToggled(bool toggledOn)
+	{
+		if (toggledOn)
+		{
+			return;
+		}
 
-        OnTextChanged?.Invoke(InputLineEdit.Text);
-    }
+		OnTextChanged?.Invoke(InputLineEdit.Text);
+	}
 }

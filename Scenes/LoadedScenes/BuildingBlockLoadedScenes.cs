@@ -18,6 +18,9 @@ public class BuildingBlockLoadedScenes
     public static readonly PackedScene INPUT_LINE_CHECKBOX =
         GD.Load<PackedScene>($"{INPUT_LINE_FOLDER}InputLineCheckbox.tscn");
 
+    public static readonly PackedScene INPUT_LINE_TEXT =
+        GD.Load<PackedScene>($"{INPUT_LINE_FOLDER}InputLineText.tscn");
+
     public static readonly PackedScene OPTIONS_CATEGORY_TITLE =
         GD.Load<PackedScene>($"{SEPARATORS_FOLDER}OptionsCategoryTitle.tscn");
 }

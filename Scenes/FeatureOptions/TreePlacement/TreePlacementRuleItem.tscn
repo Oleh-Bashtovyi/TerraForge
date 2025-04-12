@@ -32,21 +32,29 @@ theme_override_constants/separation = 10
 
 [node name="LeftVBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 4
 theme_override_constants/separation = 5
 
-[node name="TreeColorPickerButton" type="ColorPickerButton" parent="HBoxContainer/LeftVBoxContainer"]
+[node name="DeleteButton" type="Button" parent="HBoxContainer/LeftVBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "🗑"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/LeftVBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 6
+
+[node name="TreeColorPickerButton" type="ColorPickerButton" parent="HBoxContainer/LeftVBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "col"
 color = Color(0, 0.768627, 0, 1)
 
-[node name="MoveUpButton" type="Button" parent="HBoxContainer/LeftVBoxContainer"]
+[node name="MoveUpButton" type="Button" parent="HBoxContainer/LeftVBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "🔼"
 
-[node name="MoveDownButton" type="Button" parent="HBoxContainer/LeftVBoxContainer"]
+[node name="MoveDownButton" type="Button" parent="HBoxContainer/LeftVBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "🔽"
@@ -57,9 +65,12 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
 [node name="OptionsContainer" parent="HBoxContainer/CenterVBoxContainer" instance=ExtResource("2_2nikf")]
+unique_name_in_owner = true
 layout_mode = 2
+OptionsFontSize = 12
 
 [node name="IdHBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
@@ -75,12 +86,8 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="DeleteButton" type="Button" parent="HBoxContainer/CenterVBoxContainer/IdHBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "🗑"
-
 [node name="TextureBoxContainer" type="HBoxContainer" parent="HBoxContainer/CenterVBoxContainer"]
+visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="HBoxContainer/CenterVBoxContainer/TextureBoxContainer"]
@@ -114,6 +121,8 @@ layout_mode = 2
 [node name="NoPlaceRulesLabel" type="Label" parent="HBoxContainer/CenterVBoxContainer/PlaceRulesVBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 12
 text = "There is no any rule"
 horizontal_alignment = 1
 
@@ -137,5 +146,7 @@ layout_mode = 2
 [node name="NoRadiusRuleLabel" type="Label" parent="HBoxContainer/CenterVBoxContainer/RadiusRuleVBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 12
 text = "There is no any rule"
 horizontal_alignment = 1

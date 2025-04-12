@@ -1,64 +1,72 @@
-﻿using System;
+﻿using Godot;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Godot;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.LoadedScenes;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
+
+/// <summary>
+/// What a horrible code. This is a mess. Maybe I should refactor it.
+/// </summary>
 public static class InputLineManager
 {
-    public static List<InputLine.BaseInputLine> CreateInputLinesForObject<T>
+    public static List<BaseInputLine> CreateInputLinesForObject<T>
         (T obj, Node container, string category = null) where T : class
     {
         var inputLines = new List<InputLine.BaseInputLine>();
 
         var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-/*        if (!string.IsNullOrEmpty(category))
-        {
-            var categoryTitle = InputLineScenes.OptionsCategoryTitleScene.Instantiate<OptionsCategoryTitle>();
-            categoryTitle.SetTitle(category);
-            container.AddChild(categoryTitle);
-        }*/
-
         foreach (var property in properties)
         {
-            // Check if it has LineInputValueAttribute
             var inputLineAttr = property.GetCustomAttribute<InputLineAttribute>();
-            var inputLineSliderAttr = property.GetCustomAttribute<InputLineSliderAttribute>();
-            var inputLineComboboxAttr = property.GetCustomAttribute<InputLineComboboxAttribute>();
 
-            if (inputLineAttr == null && inputLineSliderAttr == null)
+            if (inputLineAttr == null)
                 continue;
 
-            if (!string.IsNullOrEmpty(category))
+            // Populate inputs for specific category
+            if (!string.IsNullOrEmpty(category) && inputLineAttr.Category != category)
             {
-                if (inputLineAttr == null || inputLineAttr.Category != category)
-                {
-                    continue;
-                }
+                continue;
             }
 
-            InputLine.BaseInputLine inputLine = null;
+            BaseInputLine inputLine = null;
 
-            if (property.PropertyType == typeof(bool))
-            {
-                inputLine = CreateInputLineCheckboxForProperty(obj, property);
-            }
-            else if (inputLineSliderAttr != null)
+            var inputLineSliderAttr = property.GetCustomAttribute<InputLineSliderAttribute>();
+            var inputLineComboboxAttr = property.GetCustomAttribute<InputLineComboboxAttribute>();
+            var inputLineTextAttr = property.GetCustomAttribute<InputLineTextAttribute>();
+            var inputLineCheckboxAttr = property.GetCustomAttribute<InputLineCheckBoxAttribute>();
+
+            if (inputLineSliderAttr != null)
             {
                 inputLine = CreateInputLineSliderForProperty(obj, property);
             }
             else if (inputLineComboboxAttr != null)
             {
-                GD.Print($"Creating combobox for {property.Name}");
                 inputLine = CreateInputLineComboboxForProperty(obj, property);
             }
+            else if (inputLineTextAttr != null)
+            {
+                inputLine = CreateInputLineTextForProperty(obj, property);
+            }
+            else if (inputLineCheckboxAttr != null)
+            {
+                inputLine = CreateInputLineCheckboxForProperty(obj, property);
+            }
+
             if (inputLine != null)
             {
-                inputLine.SetId(property.Name);
+                if (!string.IsNullOrEmpty(inputLineAttr?.Id))
+                {
+                    inputLine.SetId(inputLineAttr.Id);
+                }
+                else
+                {
+                    inputLine.SetId(property.Name);
+                }
                 container.AddChild(inputLine);
                 inputLines.Add(inputLine);
             }
@@ -75,7 +83,6 @@ public static class InputLineManager
         // Get all property attributes
         var inputLineAttr = property.GetCustomAttribute<InputLineAttribute>();
         var inputLineSliderAttr = property.GetCustomAttribute<InputLineSliderAttribute>();
-        var textFormatAttr = property.GetCustomAttribute<InputLineTextFormatAttribute>();
 
         if (inputLineSliderAttr == null)
         {
@@ -108,9 +115,9 @@ public static class InputLineManager
         inputLine.SetRange(inputLineSliderAttr.Min, inputLineSliderAttr.Max);
 
         // Set text format
-        if (textFormatAttr != null)
+        if (!string.IsNullOrEmpty(inputLineSliderAttr.Format))
         {
-            inputLine.SetTextFormat(textFormatAttr.Format);
+            inputLine.SetTextFormat(inputLineSliderAttr.Format);
         }
 
         // Set current value
@@ -165,6 +172,96 @@ public static class InputLineManager
 
 
 
+    private static InputLineText CreateInputLineTextForProperty<T>(T obj, PropertyInfo property) where T : class
+    {
+        var inputLine = BuildingBlockLoadedScenes.INPUT_LINE_TEXT.Instantiate<InputLineText>();
+        var inputLineAttr = property.GetCustomAttribute<InputLineAttribute>();
+        var inputLineTextAttr = property.GetCustomAttribute<InputLineTextAttribute>();
+
+        // Set description
+        string description = string.IsNullOrEmpty(inputLineAttr!.Description) ? property.Name : inputLineAttr.Description;
+        inputLine.SetDescription(description);
+
+        // Set tooltip if specified
+        if (!string.IsNullOrEmpty(inputLineAttr.Tooltip))
+        {
+            inputLine.TooltipText = inputLineAttr.Tooltip;
+        }
+
+        inputLine.SetTextLength(inputLineTextAttr!.MaxLength);
+
+        // Set current value
+        object propertyValue = property.GetValue(obj);
+        string value = string.Empty;
+        if (propertyValue != null)
+        {
+            if (propertyValue is string stringValue)
+            {
+                value = stringValue;
+            }
+            else
+            {
+                value = propertyValue.ToString();
+            }
+        }
+        inputLine.SetText(value);
+
+        // Subscribe to value change
+        inputLine.OnTextChanged += (newValue) =>
+        {
+            if (property.PropertyType == typeof(int))
+            {
+                if (!int.TryParse(newValue, out int intValue))
+                {
+                    inputLine.MarkError();
+                    return;
+                }
+                inputLine.UnmarkError();
+                property.SetValue(obj, intValue);
+            }
+            else if (property.PropertyType == typeof(float))
+            {
+                if (!float.TryParse(newValue, out float floatValue))
+                {
+                    inputLine.MarkError();
+                    return;
+                }
+                inputLine.UnmarkError();
+                property.SetValue(obj, floatValue);
+            }
+            else if (property.PropertyType == typeof(double))
+            {
+                if (!double.TryParse(newValue, out double doubleValue))
+                {
+                    inputLine.MarkError();
+                    return;
+                }
+                inputLine.UnmarkError();
+                property.SetValue(obj, doubleValue);
+            }
+            else if (property.PropertyType == typeof(bool))
+            {
+                if (!bool.TryParse(newValue, out bool boolValue))
+                {
+                    inputLine.MarkError();
+                    return;
+                }
+                inputLine.UnmarkError();
+                property.SetValue(obj, boolValue);
+            }
+            else if (property.PropertyType == typeof(string))
+            {
+                property.SetValue(obj, newValue);
+                inputLine.UnmarkError();
+            }
+            else
+            {
+                throw new ArgumentException($"Property {property.Name} is not a supported type for InputLineText.");
+            }
+        };
+
+        return inputLine;
+    }
 
 
 
@@ -192,18 +289,14 @@ public static class InputLineManager
             inputLine.AddOption(option.Text, option.Id);    
         }
 
-        // Set current value
-        if (inputLine.GetOptionsCount() > 0)
-        {
-            inputLine.SetSelected(0);
-        }
+        var propertyType = property.PropertyType;
 
         // Subscribe to option change
         inputLine.OnOptionChanged += (args) =>
         {
             if (inputLineComboboxAttr!.Bind == ComboboxBind.Label)
             {
-                if (property.PropertyType != typeof(string))
+                if (propertyType != typeof(string))
                 {
                     throw new ArgumentException($"Property {property.Name} is not a string type.");
                 }
@@ -212,11 +305,28 @@ public static class InputLineManager
             }
             else if (inputLineComboboxAttr.Bind == ComboboxBind.Id)
             {
-                if (property.PropertyType != typeof(int))
+                if (propertyType.IsEnum)
+                {
+                    GD.Print($"Property {property.Name} is an enum type. Trying to set value");
+
+                    var enumType = property.PropertyType;
+                    var enumValue = Enum.ToObject(enumType, args.Id);
+                    if (!Enum.IsDefined(propertyType, enumValue))
+                    {
+                        GD.PrintErr($"Value {enumValue} is not defined in {property.PropertyType.Name}.");
+                        throw new ArgumentOutOfRangeException(nameof(enumValue), $"Value {enumValue} is not defined in {property.PropertyType.Name}.");
+                    }
+                    property.SetValue(obj, enumValue);
+                }
+                else if (propertyType != typeof(int))
                 {
                     throw new ArgumentException($"Property {property.Name} is not an int type.");
                 }
-                property.SetValue(obj, args.Id);
+                else
+                {
+                    property.SetValue(obj, args.Id);
+                }
+
             }
             else if (inputLineComboboxAttr.Bind == ComboboxBind.Index)
             {
@@ -229,6 +339,13 @@ public static class InputLineManager
             }
         };
 
+        // Set current value
+        if (inputLineComboboxAttr!.Selected > -1)
+        {
+            GD.Print($"Selecting {inputLineComboboxAttr.Selected} to {property.Name}");
+            inputLine.SetSelected(inputLineComboboxAttr.Selected);
+        }
+
         return inputLine;
     }
 
@@ -237,14 +354,14 @@ public static class InputLineManager
 
 
 
-    private static InputLine.InputLineCheckbox CreateInputLineCheckboxForProperty<T>(T obj, PropertyInfo property) where T : class
+    private static InputLineCheckbox CreateInputLineCheckboxForProperty<T>(T obj, PropertyInfo property) where T : class
     {
         if (property.PropertyType != typeof(bool))
         {
             throw new ArgumentException($"Property {property.Name} is not an bool type.");
         }
 
-        var inputLine = BuildingBlockLoadedScenes.INPUT_LINE_CHECKBOX.Instantiate<InputLine.InputLineCheckbox>();
+        var inputLine = BuildingBlockLoadedScenes.INPUT_LINE_CHECKBOX.Instantiate<InputLineCheckbox>();
         var inputLineAttr = property.GetCustomAttribute<InputLineAttribute>();
 
         // Set description

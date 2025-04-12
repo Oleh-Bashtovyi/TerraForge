@@ -5,6 +5,9 @@ using System.Linq;
 using TerrainGenerationApp.Domain.Rules.PlacementRules;
 using TerrainGenerationApp.Domain.Rules.TreeRules;
 using TerrainGenerationApp.Domain.Utils;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
+using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 using TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement.PlacementRuleItems;
 using TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement.RadiusRuleItems;
 using TerrainGenerationApp.Scenes.LoadedScenes;
@@ -26,10 +29,10 @@ public class TreeIdChangedEventArgs(string oldTreeId, string newTreeId)
 public partial class TreePlacementRuleItem : PanelContainer
 {
     private ColorPickerButton _treeColorPickerButton;
-    private OptionButton _modelOptionButton;
+    private OptionsContainer _optionsContainer;
     private VBoxContainer _placeRulesVBoxContainer;
 	private VBoxContainer _radiusRuleVBoxContainer;
-	private LineEdit _treeIdLineEdit;
+	//private LineEdit _treeIdLineEdit;
 	private MenuButton _addPlacementRuleButton;
 	private Button _addRadiusRuleButton;
 	private Button _moveUpButton;
@@ -40,8 +43,10 @@ public partial class TreePlacementRuleItem : PanelContainer
 
 	private readonly List<IPlacementRuleItem> _placementRules = new();
     private readonly Logger<TreePlacementRuleItem> _logger = new();
+    private bool _overwriteLayers;
 	private bool _isDirty = true; 
 	private string _treeId;
+    private int _selected3DModelItem;
 	private Color _treeColor;
 	private TreePlacementRule _cachedRule; 
 	private IRadiusRuleItem _radiusRule;
@@ -53,8 +58,42 @@ public partial class TreePlacementRuleItem : PanelContainer
 	public event EventHandler<TreeColorChangedEventArgs> OnTreeColorChanged;
 	public event EventHandler<TreeIdChangedEventArgs> OnTreeIdChanged;
 
-	public string TreeId => _treeId;
 	public Color TreeColor => _treeColor;
+
+
+    [InputLine(Description = "Tree layer Id:")]
+    [InputLineText(maxLength: 20)]
+    public string TreeId
+    {
+        get => _treeId;
+        set
+        {
+            _logger.Log($"<{nameof(TreeId)}: {TreeId}> - CHANGING ID to {value}");
+            var old = _treeId;
+            _treeId = value;
+            OnTreeIdChanged?.Invoke(this, new TreeIdChangedEventArgs(old, value));
+        }
+    }
+
+    [InputLine(Description = "3D model:", Id = "3DModelSelection")]
+    [InputLineCombobox(bind: ComboboxBind.Id)]
+    public int Selected3DModelItem
+    {
+        get => _selected3DModelItem;
+        set => _selected3DModelItem = value;
+    }
+
+    [InputLine(Description = "Overwrite layers:")]
+    [InputLineCheckBox(CheckboxType.CheckButton)]
+    public bool OverwriteLayers
+    {
+        get => _overwriteLayers;
+        set
+        {
+            _overwriteLayers = value;
+            MarkAsDirty();
+        }
+    }
 
 
     private Dictionary<int, Type> _placementRuleTypes = new()
@@ -73,7 +112,7 @@ public partial class TreePlacementRuleItem : PanelContainer
 
     public override void _Ready()
 	{
-		_treeIdLineEdit = GetNode<LineEdit>("%TreeIdLineEdit");
+		//_treeIdLineEdit = GetNode<LineEdit>("%TreeIdLineEdit");
 		_treeColorPickerButton = GetNode<ColorPickerButton>("%TreeColorPickerButton");
 		_addPlacementRuleButton = GetNode<MenuButton>("%AddPlaceRuleButton");
 		_addRadiusRuleButton = GetNode<Button>("%AddRadiusRuleButton");
@@ -84,26 +123,23 @@ public partial class TreePlacementRuleItem : PanelContainer
 		_radiusRuleVBoxContainer = GetNode<VBoxContainer>("%RadiusRuleVBoxContainer");
 		_noPlaceRulesLabel = GetNode<Label>("%NoPlaceRulesLabel");
 		_noRadiusRuleLabel = GetNode<Label>("%NoRadiusRuleLabel");
-        _modelOptionButton = GetNode<OptionButton>("%ModelOptionButton");
+        _optionsContainer = GetNode<OptionsContainer>("%OptionsContainer");
+        InputLineManager.CreateInputLinesForObject(this, _optionsContainer);
+        var modelsCombobox = _optionsContainer.FindInputLine<InputLineCombobox>("3DModelSelection");
+        modelsCombobox!.AddOptions(TreeModelLoadedScenes.GetTreeNames());
+
 
         _treeId = "Tree";
 		_treeColor = Colors.Purple;
 		_treeColorPickerButton.Color = _treeColor;
-		_treeIdLineEdit.Text = _treeId;
+		//_treeIdLineEdit.Text = _treeId;
 
 		_treeColorPickerButton.ColorChanged += TreeColorPickerButtonOnColorChanged;
-		_treeIdLineEdit.EditingToggled += TreeIdLineEditOnEditingToggled;
+		//_treeIdLineEdit.EditingToggled += TreeIdLineEditOnEditingToggled;
 		_moveUpButton.Pressed += MoveUpButtonOnPressed;
 		_moveDownButton.Pressed += MoveDownButtonOnPressed;
 		_deleteButton.Pressed += DeleteButtonOnPressed;
         _addRadiusRuleButton.Pressed += OnAddRadiusRuleButtonPressed;
-
-        // Populate model option button
-        foreach (var (id, name) in TreeModelLoadedScenes.GetTreeNames())
-        {
-            _modelOptionButton.AddItem(name, id);
-        }
-        _modelOptionButton.Selected = 0;
 
         // Populate placement rules popup menu
         _addPlacementRuleButton.AboutToPopup += _addPlacementRuleButton_AboutToPopup;
@@ -116,12 +152,13 @@ public partial class TreePlacementRuleItem : PanelContainer
 
     public void EnableAllOptions()
     {
-        _treeIdLineEdit.Editable = true;
+        //_treeIdLineEdit.Editable = true;
         _treeColorPickerButton.Disabled = false;
         _addPlacementRuleButton.Disabled = false;
         _addRadiusRuleButton.Disabled = false;
         _deleteButton.Disabled = false;
-        _modelOptionButton.Disabled = false;
+        _optionsContainer.EnableAllOptions();
+
         _moveUpButton.Disabled = false;
         _moveDownButton.Disabled = false;
         _placementRules.ForEach(x => x.EnableAllOptions());
@@ -130,12 +167,13 @@ public partial class TreePlacementRuleItem : PanelContainer
 
     public void DisableAllOptions()
     {
-        _treeIdLineEdit.Editable = false;
+        //_treeIdLineEdit.Editable = false;
         _treeColorPickerButton.Disabled = true;
         _addPlacementRuleButton.Disabled = true;
         _addRadiusRuleButton.Disabled = true;
         _deleteButton.Disabled = true;
-        _modelOptionButton.Disabled = true;
+        _optionsContainer.DisableAllOptions();
+        
         _moveUpButton.Disabled = true;
         _moveDownButton.Disabled = true;
         _placementRules.ForEach(x => x.DisableAllOptions());
@@ -229,12 +267,10 @@ public partial class TreePlacementRuleItem : PanelContainer
 
     public PackedScene GetModel()
     {
-        var index = _modelOptionButton.Selected;
-        var id = _modelOptionButton.GetItemId(index);
-        return TreeModelLoadedScenes.GetTreeScene(id);
+        return TreeModelLoadedScenes.GetTreeScene(Selected3DModelItem);
     }
 
-    private void TreeIdLineEditOnEditingToggled(bool toggledOn)
+/*    private void TreeIdLineEditOnEditingToggled(bool toggledOn)
     {
         if (!toggledOn)
         {
@@ -248,7 +284,7 @@ public partial class TreePlacementRuleItem : PanelContainer
                 MarkAsDirty();
             }
         }
-    }
+    }*/
 
     private void TreeColorPickerButtonOnColorChanged(Color newColor)
     {

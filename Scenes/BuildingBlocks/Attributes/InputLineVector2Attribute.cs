@@ -22,14 +22,3 @@ public class InputLineVectorYAttribute
     public string Format { get; } = "0.##";
 }
 
-
-
-public class SomeAttribute : Attribute
-{
-
-}
-
-public class SomeOtherAttribute : Attribute
-{
-    public int SomeField { get; }
-}

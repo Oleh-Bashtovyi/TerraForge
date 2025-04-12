@@ -1,18 +1,14 @@
-using System;
 using Godot;
+using System;
 using TerrainGenerationApp.Domain.Enums;
-using TerrainGenerationApp.Scenes.BuildingBlocks;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
-using OptionsContainer = TerrainGenerationApp.Scenes.BuildingBlocks.Containers.OptionsContainer;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.DisplayOptions;
 
 public partial class TerrainVisualizationOptions : Control
 {
-    private CheckBox _displayGrey;
-    private CheckBox _displayColors;
-    private CheckBox _displayGradient;
     private OptionsContainer _optionsContainer;
 
     private MapDisplayFormat _curDisplayFormat = MapDisplayFormat.Grey;
@@ -20,6 +16,11 @@ public partial class TerrainVisualizationOptions : Control
 
     public event Action OnDisplayOptionsChanged;
 
+    [InputLine(Description = "Display format:")]
+    [InputLineCombobox(selected: 1, bind: ComboboxBind.Id)]
+    [InputOption("Grey",            id: (int)MapDisplayFormat.Grey)]
+    [InputOption("Colors",          id: (int)MapDisplayFormat.Colors)]
+    [InputOption("Gradient colors", id: (int)MapDisplayFormat.GradientColors)]
     public MapDisplayFormat CurDisplayFormat
     {
         get => _curDisplayFormat;
@@ -30,7 +31,7 @@ public partial class TerrainVisualizationOptions : Control
         }
     }
 
-    [InputLine(Description = "Slope threshold")]
+    [InputLine(Description = "Slope threshold:")]
     [InputLineSlider(0.0f, 1.0f, 0.01f)]
     public float CurSlopeThreshold
     {
@@ -45,34 +46,17 @@ public partial class TerrainVisualizationOptions : Control
 
     public override void _Ready()
     {
-        _displayGrey = GetNode<CheckBox>("%DisplayGrey");
-        _displayColors = GetNode<CheckBox>("%DisplayColors");
-        _displayGradient = GetNode<CheckBox>("%DisplayGradient");
         _optionsContainer = GetNode<OptionsContainer>("%OptionsContainer");
         InputLineManager.CreateInputLinesForObject(this, _optionsContainer);
-
-        _displayGradient.ButtonPressed = false;
-        _displayGrey.ButtonPressed = false;
-        _displayColors.ButtonPressed = true;
-        _displayGrey.Toggled += (_) => CurDisplayFormat = MapDisplayFormat.Grey;
-        _displayColors.Toggled += (_) => CurDisplayFormat = MapDisplayFormat.Colors;
-        _displayGradient.Toggled += (_) => CurDisplayFormat = MapDisplayFormat.GradientColors;
-        CurDisplayFormat = MapDisplayFormat.Colors;
     }
 
     public void EnableAllOptions()
     {
         _optionsContainer.EnableAllOptions();
-        _displayGrey.Disabled = false;
-        _displayColors.Disabled = false;
-        _displayGradient.Disabled = false;
     }
 
     public void DisableAllOptions()
     {
         _optionsContainer.DisableAllOptions();
-        _displayGrey.Disabled = true;
-        _displayColors.Disabled = true;
-        _displayGradient.Disabled = true;
     }
 }

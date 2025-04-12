@@ -7,56 +7,38 @@ namespace TerrainGenerationApp.Scenes.FeatureOptions.Island;
 public partial class IslandOptions : OptionsContainer
 {
     private readonly IslandApplier _islandApplier = new();
-    private int _selectedIslandType = 0;
-    private int _selectedDistanceFunction = 0;
 
     [InputLine(Description = "Island type:", Id = "IslandType")]
     [InputLineCombobox(selected: 0, bind:ComboboxBind.Id)]
-    [InputOption("Single At Center", 1)]
-    [InputOption("Single Randomly", 2)]
-    [InputOption("Many", 3)]
-    public int SelectedIslandType
+    [InputOption("Single At Center", id: (int)IslandApplier.IslandType.SingleAtCenter)]
+    [InputOption("Single Randomly",  id: (int)IslandApplier.IslandType.SingleRandomly)]
+    [InputOption("Many",             id: (int)IslandApplier.IslandType.Many)]
+    public IslandApplier.IslandType SelectedIslandType
     {
-        get => _selectedIslandType;
+        get => _islandApplier.ApplierType;
         set
         {
-            _selectedIslandType = value;
-            _islandApplier.ApplierType = value switch
-            {
-                0 => IslandApplier.IslandType.SingleAtCenter,
-                1 => IslandApplier.IslandType.SingleRandomly,
-                2 => IslandApplier.IslandType.Many,
-                _ => _islandApplier.ApplierType
-            };
+            _islandApplier.ApplierType = value;
+            InvokeParametersChangedEvent();
         }
     }
 
     [InputLine(Description = "Distance function:", Id = "DistanceFunction")]
     [InputLineCombobox(selected:0, bind:ComboboxBind.Id)]
-    [InputOption("Euclidean", 1)]
-    [InputOption("Euclidean Squared", 2)]
-    [InputOption("Manhattan", 3)]
-    [InputOption("Diagonal", 4)]
-    [InputOption("Hyperboloid", 5)]
-    [InputOption("Blob", 6)]
-    [InputOption("Square Bump", 7)]
-    public int SelectedDistanceFunction
+    [InputOption("Euclidean",         id: (int)IslandApplier.DistanceType.Euclidean)]
+    [InputOption("Euclidean Squared", id: (int)IslandApplier.DistanceType.EuclideanSquared)]
+    [InputOption("Manhattan",         id: (int)IslandApplier.DistanceType.Manhattan)]
+    [InputOption("Diagonal",          id: (int)IslandApplier.DistanceType.Diagonal)]
+    [InputOption("Hyperboloid",       id: (int)IslandApplier.DistanceType.Hyperboloid)]
+    [InputOption("Blob",              id: (int)IslandApplier.DistanceType.Blob)]
+    [InputOption("Square Bump",       id: (int)IslandApplier.DistanceType.SquareBump)]
+    public IslandApplier.DistanceType SelectedDistanceFunction
     {
-        get => _selectedDistanceFunction;
+        get => _islandApplier.DistanceFunction;
         set
         {
-            _selectedDistanceFunction = value;
-            _islandApplier.DistanceFunction = value switch
-            {
-                1 => IslandApplier.DistanceType.Euclidean,
-                2 => IslandApplier.DistanceType.EuclideanSquared,
-                3 => IslandApplier.DistanceType.Manhattan,
-                4 => IslandApplier.DistanceType.Diagonal,
-                5 => IslandApplier.DistanceType.Hyperboloid,
-                6 => IslandApplier.DistanceType.Blob,
-                7 => IslandApplier.DistanceType.SquareBump,
-                _ => _islandApplier.DistanceFunction
-            };
+            _islandApplier.DistanceFunction = value;
+            InvokeParametersChangedEvent();
         }
     }
 

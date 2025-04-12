@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://rdqavtj2n065"]
+[gd_scene load_steps=2 format=3 uid="uid://3ujep7ltjtmt"]
 
-[ext_resource type="Script" uid="uid://cp7uwqgjdgj2p" path="res://Scenes/BuildingBlocks/InputLine/InputLineSlider.cs" id="1_eofy6"]
+[ext_resource type="Script" uid="uid://dwmqs8thamnn1" path="res://Scenes/BuildingBlocks/InputLine/InputLineText.cs" id="1_m8pqj"]
 
 [node name="InputLine" type="HBoxContainer"]
 anchors_preset = 14
@@ -10,15 +10,16 @@ anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 10
-script = ExtResource("1_eofy6")
+script = ExtResource("1_m8pqj")
 
 [node name="DescriptionLabel" type="Label" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
-size_flags_stretch_ratio = 6.0
+size_flags_stretch_ratio = 8.0
 theme_override_font_sizes/font_size = 16
 text = "Description:"
 autowrap_mode = 3
@@ -28,13 +29,5 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-size_flags_stretch_ratio = 4.0
-text = "0"
-alignment = 2
+size_flags_stretch_ratio = 10.0
 max_length = 8
-
-[node name="Slider" type="HSlider" parent="."]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 8.0
