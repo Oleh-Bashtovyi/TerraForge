@@ -30,4 +30,5 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
 size_flags_stretch_ratio = 10.0
+focus_mode = 1
 max_length = 8

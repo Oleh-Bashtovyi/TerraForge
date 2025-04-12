@@ -50,7 +50,7 @@ public partial class MapGenerationMenu : Control
 	private bool _enableDomainWarping;
 	private bool _enableIslands;
 	private bool _enableTrees;
-    private MapInterpolationType _mapInterpolationType = MapInterpolationType.Linear;
+    private MapInterpolationType _mapInterpolationType;
 	private BaseGeneratorOptions _selectedGenerator;
 	private DomainWarpingApplier _domainWarpingApplier;
 	private WaterErosionApplier _waterErosionApplier;
@@ -188,7 +188,7 @@ public partial class MapGenerationMenu : Control
         _worleyOptions.ParametersChanged += HandleParametersChanged;
         InputLineManager.CreateInputLinesForObject(this, _adjustmentsContainer, "Adjustments");
         InputLineManager.CreateInputLinesForObject(this, _generatorsContainer, "Generator selection");
-
+        
         // Features enabling
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
         _waterErosionCheckbox = GetNode<CheckBox>("%WaterErosionCheckBox");

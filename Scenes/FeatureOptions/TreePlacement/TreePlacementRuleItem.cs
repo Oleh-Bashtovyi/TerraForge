@@ -256,7 +256,7 @@ public partial class TreePlacementRuleItem : PanelContainer
             var rules = _placementRules.Select(x => x.GetPlacementRule()).ToList();
             var compositeRule = new CompositePlacementRule(rules);
             var radiusRule = _radiusRule?.GetRadiusRule();
-            _cachedRule = new TreePlacementRule(_treeId, compositeRule, radiusRule);
+            _cachedRule = new TreePlacementRule(_treeId, compositeRule, radiusRule, OverwriteLayers);
             _isDirty = false;
         }
 

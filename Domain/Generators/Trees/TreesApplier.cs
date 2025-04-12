@@ -18,6 +18,12 @@ public class TreesApplier : ITreesApplier
     {
         var dict = new Dictionary<string, bool[,]>();
 
+        var terrainMapHeight = worldData.TerrainData.TerrainMapHeight;
+        var terrDataMapWidth = worldData.TerrainData.TerrainMapWidth;
+        var h = Mathf.RoundToInt(terrainMapHeight * frequency);
+        var w = Mathf.RoundToInt(terrDataMapWidth * frequency);
+        var placedTrees = new bool[h, w];
+
         foreach (var rule in rules)
         {
             if (rule.RadiusRule == null || rule.PlacementRule == null)
@@ -38,13 +44,42 @@ public class TreesApplier : ITreesApplier
             {
                 for (int x = 0; x < trees.Width(); x++)
                 {
+                    // Check if the tree can be placed in the current position
                     if (trees[y, x])
                     {
                         var pos = new Vector2(x, y) / frequency;
 
+                        // Check if it can be placed following the placement rule
                         if (!rule.CanPlace(pos, worldData))
                         {
                             trees[y, x] = false;
+                        }
+                        // If position already has tree
+                        else if (placedTrees[y, x])
+                        {
+                            // If current tree layer can overwrite existing trees
+                            if (rule.OverwriteLayers)
+                            {
+                                foreach (var pair in dict)
+                                {
+                                    if (pair.Value[y, x])
+                                    {
+                                        pair.Value[y, x] = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            // Position is occupied by another tree layer and current layer can not overwrite it
+                            else
+                            {
+                                trees[y, x] = false;
+                            }
+
+                        }
+                        // If position is empty and tree can be placed
+                        else
+                        {
+                            placedTrees[y, x] = true;
                         }
                     }
                 }

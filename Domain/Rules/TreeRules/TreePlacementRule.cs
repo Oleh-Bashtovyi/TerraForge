@@ -5,9 +5,10 @@ using TerrainGenerationApp.Domain.Rules.RadiusRules;
 
 namespace TerrainGenerationApp.Domain.Rules.TreeRules;
 
-public class TreePlacementRule(string treeId, IPlacementRule placementRule, IRadiusRule radiusRule)
+public class TreePlacementRule(string treeId, IPlacementRule placementRule, IRadiusRule radiusRule, bool overwriteLayers)
 {
     public string TreeId { get; } = treeId;
+    public bool OverwriteLayers { get; } = overwriteLayers;
     public IPlacementRule PlacementRule { get; } = placementRule;
     public IRadiusRule RadiusRule { get; } = radiusRule;
 

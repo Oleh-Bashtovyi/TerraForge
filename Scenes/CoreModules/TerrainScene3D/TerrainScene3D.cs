@@ -98,8 +98,8 @@ public partial class TerrainScene3D : Node3D
     public async Task InitWater()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        var meshSizeX = TerrainGridCellSize * _worldData.TerrainData.TerrainMapWidth;
-        var meshSizeZ = TerrainGridCellSize * _worldData.TerrainData.TerrainMapHeight;
+        var meshSizeX = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapWidth - 1);
+        var meshSizeZ = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapHeight - 1);
         _waterMesh.Position = new Vector3(
             meshSizeX / 2.0f,
             _worldData.SeaLevel * TerrainHeightScale,
@@ -253,8 +253,8 @@ public partial class TerrainScene3D : Node3D
             return;
         }
 
-        var meshSizeX = TerrainGridCellSize * _worldData.TerrainData.TerrainMapWidth;
-        var meshSizeZ = TerrainGridCellSize * _worldData.TerrainData.TerrainMapHeight;
+        var meshSizeX = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapWidth - 1);
+        var meshSizeZ = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapHeight - 1);
         var map = _worldData.TerrainData.HeightMap;
 
         foreach (var item in treeData.GetLayers())
