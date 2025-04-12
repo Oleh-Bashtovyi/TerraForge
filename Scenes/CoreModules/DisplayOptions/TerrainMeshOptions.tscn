@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbnx0b1wuweva"]
+
+[ext_resource type="Script" uid="uid://cgp6mbkgb1cdq" path="res://Scenes/CoreModules/DisplayOptions/TerrainMeshOptions.cs" id="1_8f2q5"]
+
+[node name="TerrainMeshOptions" type="VBoxContainer"]
+script = ExtResource("1_8f2q5")

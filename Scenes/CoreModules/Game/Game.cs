@@ -19,7 +19,8 @@ public partial class Game : Node3D
     private TerrainScene3D.TerrainScene3D _terrainScene3D;
     private TreePlacementOptions _treePlacementOptions;
     private MapGenerationMenu _mapGenerationMenu;
-    private TerrainVisualizationOptions _terrainVisualizationOptions;
+    private TerrainVisualOptions _terrainVisualOptions;
+    private TerrainMeshOptions _terrainMeshOptions;
     private Button _generateMapButton;
     private Button _applyWaterErosionButton;
     private Button _showIn2DButton;
@@ -28,19 +29,21 @@ public partial class Game : Node3D
     private readonly Logger<Game> _logger = new();
     private readonly WorldData _worldData = new();
     private readonly WorldVisualSettings _worldVisualSettings = new();
+    private readonly TerrainMeshSettings _terrainMeshSettings = new();
     private Task? _generationTask;
     private Task? _waterErosionTask;
 
     public IWorldData WorldData => _worldData;
-    public IWorldVisualSettings Settings => _worldVisualSettings;
+    public IWorldVisualSettings VisualSettings => _worldVisualSettings;
 
     public override void _Ready()
     {
         _terrainScene2D = GetNode<TerrainScene2D.TerrainScene2D>("%TerrainScene2D");
         _terrainScene3D = GetNode<TerrainScene3D.TerrainScene3D>("%TerrainScene3D");
         _mapGenerationMenu = GetNode<MapGenerationMenu>("%MapGenerationMenu");
-        _terrainVisualizationOptions = GetNode<TerrainVisualizationOptions>("%MapDisplayOptions");
+        _terrainVisualOptions = GetNode<TerrainVisualOptions>("%MapDisplayOptions");
         _generateMapButton = GetNode<Button>("%GenerateMapButton");
+        _terrainMeshOptions = GetNode<TerrainMeshOptions>("%TerrainMeshOptions");
         //_applyWaterErosionButton = GetNode<Button>("%ApplyWaterErosionButton");
         _showIn2DButton = GetNode<Button>("%ShowIn2DButton");
         _showIn3DButton = GetNode<Button>("%ShowIn3DButton");
@@ -48,28 +51,18 @@ public partial class Game : Node3D
         _showIn3DButton.Pressed += _showIn3DButton_Pressed;
 
         _worldData.SetSeaLevel(_mapGenerationMenu.CurSeaLevel);
-        _terrainScene3D.SetWorldData(WorldData);
-        _terrainScene2D.SetWorldData(WorldData);
-        _terrainScene2D.SetVisualSettings(Settings);
-        _terrainScene3D.SetDisplayOptionsProvider(Settings);
+        _terrainScene3D.BindWorldData(WorldData);
+        _terrainScene2D.BindWorldData(WorldData);
+        _terrainScene2D.BindVisualSettings(VisualSettings);
+        _terrainScene3D.BindDisplayOptions(VisualSettings);
+        _terrainScene3D.BindMeshSettings(_terrainMeshSettings);
+        _terrainMeshOptions.BindSettings(_terrainMeshSettings);
+        _terrainVisualOptions.BindSettings(_worldVisualSettings.TerrainSettings);
 
         _treePlacementOptions = _mapGenerationMenu.TreePlacementOptions;
         _treePlacementOptions.OnTreePlacementRuleItemAdded += TreePlacementOptionsOnOnTreePlacementRuleItemAdded;
         //_treePlacementOptions.OnTreePlacementRuleItemRemoved += TreePlacementOptionsOnOnTreePlacementRuleItemRemoved;
         //_treePlacementOptions.OnTreePlacementRulesChanged += TreePlacementOptionsOnOnTreePlacementRulesChanged;
-
-
-
-
-
-
-
-        // TODO: Populate terrain visualization settings with colors for gradients
-        // !!!
-        // !!!
-        // !!!
-        // !!!
-        // !!!
 
         foreach (var item in ColorPallets.DefaultTerrainColors)
         {
@@ -87,7 +80,7 @@ public partial class Game : Node3D
 
         _mapGenerationMenu.OnWaterLevelChanged += MapGenerationMenuOnOnWaterLevelChanged;
         //_mapGenerationMenu.GenerationParametersChanged += MapGenerationMenuOnGenerationParametersChanged;
-        _terrainVisualizationOptions.OnDisplayOptionsChanged += TerrainVisualizationOptionsOnOnTerrainVisualizationOptionsChanged;
+        _terrainVisualOptions.OnDisplayOptionsChanged += TerrainVisualOptionsOnOnTerrainVisualOptionsChanged;
         _generateMapButton.Pressed += GenerateMapButtonOnPressed;
         //_applyWaterErosionButton.Pressed += ApplyWaterErosionButtonOnPressed;
     }
@@ -156,10 +149,8 @@ public partial class Game : Node3D
         }
     }
 
-    private void TerrainVisualizationOptionsOnOnTerrainVisualizationOptionsChanged()
+    private void TerrainVisualOptionsOnOnTerrainVisualOptionsChanged()
     {
-        _worldVisualSettings.TerrainSettings.SetMapDisplayFormat(_terrainVisualizationOptions.CurDisplayFormat);
-        _worldVisualSettings.TerrainSettings.SetSlopeThreshold(_terrainVisualizationOptions.CurSlopeThreshold);
         _terrainScene2D.RedrawAllImages();
         _terrainScene2D.UpdateAllTextures();
     }

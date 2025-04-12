@@ -1,14 +1,16 @@
 using Godot;
 using System;
 using TerrainGenerationApp.Domain.Enums;
+using TerrainGenerationApp.Domain.Visualization;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.DisplayOptions;
 
-public partial class TerrainVisualizationOptions : Control
+public partial class TerrainVisualOptions : Control
 {
+    private TerrainVisualSettings _settings = new();
     private OptionsContainer _optionsContainer;
 
     private MapDisplayFormat _curDisplayFormat = MapDisplayFormat.Grey;
@@ -27,6 +29,7 @@ public partial class TerrainVisualizationOptions : Control
         set
         {
             _curDisplayFormat = value;
+            _settings.SetMapDisplayFormat(value);
             OnDisplayOptionsChanged?.Invoke();
         }
     }
@@ -40,6 +43,7 @@ public partial class TerrainVisualizationOptions : Control
         {
             value = Mathf.Clamp(value, 0.0f, 1.0f);
             _curSlopeThreshold = value;
+            _settings.SetSlopeThreshold(value);
             OnDisplayOptionsChanged?.Invoke();
         }
     }
@@ -58,5 +62,18 @@ public partial class TerrainVisualizationOptions : Control
     public void DisableAllOptions()
     {
         _optionsContainer.DisableAllOptions();
+    }
+
+    /// <summary>
+    /// Binds the settings to the options container. Note that direct object changes will not be reflected in the UI.
+    /// </summary>
+    /// <param name="settings"></param>
+    public void BindSettings(TerrainVisualSettings settings)
+    {
+        _settings = settings ?? new TerrainVisualSettings();
+        _curDisplayFormat = _settings.MapDisplayFormat;
+        _curSlopeThreshold = _settings.SlopeThreshold;
+        _optionsContainer.FindInputLine<InputLineSlider>(nameof(CurSlopeThreshold))?.SetValueNoSignal(_curSlopeThreshold);
+        _optionsContainer.FindInputLine<InputLineCombobox>(nameof(CurDisplayFormat))?.SetSelectedById((int)_curDisplayFormat);
     }
 }

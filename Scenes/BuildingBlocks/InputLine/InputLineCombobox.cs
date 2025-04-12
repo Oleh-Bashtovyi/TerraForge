@@ -73,10 +73,27 @@ public partial class InputLineCombobox : BaseInputLine
         }
         OptionButton.Select(index);
         OnOptionButtonItemSelected(OptionButton.Selected);
-
     }
 
-	public override void EnableInput()
+    public void SetSelectedById(int id)
+    {
+        if (!_isOptionButtonConnected)
+        {
+            _optionButton.ItemSelected += OnOptionButtonItemSelected;
+            _isOptionButtonConnected = true;
+        }
+
+        var index = OptionButton.GetItemIndex(id);
+        
+        if (index > -1)
+        {
+            OptionButton.Select(index);
+            OnOptionButtonItemSelected(OptionButton.Selected);
+        }
+    }
+
+
+    public override void EnableInput()
 	{
 		OptionButton.Disabled = false;
 	}

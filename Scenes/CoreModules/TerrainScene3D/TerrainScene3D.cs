@@ -15,13 +15,15 @@ public partial class TerrainScene3D : Node3D
     private MeshInstance3D _waterMesh;
     private Node3D _treesContainer;
     private Node3D _chunksContainer;
-     
+    
+    
     private readonly Logger<TerrainScene3D> _logger = new();
+    private readonly List<Node3D> _currentTrees = new();
+    private TerrainMeshSettings _terrainMeshSettings = new();
     private TerrainChunk? _currentTerrainChunk;
     private bool _isTerrainGenerated = false;
     private int _curTerrainGridRow = 0;
     private int _curTerrainGridCol = 0;
-    private List<Node3D> _currentTrees = new();
     private bool _areTreesGenerated = false;
     private int _curTreeGridRow = 0;
     private int _curTreeGridCol = 0;
@@ -29,9 +31,11 @@ public partial class TerrainScene3D : Node3D
     public int TreeChunkSize = 30;
 
     public int TerrainChunkCellsCoverage = 15;
-    public float TerrainHeightScale = 20f;
-    public float TerrainGridCellSize = 0.8f;
-    public int TerrainGridCellResolution = 2;
+
+    public float TerrainHeightScale => _terrainMeshSettings.HeightScale;
+    public float TerrainGridCellSize => _terrainMeshSettings.GridCellSize;
+    public int TerrainGridCellResolution => _terrainMeshSettings.GridCellResolution;
+
 
     public StandardMaterial3D ChunkMaterial = new StandardMaterial3D();
 
@@ -56,7 +60,7 @@ public partial class TerrainScene3D : Node3D
         ChunkMaterial.ShadingMode = BaseMaterial3D.ShadingModeEnum.PerPixel;
     }
 
-    public void SetDisplayOptionsProvider(IWorldVisualSettings settings)
+    public void BindDisplayOptions(IWorldVisualSettings settings)
     {
         _visualSettings = settings;
     }
@@ -298,7 +302,24 @@ public partial class TerrainScene3D : Node3D
         }
     }
 
-    public void SetWorldData(IWorldData data)
+    /// <summary>
+    /// Binds the mesh settings to the terrain chunk. Note that direct object changes will not be reflected on the generated chunks.
+    /// Generate new chunks from scratch to apply the changes. Use <see cref="GenerateNextChunk"/> and
+    /// <see cref="ApplyCurrentChunkAsync"/> to generate and add chunks to scene. 
+    /// </summary>
+    /// <param name="settings"></param>
+    public void BindMeshSettings(TerrainMeshSettings settings)
+    {
+        _terrainMeshSettings = settings;
+    }
+
+    /// <summary>
+    /// Binds the world data to the terrain chunk. Note that direct object changes will not be reflected on the generated chunks.
+    /// Generate new chunks from scratch to apply the changes. Use <see cref="GenerateNextChunk"/> and
+    /// <see cref="ApplyCurrentChunkAsync"/> to generate and add chunks to scene. 
+    /// </summary>
+    /// <param name="data"></param>
+    public void BindWorldData(IWorldData data)
     {
         _worldData = data;
     }

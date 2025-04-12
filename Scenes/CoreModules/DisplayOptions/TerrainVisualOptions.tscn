@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://by1ppq2hqwnt8"]
 
-[ext_resource type="Script" uid="uid://rnwa3rytiq45" path="res://Scenes/CoreModules/DisplayOptions/TerrainVisualizationOptions.cs" id="1_poxhq"]
+[ext_resource type="Script" uid="uid://rnwa3rytiq45" path="res://Scenes/CoreModules/DisplayOptions/TerrainVisualOptions.cs" id="1_poxhq"]
 [ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/BuildingBlocks/Containers/OptionsContainer.tscn" id="2_htbbd"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ywowt"]

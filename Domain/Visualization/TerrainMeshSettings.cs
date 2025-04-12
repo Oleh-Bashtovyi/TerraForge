@@ -24,7 +24,7 @@ public class TerrainMeshSettings
             _gridCellSize = Math.Max(0.1f, value);
         }
     }
-    public float HeightScaleFactor
+    public float HeightScale
     {
         get => _heightScale;
         set

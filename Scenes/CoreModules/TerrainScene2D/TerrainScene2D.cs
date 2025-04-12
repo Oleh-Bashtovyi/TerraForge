@@ -46,12 +46,22 @@ public partial class TerrainScene2D : Control
         _treesTextureRect.Texture = _treesImageTexture;
     }
 
-    public void SetWorldData(IWorldData data)
+    /// <summary>
+    /// Binds the world data to the scene. Note that direct changes to the data object will not be automatically reflected in the UI.
+    /// To update the images with new data, use <see cref="RedrawTerrainImage"/> or <see cref="RedrawTreesImage"/>.
+    /// </summary>
+    /// <param name="data">The world data to bind to the scene.</param>
+    public void BindWorldData(IWorldData data)
     {
         _worldData = data;
     }
 
-    public void SetVisualSettings(IWorldVisualSettings settings)
+    /// <summary>
+    /// Binds the visual settings to the scene. Note that direct changes to the settings object will not be automatically reflected in the UI.
+    /// To update the images with new settings, use <see cref="RedrawTerrainImage"/> or <see cref="RedrawTreesImage"/>.
+    /// </summary>
+    /// <param name="settings">The visual settings to bind to the scene.</param>
+    public void BindVisualSettings(IWorldVisualSettings settings)
     {
         _visualSettings = settings;
     }

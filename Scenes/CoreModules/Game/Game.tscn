@@ -1,10 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://dhk7rgiforkic"]
+[gd_scene load_steps=12 format=3 uid="uid://dhk7rgiforkic"]
 
 [ext_resource type="Script" uid="uid://bn1xteopq2m60" path="res://Scenes/CoreModules/Game/Game.cs" id="1_ug855"]
 [ext_resource type="PackedScene" uid="uid://djhdbxgy1amyg" path="res://Scenes/CoreModules/TerrainScene3D/TerrainScene3D.tscn" id="2_kmdfo"]
 [ext_resource type="PackedScene" uid="uid://ckgwmiiux24bu" path="res://Scenes/CoreModules/GenerationMenu/MapGenerationMenu.tscn" id="4_2ko6c"]
 [ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/CoreModules/TerrainScene2D/TerrainScene2D.tscn" id="4_a0xit"]
-[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/CoreModules/DisplayOptions/TerrainVisualizationOptions.tscn" id="6_kwpie"]
+[ext_resource type="PackedScene" uid="uid://dbnx0b1wuweva" path="res://Scenes/CoreModules/DisplayOptions/TerrainMeshOptions.tscn" id="6_1iig4"]
+[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/CoreModules/DisplayOptions/TerrainVisualOptions.tscn" id="6_kwpie"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_mxk2f"]
 noise_type = 5
@@ -88,11 +89,30 @@ unique_name_in_owner = true
 layout_mode = 1
 offset_bottom = -226.0
 
-[node name="MapDisplayOptions" parent="Generation_Layer/RightPannel" instance=ExtResource("6_kwpie")]
-unique_name_in_owner = true
+[node name="TabContainer" type="TabContainer" parent="Generation_Layer/RightPannel"]
 layout_mode = 1
-offset_top = 420.0
-offset_bottom = -50.0
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -216.0
+offset_right = -14.0
+offset_bottom = -51.0
+grow_horizontal = 2
+grow_vertical = 0
+current_tab = 0
+
+[node name="MapDisplayOptions" parent="Generation_Layer/RightPannel/TabContainer" instance=ExtResource("6_kwpie")]
+unique_name_in_owner = true
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="TerrainMeshOptions" parent="Generation_Layer/RightPannel/TabContainer" instance=ExtResource("6_1iig4")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
 
 [node name="ButtonsContainer" type="MarginContainer" parent="Generation_Layer/RightPannel"]
 layout_mode = 1
