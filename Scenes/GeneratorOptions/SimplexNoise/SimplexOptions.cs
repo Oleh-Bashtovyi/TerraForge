@@ -1,11 +1,11 @@
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
-namespace TerrainGenerationApp.Scenes.GeneratorOptions.PerlinNoise;
+namespace TerrainGenerationApp.Scenes.GeneratorOptions.SimplexNoise;
 
-public partial class PerlinOptions : BaseGeneratorOptions
+public partial class SimplexOptions : BaseGeneratorOptions
 {
-	private readonly Domain.Generators.PerlinNoiseGenerator _generator = new();
+    private readonly Domain.Generators.SimplexNoiseGenerator _generator = new();
     private int _mapHeight = 100;
     private int _mapWidth = 100;
 
@@ -49,10 +49,10 @@ public partial class PerlinOptions : BaseGeneratorOptions
     [InputLineSlider(0, 10)]
     public int Octaves
     {
-		get => _generator.Octaves;
+        get => _generator.Octaves;
         set
         {
-			_generator.Octaves = value;
+            _generator.Octaves = value;
             InvokeParametersChangedEvent();
         }
     }
@@ -121,17 +121,16 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    public Domain.Generators.PerlinNoiseGenerator Generator => _generator;
+    public Domain.Generators.SimplexNoiseGenerator Generator => _generator;
 
     public override void _Ready()
     {
         base._Ready();
-        Generator.EnableWarping = false;
         InputLineManager.CreateInputLinesForObject(this, this);
     }
 
     public override float[,] GenerateMap()
-	{
-		return _generator.GenerateMap(_mapHeight, _mapWidth);
-	}
+    {
+        return _generator.GenerateMap(_mapHeight, _mapWidth);
+    }
 }

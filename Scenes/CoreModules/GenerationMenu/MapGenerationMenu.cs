@@ -33,6 +33,7 @@ public partial class MapGenerationMenu : Control
     private BaseGeneratorOptions _diamondSquareOptions;
     private BaseGeneratorOptions _worleyOptions;
     private BaseGeneratorOptions _perlinOptions;
+    private BaseGeneratorOptions _simplexOptions;
     private OptionsContainer _adjustmentsContainer;
     private OptionsContainer _generatorsContainer;
     private CheckBox _domainWarpingCheckBox;
@@ -65,6 +66,7 @@ public partial class MapGenerationMenu : Control
     [InputOption("Diamond square", 1)]
     [InputOption("Perlin noise", 2)]
     [InputOption("Worley noise", 3)]
+    [InputOption("Simplex noise", 4)]
     public int SelectedGeneratorItemId
     {
         set
@@ -74,12 +76,14 @@ public partial class MapGenerationMenu : Control
                 1 => _diamondSquareOptions,
                 2 => _perlinOptions,
                 3 => _worleyOptions,
+                4 => _simplexOptions,
                 _ => _selectedGenerator
             };
 
             _diamondSquareOptions.Hide();
             _perlinOptions.Hide();
             _worleyOptions.Hide();
+            _simplexOptions.Hide();
 
             if (_selectedGenerator != null)
             {
@@ -180,6 +184,7 @@ public partial class MapGenerationMenu : Control
         // Generators and adjustments
         _perlinOptions = GetNode<BaseGeneratorOptions>("%PerlinOptions");
         _worleyOptions = GetNode<BaseGeneratorOptions>("%WorleyOptions");
+        _simplexOptions = GetNode<BaseGeneratorOptions>("%SimplexOptions");
         _diamondSquareOptions = GetNode<BaseGeneratorOptions>("%DiamondSquareOptions");
         _generatorsContainer = GetNode<OptionsContainer>("%GeneratorsContainer");
         _adjustmentsContainer = GetNode<OptionsContainer>("%AdjustmentsContainer");

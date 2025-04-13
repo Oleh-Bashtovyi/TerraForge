@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://ckgwmiiux24bu"]
+[gd_scene load_steps=13 format=3 uid="uid://ckgwmiiux24bu"]
 
 [ext_resource type="Script" uid="uid://c8djttepxw168" path="res://Scenes/CoreModules/GenerationMenu/MapGenerationMenu.cs" id="1_5x4vo"]
 [ext_resource type="PackedScene" uid="uid://c2fscxswvxfxo" path="res://Scenes/GeneratorOptions/DiamondSquare/DiamondSquareOptions.tscn" id="1_fu6da"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://bagl6klwbcex2" path="res://Scenes/FeatureOptions/DomainWarping/DomainWarpingOptions.tscn" id="4_b8rru"]
 [ext_resource type="PackedScene" uid="uid://ds5ici2o3bfy0" path="res://Scenes/FeatureOptions/WaterErosion/WaterErosionOptions.tscn" id="5_3mgfn"]
 [ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/BuildingBlocks/Containers/OptionsContainer.tscn" id="5_odnn8"]
+[ext_resource type="PackedScene" uid="uid://dk2k3q2og1sqn" path="res://Scenes/GeneratorOptions/SimplexNoise/SimplexOptions.tscn" id="6_m3gtq"]
 [ext_resource type="PackedScene" uid="uid://cs3qk4i5r62mw" path="res://Scenes/FeatureOptions/Island/IslandOptions.tscn" id="6_mscmd"]
 [ext_resource type="PackedScene" uid="uid://c111y36ggt3us" path="res://Scenes/FeatureOptions/TreePlacement/TreePlacementOptions.tscn" id="7_oqg8v"]
 
@@ -108,6 +109,10 @@ layout_mode = 2
 [node name="PerlinOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("3_o8gpn")]
 unique_name_in_owner = true
 visible = false
+layout_mode = 2
+
+[node name="SimplexOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("6_m3gtq")]
+unique_name_in_owner = true
 layout_mode = 2
 
 [node name="AdjustmentsMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]

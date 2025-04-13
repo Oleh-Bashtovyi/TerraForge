@@ -6,8 +6,8 @@ namespace TerrainGenerationApp.Domain.Generators.DomainWarping;
 
 public class DomainWarpingApplier : IDomainWarpingApplier
 {
-    private readonly PerlinNoise xNoise;
-    private readonly PerlinNoise yNoise;
+    private readonly PerlinNoiseGenerator xNoise;
+    private readonly PerlinNoiseGenerator yNoise;
     private float warpingStrength = 1.0f;
 
     public float WarpingStrength
@@ -16,12 +16,12 @@ public class DomainWarpingApplier : IDomainWarpingApplier
         set => warpingStrength = value;
     }
 
-    public PerlinNoise XNoise
+    public PerlinNoiseGenerator XNoise
     {
         get => xNoise;
     }
 
-    public PerlinNoise YNoise
+    public PerlinNoiseGenerator YNoise
     {
         get => yNoise;
     }
@@ -30,8 +30,8 @@ public class DomainWarpingApplier : IDomainWarpingApplier
 
     public DomainWarpingApplier()
     {
-        xNoise = new PerlinNoise { Octaves = 1, Offset = new Vector2(120, 40), Scale = 8 };
-        yNoise = new PerlinNoise { Octaves = 1, Offset = new Vector2(3479, 9823), Scale = 8 };
+        xNoise = new PerlinNoiseGenerator { Octaves = 1, Offset = new Vector2(120, 40), Scale = 8 };
+        yNoise = new PerlinNoiseGenerator { Octaves = 1, Offset = new Vector2(3479, 9823), Scale = 8 };
     }
 
 
@@ -39,14 +39,8 @@ public class DomainWarpingApplier : IDomainWarpingApplier
     {
         var height = map.GetLength(0);
         var width = map.GetLength(1);
-
-        xNoise.MapHeight = height;
-        xNoise.MapWidth = width;
-        yNoise.MapHeight = height;
-        yNoise.MapWidth = width;
-
-        var xOffsets = xNoise.GenerateMap();
-        var yOffsets = yNoise.GenerateMap();
+        var xOffsets = xNoise.GenerateMap(height, width);
+        var yOffsets = yNoise.GenerateMap(height, width);
         return Sample(map, xOffsets, yOffsets);
     }
 

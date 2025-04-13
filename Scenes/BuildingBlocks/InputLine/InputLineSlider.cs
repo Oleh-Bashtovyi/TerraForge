@@ -109,7 +109,7 @@ public partial class InputLineSlider : BaseInputLine
         if (invokeEvent)
         {
             Slider.Value = value;
-            //LineEdit.Text = Slider.Value.ToString(_textFormat);
+            LineEdit.Text = Slider.Value.ToString(_textFormat);
         }
         else
         {
