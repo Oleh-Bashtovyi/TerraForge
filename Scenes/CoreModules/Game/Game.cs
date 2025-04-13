@@ -41,9 +41,9 @@ public partial class Game : Node3D
         _terrainScene2D = GetNode<TerrainScene2D.TerrainScene2D>("%TerrainScene2D");
         _terrainScene3D = GetNode<TerrainScene3D.TerrainScene3D>("%TerrainScene3D");
         _mapGenerationMenu = GetNode<MapGenerationMenu>("%MapGenerationMenu");
-        _terrainVisualOptions = GetNode<TerrainVisualOptions>("%MapDisplayOptions");
+        _terrainVisualOptions = GetNode<TerrainVisualOptions>("%DisplayOptions");
         _generateMapButton = GetNode<Button>("%GenerateMapButton");
-        _terrainMeshOptions = GetNode<TerrainMeshOptions>("%TerrainMeshOptions");
+        _terrainMeshOptions = GetNode<TerrainMeshOptions>("%MeshOptions");
         //_applyWaterErosionButton = GetNode<Button>("%ApplyWaterErosionButton");
         _showIn2DButton = GetNode<Button>("%ShowIn2DButton");
         _showIn3DButton = GetNode<Button>("%ShowIn3DButton");
@@ -87,12 +87,22 @@ public partial class Game : Node3D
 
     private void _showIn3DButton_Pressed()
     {
-        _terrainScene2D.Visible = false;
+        // This is a workaround to hide the 2D scene, because if we use Visible = false, then
+        // the right child of HSplitContainer will occupy the entire screen, hiding the 3D scene.
+        var c = _terrainScene2D.Modulate;
+        c.A = 0f;
+        _terrainScene2D.Modulate = c;
+        //_terrainScene2D.Visible = false;
     }
 
     private void _showIn2DButton_Pressed()
     {
-        _terrainScene2D.Visible = true;
+        // This is a workaround to hide the 2D scene, because if we use Visible = false, then
+        // the right child of HSplitContainer will occupy the entire screen, hiding the 3D scene.
+        var c = _terrainScene2D.Modulate;
+        c.A = 1f;
+        _terrainScene2D.Modulate = c;
+        //_terrainScene2D.Visible = true;
     }
 
     private void ApplyWaterErosionButtonOnPressed()

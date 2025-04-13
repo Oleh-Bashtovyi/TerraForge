@@ -64,7 +64,12 @@ public partial class InputLineCombobox : BaseInputLine
         }
     }
 
-	public void SetSelected(int index)
+    /// <summary>
+    /// Sets the selected option in the OptionButton. If invokeEvent is true, the <see cref="OnOptionChanged"/> event will be triggered.
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="invokeEvent"></param>
+	public void SetSelected(int index, bool invokeEvent = true)
 	{
 		if (!_isOptionButtonConnected)
         {
@@ -72,10 +77,19 @@ public partial class InputLineCombobox : BaseInputLine
             _isOptionButtonConnected = true;
         }
         OptionButton.Select(index);
-        OnOptionButtonItemSelected(OptionButton.Selected);
+        
+        if (invokeEvent)
+        {
+            OnOptionButtonItemSelected(OptionButton.Selected);
+        }
     }
 
-    public void SetSelectedById(int id)
+    /// <summary>
+    /// Sets the selected option in the OptionButton by ID. If invokeEvent is true, the <see cref="OnOptionChanged"/> event will be triggered.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="invokeEvent"></param>
+    public void SetSelectedById(int id, bool invokeEvent = true)
     {
         if (!_isOptionButtonConnected)
         {
@@ -88,7 +102,11 @@ public partial class InputLineCombobox : BaseInputLine
         if (index > -1)
         {
             OptionButton.Select(index);
-            OnOptionButtonItemSelected(OptionButton.Selected);
+
+            if (invokeEvent)
+            {
+                OnOptionButtonItemSelected(OptionButton.Selected);
+            }
         }
     }
 

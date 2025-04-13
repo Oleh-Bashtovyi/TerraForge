@@ -23,7 +23,7 @@ public partial class TerrainMeshOptions : OptionsContainer
         set
         {
             _gridCellSize = value;
-            _settings.GridCellSize = value;
+            _settings.SetGridCellSize(value);
             OnMeshOptionsChanged?.Invoke();
         }
     }
@@ -36,7 +36,7 @@ public partial class TerrainMeshOptions : OptionsContainer
         set
         {
             _gridCellResolution = value;
-            _settings.GridCellResolution = value;
+            _settings.SetGridCellResolution(value);
             OnMeshOptionsChanged?.Invoke();
         }
     }
@@ -49,7 +49,7 @@ public partial class TerrainMeshOptions : OptionsContainer
         set
         {
             _heightScale = value;
-            _settings.HeightScale = value;
+            _settings.SetHeightScale(value);
             OnMeshOptionsChanged?.Invoke();
         }
     }
@@ -57,24 +57,31 @@ public partial class TerrainMeshOptions : OptionsContainer
     public override void _Ready()
     {
         base._Ready();
-        _settings.HeightScale = 15;
-        _settings.GridCellSize = 1;
-        _settings.GridCellResolution = 5;
         InputLineManager.CreateInputLinesForObject(this, this);
     }
 
     /// <summary>
     /// Binds the settings to the input lines. Note that direct object changes will not be reflected in the UI.
+    /// If settings object was changed outside of this class, call <see cref="UpdateUi"/> to refresh the UI.
     /// </summary>
     /// <param name="settings"></param>
     public void BindSettings(TerrainMeshSettings settings)
     {
         _settings = settings ?? new TerrainMeshSettings(); ;
+        UpdateUi();
+    }
+
+    /// <summary>
+    /// Updates the UI elements to reflect the current settings values.
+    /// Note that direct settings object changes will not be reflected in the UI. So this method should be called.
+    /// </summary>
+    public void UpdateUi()
+    {
         _gridCellResolution = _settings.GridCellResolution;
         _gridCellSize = _settings.GridCellSize;
         _heightScale = _settings.HeightScale;
-        FindInputLine<InputLineSlider>(nameof(HeightScale))?.SetValueNoSignal(_heightScale);
-        FindInputLine<InputLineSlider>(nameof(GridCellSize))?.SetValueNoSignal(_gridCellSize);
-        FindInputLine<InputLineSlider>(nameof(GridCellResolution))?.SetValueNoSignal(_gridCellResolution);
+        FindInputLine<InputLineSlider>(nameof(HeightScale))?.SetValue(_heightScale, invokeEvent: false);
+        FindInputLine<InputLineSlider>(nameof(GridCellSize))?.SetValue(_gridCellSize, invokeEvent: false);
+        FindInputLine<InputLineSlider>(nameof(GridCellResolution))?.SetValue(_gridCellResolution, invokeEvent: false);
     }
 }

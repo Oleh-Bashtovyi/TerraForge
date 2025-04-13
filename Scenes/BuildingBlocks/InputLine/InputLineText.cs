@@ -25,10 +25,14 @@ public partial class InputLineText : BaseInputLine
 		lineEdit.EditingToggled += LineEditOnEditingToggled;
 	}
 
-	public void SetText(string text)
+	public void SetText(string text, bool invokeEvent = true)
 	{
 		InputLineEdit.Text = text;
-		OnTextChanged?.Invoke(InputLineEdit.Text);
+
+        if (invokeEvent)
+        {
+            OnTextChanged?.Invoke(InputLineEdit.Text);
+        }
 	}
 
 	public override void EnableInput()

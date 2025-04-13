@@ -104,10 +104,18 @@ public partial class InputLineSlider : BaseInputLine
         Slider.Step = step;
     }
 
-    public void SetValue(float value)
+    public void SetValue(float value, bool invokeEvent = true)
     {
-        Slider.Value = value;
-        LineEdit.Text = Slider.Value.ToString(_textFormat);
+        if (invokeEvent)
+        {
+            Slider.Value = value;
+            //LineEdit.Text = Slider.Value.ToString(_textFormat);
+        }
+        else
+        {
+            Slider.SetValueNoSignal(value);
+            LineEdit.Text = Slider.Value.ToString(_textFormat);
+        }
     }
 
     public void SetValueNoSignal(float value)

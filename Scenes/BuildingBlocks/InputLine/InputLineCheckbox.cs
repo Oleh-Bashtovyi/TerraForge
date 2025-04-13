@@ -23,9 +23,16 @@ public partial class InputLineCheckbox : BaseInputLine
         Checkbox.Toggled += OnCheckboxToggled;
     }
 
-    public void SetValue(bool value)
+    public void SetValue(bool value, bool invokeEvent = true)
     {
-        Checkbox.ButtonPressed = value;
+        if (invokeEvent)
+        {
+            Checkbox.ButtonPressed = value;
+        }
+        else
+        {
+            Checkbox.SetPressedNoSignal(value);
+        }
     }
 
     public override void EnableInput()
