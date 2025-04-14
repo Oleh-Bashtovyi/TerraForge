@@ -133,6 +133,11 @@ public partial class TerrainScene2D : Control
     {
         ThrowIfNoWorldDataOrDisplayOptions();
 
+        if (!_worldData.TreesData.HasLayers())
+        {
+            return;
+        }
+
         ResizeTreesImageIfRequired();
 
         ClearTreesImage();

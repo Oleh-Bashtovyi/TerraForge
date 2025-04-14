@@ -42,7 +42,7 @@ public partial class TerrainMeshOptions : OptionsContainer
     }
 
     [InputLine(Description = "Height scale:")]
-    [InputLineSlider(0.1f, 30.0f, 0.1f, format: "0.#")]
+    [InputLineSlider(0.1f, 100.0f, 0.1f, format: "0.#")]
     public float HeightScale
     {
         get => _heightScale;

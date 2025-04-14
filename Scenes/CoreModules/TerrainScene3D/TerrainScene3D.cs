@@ -28,9 +28,8 @@ public partial class TerrainScene3D : Node3D
     private int _curTreeGridRow = 0;
     private int _curTreeGridCol = 0;
 
-    public int TreeChunkSize = 30;
-
-    public int TerrainChunkCellsCoverage = 15;
+    public int TreeChunkSize { get; } = 30;
+    public int TerrainChunkCellsCoverage { get; } = 15;
 
     public float TerrainHeightScale => _terrainMeshSettings.HeightScale;
     public float TerrainGridCellSize => _terrainMeshSettings.GridCellSize;
@@ -129,7 +128,7 @@ public partial class TerrainScene3D : Node3D
         }
 
         // Update for next chunk
-        _curTreeGridCol += TerrainChunkCellsCoverage;
+        _curTreeGridCol += TreeChunkSize;
         var treesData = _worldData.TreesData;
         // If we reached the end of the row, move to the next row
         if (_curTreeGridCol >= treesData.LayersWidth - 1)
@@ -260,6 +259,7 @@ public partial class TerrainScene3D : Node3D
         var meshSizeX = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapWidth - 1);
         var meshSizeZ = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapHeight - 1);
         var map = _worldData.TerrainData.HeightMap;
+        var random = new RandomNumberGenerator();
 
         foreach (var item in treeData.GetLayers())
         {
@@ -267,15 +267,17 @@ public partial class TerrainScene3D : Node3D
             var treeMapWidth = treeMap.Width();
             var treeMapHeight = treeMap.Height();
             var packedScene = _visualSettings.TreeSettings.GetTreesLayerScene(item.TreeId);
-
+            var treesCount = 0;
             for (var y = rowStart; y < rowEnd; y++)
             {
                 for (var x = colStart; x < colEnd; x++)
                 {
                     if (treeMap[y, x])
                     {
-                        var posX = x + 0.5f;
-                        var posY = y + 0.5f;
+                        /*                        var posX = x + 0.5f;
+                                                var posY = y + 0.5f;*/
+                        var posX = x + (float)GD.RandRange(0.35, 0.65);
+                        var posY = y + (float)GD.RandRange(0.35, 0.65);
                         var progX = treeMap.WidthProgress(posX);
                         var progY = treeMap.HeightProgress(posY);
                         var height = map.GetValueUsingIndexProgress(progY, progX);
@@ -288,6 +290,10 @@ public partial class TerrainScene3D : Node3D
                             progY * meshSizeZ
                         );
 
+                        var rotation = treeScene!.RotationDegrees;
+                        rotation.Y = (float)GD.RandRange(0, 360);
+                        treeScene!.RotationDegrees = rotation;
+
                         // 0.25 - 0.75
                         //var shiftX = random.NextDouble() * 0.5 + 0.25;
                         //var shiftZ = random.NextDouble() * 0.5 + 0.25;
@@ -296,9 +302,12 @@ public partial class TerrainScene3D : Node3D
                         treeScene!.Position = treePosition;
                         _currentTrees.Add(treeScene);
                         //_treesContainer.AddChild(treeScene);
+                        treesCount++;
                     }
                 }
             }
+
+            _logger.Log($"Tree layer: {item.TreeId}, Trees count: {treesCount} Row range: [{rowStart}; {rowEnd}), Col range: [{colStart}; {colEnd})");
         }
     }
 
