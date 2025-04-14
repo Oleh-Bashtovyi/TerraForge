@@ -1,6 +1,7 @@
 using TerrainGenerationApp.Domain.Generators.Islands;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
+using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
 namespace TerrainGenerationApp.Scenes.FeatureOptions.Island;
 
@@ -130,6 +131,6 @@ public partial class IslandOptions : OptionsContainer
 
     public override void _Ready()
     {
-        BuildingBlocks.InputLine.InputLineManager.CreateInputLinesForObject(this, this);
+        InputLineManager.CreateInputLinesForObject(obj: this, container: this);
     }
 }

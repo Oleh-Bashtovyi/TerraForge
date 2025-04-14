@@ -127,7 +127,7 @@ public partial class PerlinOptions : BaseGeneratorOptions
     {
         base._Ready();
         Generator.EnableWarping = false;
-        InputLineManager.CreateInputLinesForObject(this, this);
+        InputLineManager.CreateInputLinesForObject(obj: this, container: this);
     }
 
     public override float[,] GenerateMap()

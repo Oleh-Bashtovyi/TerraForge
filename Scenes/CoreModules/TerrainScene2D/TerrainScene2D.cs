@@ -16,9 +16,9 @@ public partial class TerrainScene2D : Control
     private TextureRect _treesTextureRect;
 
     private readonly Logger<TerrainScene2D> _logger = new();
-    private bool _terrainImageTextureResizeRequired = false;
-    private bool _treesImageTextureResizeRequired = false;
-    private bool _waterTextureResizeRequired = false;
+    private bool _terrainImageTextureResizeRequired;
+    private bool _treesImageTextureResizeRequired;
+    private bool _waterTextureResizeRequired;
     private Image _terrainImage;
     private Image _waterImage;
     private Image _treesImage;
@@ -213,13 +213,13 @@ public partial class TerrainScene2D : Control
     {
         if (_worldData == null)
         {
-            _logger.LogError($"{nameof(_worldData)} is not set");
+            _logger.LogError($"{nameof(_worldData)} is not set", callerName);
             throw new NullReferenceException($"{nameof(_worldData)} is not set");
         }
 
         if (_visualSettings == null)
         {
-            _logger.LogError($"{nameof(_visualSettings)} is not set");
+            _logger.LogError($"{nameof(_visualSettings)} is not set", callerName);
             throw new NullReferenceException($"{nameof(_visualSettings)} is not set");
         }
     }

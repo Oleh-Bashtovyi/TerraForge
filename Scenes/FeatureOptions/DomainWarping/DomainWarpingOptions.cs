@@ -46,6 +46,6 @@ public partial class DomainWarpingOptions : OptionsContainer
         base._Ready();
         _domainWarpingApplier.XNoise.Scale = 8;
 		_domainWarpingApplier.YNoise.Scale = 8;
-        InputLineManager.CreateInputLinesForObject(this, this);
+        InputLineManager.CreateInputLinesForObject(obj: this, container: this);
     }
 }

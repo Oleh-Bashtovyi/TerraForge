@@ -6,6 +6,7 @@ using TerrainGenerationApp.Domain.Core;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Utils;
 using TerrainGenerationApp.Domain.Visualization;
+using TerrainGenerationApp.Scenes.BuildingBlocks.Pools;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.TerrainScene3D;
 
@@ -16,7 +17,7 @@ public partial class TerrainScene3D : Node3D
     private Node3D _treesContainer;
     private Node3D _chunksContainer;
     
-    
+    private readonly Dictionary<PackedScene, NodePool<MeshInstance3D>> _treePools = new();
     private readonly Logger<TerrainScene3D> _logger = new();
     private readonly List<Node3D> _currentTrees = new();
     private TerrainMeshSettings _terrainMeshSettings = new();
@@ -75,7 +76,7 @@ public partial class TerrainScene3D : Node3D
 
         foreach (var child in _treesContainer.GetChildren())
         {
-            child.QueueFree();
+            _treesContainer.RemoveChild(child);
         }
 
         _curTerrainGridRow = 0;
@@ -86,6 +87,11 @@ public partial class TerrainScene3D : Node3D
         _areTreesGenerated = false;
         _currentTerrainChunk = null;
         _currentTrees.Clear();
+
+        foreach (var pool in _treePools.Values)
+        {
+            pool.Reset();
+        }
     }
 
     public bool IsTerrainChunksGenerating()
@@ -140,6 +146,12 @@ public partial class TerrainScene3D : Node3D
             if (_curTreeGridRow >= treesData.LayersHeight - 1)
             {
                 _areTreesGenerated = true;
+                _logger.Log("All trees are generated");
+                _logger.Log($"Total pools count: {_treePools.Count}");
+                foreach (var pool in _treePools)
+                {
+                    _logger.Log($"Pool: {pool.Key}, size: {pool.Value.PoolSize}, used nodes: {pool.Value.UsedNodes}");
+                }
             }
         }
     }
@@ -268,40 +280,42 @@ public partial class TerrainScene3D : Node3D
             var treeMapHeight = treeMap.Height();
             var packedScene = _visualSettings.TreeSettings.GetTreesLayerScene(item.TreeId);
             var treesCount = 0;
+
+            var pool = _treePools.GetValueOrDefault(packedScene);
+            if (pool == null)
+            {
+                pool = new NodePool<MeshInstance3D>(packedScene, 100);
+                _treePools.Add(packedScene, pool);
+            }
+
+
             for (var y = rowStart; y < rowEnd; y++)
             {
                 for (var x = colStart; x < colEnd; x++)
                 {
                     if (treeMap[y, x])
                     {
-                        /*                        var posX = x + 0.5f;
-                                                var posY = y + 0.5f;*/
                         var posX = x + (float)GD.RandRange(0.35, 0.65);
                         var posY = y + (float)GD.RandRange(0.35, 0.65);
                         var progX = treeMap.WidthProgress(posX);
                         var progY = treeMap.HeightProgress(posY);
                         var height = map.GetValueUsingIndexProgress(progY, progX);
-                        var treeScene = packedScene.Instantiate() as Node3D;
-
+                        
+                        //var treeScene = packedScene.Instantiate() as Node3D;
+                        var treeScene = pool.GetNode();
 
                         var treePosition = new Vector3(
                             progX * meshSizeX,
                             height * TerrainHeightScale,
                             progY * meshSizeZ
                         );
+                        treeScene!.Position = treePosition;
 
                         var rotation = treeScene!.RotationDegrees;
-                        rotation.Y = (float)GD.RandRange(0, 360);
+                        rotation.Y = GD.RandRange(0, 360);
                         treeScene!.RotationDegrees = rotation;
 
-                        // 0.25 - 0.75
-                        //var shiftX = random.NextDouble() * 0.5 + 0.25;
-                        //var shiftZ = random.NextDouble() * 0.5 + 0.25;
-                        //treePosition.X += (float)(cellSizeX * shiftX);
-                        //treePosition.Z += (float)(cellSizeZ * shiftZ);
-                        treeScene!.Position = treePosition;
                         _currentTrees.Add(treeScene);
-                        //_treesContainer.AddChild(treeScene);
                         treesCount++;
                     }
                 }

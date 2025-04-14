@@ -48,7 +48,7 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
     public override void _Ready()
     {
         base._Ready();
-        InputLineManager.CreateInputLinesForObject(this, this);
+        InputLineManager.CreateInputLinesForObject(obj: this, container: this);
     }
 
     public override float[,] GenerateMap()

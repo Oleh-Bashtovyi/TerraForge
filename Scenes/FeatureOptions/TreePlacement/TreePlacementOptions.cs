@@ -51,8 +51,7 @@ public partial class TreePlacementOptions : VBoxContainer
         _optionsContainer = GetNode<OptionsContainer>("%OptionsContainer");
         _rulesContainer = GetNode<VBoxContainer>("%RulesContainer");
 		_addRuleButton = GetNode<Button>("%AddRuleButton");
-        InputLineManager.CreateInputLinesForObject(this, _optionsContainer);
-
+        InputLineManager.CreateInputLinesForObject(obj: this, container: _optionsContainer);
         _addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
 	}
 
