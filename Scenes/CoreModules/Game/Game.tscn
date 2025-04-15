@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dhk7rgiforkic"]
+[gd_scene load_steps=13 format=3 uid="uid://dhk7rgiforkic"]
 
 [ext_resource type="Script" uid="uid://bn1xteopq2m60" path="res://Scenes/CoreModules/Game/Game.cs" id="1_ug855"]
 [ext_resource type="PackedScene" uid="uid://djhdbxgy1amyg" path="res://Scenes/CoreModules/TerrainScene3D/TerrainScene3D.tscn" id="2_kmdfo"]
@@ -6,6 +6,23 @@
 [ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/CoreModules/TerrainScene2D/TerrainScene2D.tscn" id="4_a0xit"]
 [ext_resource type="PackedScene" uid="uid://dbnx0b1wuweva" path="res://Scenes/CoreModules/DisplayOptions/TerrainMeshOptions.tscn" id="6_1iig4"]
 [ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/CoreModules/DisplayOptions/TerrainVisualOptions.tscn" id="6_kwpie"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_27wfy"]
+content_margin_left = 10.0
+content_margin_top = 3.0
+content_margin_right = 10.0
+content_margin_bottom = 3.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 2
+border_width_top = 1
+border_width_right = 2
+border_width_bottom = 1
+border_color = Color(0.0846899, 0.0846899, 0.0846899, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+shadow_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eqppl"]
 bg_color = Color(0.188235, 0.188235, 0.188235, 1)
@@ -56,20 +73,61 @@ unique_name_in_owner = true
 [node name="Generation_Layer" type="CanvasLayer" parent="."]
 unique_name_in_owner = true
 
+[node name="ColorRect" type="ColorRect" parent="Generation_Layer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 35.0
+grow_horizontal = 2
+color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Generation_Layer/ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuButton" type="MenuButton" parent="Generation_Layer/ColorRect/HBoxContainer"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_27wfy")
+text = "File"
+flat = false
+
 [node name="HSplitContainer" type="HSplitContainer" parent="Generation_Layer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 35.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/split_bar_background = SubResource("StyleBoxFlat_eqppl")
 split_offset = 60
 drag_area_highlight_in_editor = true
 
-[node name="TerrainScene2D" parent="Generation_Layer/HSplitContainer" instance=ExtResource("4_a0xit")]
-unique_name_in_owner = true
+[node name="RightContainer" type="Control" parent="Generation_Layer/HSplitContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="TerrainScene2D" parent="Generation_Layer/HSplitContainer/RightContainer" instance=ExtResource("4_a0xit")]
+unique_name_in_owner = true
+layout_mode = 1
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Generation_Layer/HSplitContainer/RightContainer"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 47.0
+offset_right = -47.0
+offset_bottom = 38.0
+grow_horizontal = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+text = "<GENERATION INFO>"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="RightPannel" type="ColorRect" parent="Generation_Layer/HSplitContainer"]
 layout_mode = 2
