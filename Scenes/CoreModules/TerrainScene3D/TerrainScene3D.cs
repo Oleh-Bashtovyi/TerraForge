@@ -7,6 +7,7 @@ using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Utils;
 using TerrainGenerationApp.Domain.Visualization;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Pools;
+using TerrainGenerationApp.Scenes.CoreModules.Camera;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.TerrainScene3D;
 
@@ -16,7 +17,8 @@ public partial class TerrainScene3D : Node3D
     private MeshInstance3D _waterMesh;
     private Node3D _treesContainer;
     private Node3D _chunksContainer;
-    
+    private MovableCamera _movableCamera;
+
     private readonly Dictionary<PackedScene, NodePool<MeshInstance3D>> _treePools = new();
     private readonly Logger<TerrainScene3D> _logger = new();
     private readonly List<Node3D> _currentTrees = new();
@@ -51,6 +53,7 @@ public partial class TerrainScene3D : Node3D
         _waterMesh = GetNode<MeshInstance3D>("%WaterMesh");
         _treesContainer = GetNode<Node3D>("%TreesContainer");
         _chunksContainer = GetNode<Node3D>("%ChunksContainer");
+        _movableCamera = GetNode<MovableCamera>("%MovableCamera");
 
         ChunkMaterial.VertexColorUseAsAlbedo = true;
         ChunkMaterial.RoughnessTexture = null;
@@ -114,6 +117,17 @@ public partial class TerrainScene3D : Node3D
             _worldData.SeaLevel * TerrainHeightScale,
             meshSizeZ / 2.0f);
         ((PlaneMesh)_waterMesh.Mesh).Size = new Vector2(meshSizeX, meshSizeZ);
+
+
+        // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
+        // Init camera limits
+        var minX = -20;
+        var maxX = meshSizeX + 20;
+        var minZ = -20;
+        var maxZ = meshSizeZ + 20;
+        var minY = -20;
+        var maxY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + 20;
+        _movableCamera.SetMovementLimits(minX, maxX, minY, maxY, minZ, maxZ);
     }
 
 

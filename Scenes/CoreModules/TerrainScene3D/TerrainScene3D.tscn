@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://djhdbxgy1amyg"]
 
-[ext_resource type="PackedScene" uid="uid://cf7brgwaxlmud" path="res://Scenes/CoreModules/RtsCam/rtscam.tscn" id="1_0pwsw"]
 [ext_resource type="Script" uid="uid://bvj43k8vw4db8" path="res://Scenes/CoreModules/TerrainScene3D/TerrainScene3D.cs" id="1_kwx7t"]
+[ext_resource type="PackedScene" uid="uid://bdl3gd0bpsw7y" path="res://Scenes/CoreModules/Camera/MovableCamera.tscn" id="3_05isa"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_44ply"]
 
@@ -17,6 +17,7 @@ background_energy_multiplier = 2.73
 sky = SubResource("Sky_p0mlm")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kwx7t"]
+cull_mode = 2
 albedo_color = Color(0.576471, 0.937255, 0.980392, 0.188235)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_c773d"]
@@ -36,8 +37,16 @@ environment = SubResource("Environment_1nusq")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 40, 0)
 
-[node name="Camera" parent="." instance=ExtResource("1_0pwsw")]
-transform = Transform3D(-0.707107, 0.40558, -0.579228, 0, 0.819152, 0.573576, 0.707107, 0.40558, -0.579228, 0, 32.0214, 0)
+[node name="MovableCamera" parent="." instance=ExtResource("3_05isa")]
+unique_name_in_owner = true
+transform = Transform3D(-0.707107, 0.40558, -0.579228, 0, 0.819152, 0.573576, 0.707107, 0.40558, -0.579228, 0, 28.1945, 0)
+current = true
+MinX = 0.0
+MaxX = 50.0
+MinY = -10.0
+MaxY = 40.0
+MinZ = 0.0
+MaxZ = 50.0
 
 [node name="World" type="Node3D" parent="."]
 

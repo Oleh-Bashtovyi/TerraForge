@@ -97,11 +97,10 @@ theme_override_constants/margin_right = 20
 [node name="TabContainer" type="TabContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1iig4")
-current_tab = 1
+current_tab = 0
 tab_focus_mode = 1
 
 [node name="Display options" type="ScrollContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer"]
-visible = false
 layout_mode = 2
 horizontal_scroll_mode = 0
 metadata/_tab_index = 0
@@ -123,6 +122,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Mesh options" type="ScrollContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer"]
+visible = false
 layout_mode = 2
 horizontal_scroll_mode = 0
 metadata/_tab_index = 1

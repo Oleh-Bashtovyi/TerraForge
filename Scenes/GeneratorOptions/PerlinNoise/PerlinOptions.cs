@@ -121,6 +121,42 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
+    [InputLine(Description = "Use domain warping")]
+    [InputLineCheckBox]
+    public bool UseDomainWarping
+    {
+        get => _generator.EnableWarping;
+        set
+        {
+            _generator.EnableWarping = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [InputLine(Description = "Warping size:")]
+    [InputLineSlider(0.1f, 2.0f, 0.1f, format: "0.#")]
+    public float WarpingSize
+    {
+        get => _generator.WarpingSize;
+        set
+        {
+            _generator.WarpingSize = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [InputLine(Description = "Warping strength:")]
+    [InputLineSlider(0.1f, 30.0f, 0.1f, format: "0.#")]
+    public float WarpingStrength
+    {
+        get => _generator.WarpingStrength;
+        set
+        {
+            _generator.WarpingStrength = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
     public Domain.Generators.PerlinNoiseGenerator Generator => _generator;
 
     public override void _Ready()

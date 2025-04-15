@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://ch17gepogiapp"]
-
-[ext_resource type="Script" uid="uid://bk0nfo4bcpbjv" path="res://Scenes/GeneratorOptions/Plain/PlainGenerator.cs" id="1_ecqev"]
-
-[node name="PlainGenerator" type="VBoxContainer"]
-offset_right = 40.0
-offset_bottom = 40.0
-script = ExtResource("1_ecqev")

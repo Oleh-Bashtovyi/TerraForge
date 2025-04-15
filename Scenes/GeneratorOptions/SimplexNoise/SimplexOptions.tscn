@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dk2k3q2og1sqn"]
-
-[ext_resource type="Script" uid="uid://csqs03kan253h" path="res://Scenes/GeneratorOptions/SimplexNoise/SimplexOptions.cs" id="1_8dj7g"]
-
-[node name="SimplexOptions" type="VBoxContainer"]
-script = ExtResource("1_8dj7g")

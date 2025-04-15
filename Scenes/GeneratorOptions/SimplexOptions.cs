@@ -1,7 +1,7 @@
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
-namespace TerrainGenerationApp.Scenes.GeneratorOptions.SimplexNoise;
+namespace TerrainGenerationApp.Scenes.GeneratorOptions;
 
 public partial class SimplexOptions : BaseGeneratorOptions
 {
