@@ -1,4 +1,5 @@
 ﻿using System;
+using TerrainGenerationApp.Domain.Extensions;
 
 namespace TerrainGenerationApp.Domain.Visualization;
 
@@ -7,6 +8,7 @@ public class TerrainMeshSettings
     private int _gridCellResolution = 1;
     private float _gridCellSize = 1.0f;
     private float _heightScale = 15.0f;
+    private MapExtensions.InterpolationType _meshInterpolation;
 
     public int GridCellResolution
     {
@@ -24,6 +26,12 @@ public class TerrainMeshSettings
         private set => _heightScale = Math.Max(0.1f, value);
     }
 
+    public MapExtensions.InterpolationType MeshInterpolation
+    {
+        get => _meshInterpolation;
+        private set => _meshInterpolation = value;
+    }
+
     public void SetGridCellResolution(int resolution)
     {
         GridCellResolution = resolution;
@@ -37,5 +45,10 @@ public class TerrainMeshSettings
     public void SetHeightScale(float scale)
     {
         HeightScale = scale;
+    }
+
+    public void SetInterpolation(MapExtensions.InterpolationType interpolation)
+    {
+        MeshInterpolation = interpolation;
     }
 }

@@ -30,6 +30,7 @@ public partial class Game : Node3D
     private readonly WorldData _worldData = new();
     private readonly WorldVisualSettings _worldVisualSettings = new();
     private readonly TerrainMeshSettings _terrainMeshSettings = new();
+    private float[,] _curHeightMap;
     private Task? _generationTask;
     private Task? _waterErosionTask;
 
@@ -223,8 +224,8 @@ public partial class Game : Node3D
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Generating map...");
-        var map = generator.GenerateMap();
-        _worldData.TerrainData.SetTerrain(map);
+        _curHeightMap = generator.GenerateMap();
+        _worldData.TerrainData.SetTerrain(_curHeightMap);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }
@@ -233,9 +234,8 @@ public partial class Game : Node3D
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Applying interpolation...");
-        var map = _worldData.TerrainData.HeightMap;
-        _mapGenerationMenu.ApplySelectedInterpolation(map);
-        _worldData.TerrainData.SetTerrain(map);
+        _mapGenerationMenu.ApplySelectedInterpolation(_curHeightMap);
+        _worldData.TerrainData.SetTerrain(_curHeightMap);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }
@@ -243,9 +243,8 @@ public partial class Game : Node3D
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Applying influence...");
-        var map = _worldData.TerrainData.HeightMap;
-        MapHelpers.MultiplyHeight(map, _mapGenerationMenu.CurNoiseInfluence);
-        _worldData.TerrainData.SetTerrain(map);
+        MapHelpers.MultiplyHeight(_curHeightMap, _mapGenerationMenu.CurNoiseInfluence);
+        _worldData.TerrainData.SetTerrain(_curHeightMap);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }
@@ -253,12 +252,11 @@ public partial class Game : Node3D
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Smoothing...");
-        var map = _worldData.TerrainData.HeightMap;
         for (int i = 0; i < _mapGenerationMenu.CurSmoothCycles; i++)
         {
             _logger.Log($"Smoothing - iteration: {i + 1}/{_mapGenerationMenu.CurSmoothCycles}");
-            map = MapHelpers.SmoothMap(map);
-            _worldData.TerrainData.SetTerrain(map);
+            _curHeightMap = MapHelpers.SmoothMap(_curHeightMap);
+            _worldData.TerrainData.SetTerrain(_curHeightMap);
             await RedrawTerrainAsync();
         }
         _logger.LogMethodEnd();
@@ -267,9 +265,8 @@ public partial class Game : Node3D
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Making islands...");
-        var map = _worldData.TerrainData.HeightMap;
-        map = _mapGenerationMenu.IslandsApplier.ApplyIslands(map);
-        _worldData.TerrainData.SetTerrain(map);
+        _curHeightMap = _mapGenerationMenu.IslandsApplier.ApplyIslands(_curHeightMap);
+        _worldData.TerrainData.SetTerrain(_curHeightMap);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }
@@ -277,9 +274,8 @@ public partial class Game : Node3D
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Applying domain warping...");
-        var map = _worldData.TerrainData.HeightMap;
-        map = _mapGenerationMenu.DomainWarpingApplier.ApplyWarping(map);
-        _worldData.TerrainData.SetTerrain(map);
+        _curHeightMap = _mapGenerationMenu.DomainWarpingApplier.ApplyWarping(_curHeightMap);
+        _worldData.TerrainData.SetTerrain(_curHeightMap);
         await RedrawTerrainAsync();
         _logger.LogMethodEnd();
     }

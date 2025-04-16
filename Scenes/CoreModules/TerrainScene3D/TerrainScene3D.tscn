@@ -35,7 +35,9 @@ script = ExtResource("1_kwx7t")
 environment = SubResource("Environment_1nusq")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 40, 0)
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 40, 0)
+light_energy = 0.4
 
 [node name="MovableCamera" parent="." instance=ExtResource("3_05isa")]
 unique_name_in_owner = true

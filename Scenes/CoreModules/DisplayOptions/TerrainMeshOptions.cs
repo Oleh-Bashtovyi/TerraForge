@@ -1,4 +1,5 @@
 ﻿using System;
+using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Visualization;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
@@ -12,6 +13,7 @@ public partial class TerrainMeshOptions : OptionsContainer
     private int _gridCellResolution = 5;
     private float _gridCellSize = 1.0f;
     private float _heightScale = 15.0f;
+    private MapExtensions.InterpolationType _interpolation = MapExtensions.InterpolationType.Bilinear;
 
     public event Action OnMeshOptionsChanged;
 
@@ -50,6 +52,22 @@ public partial class TerrainMeshOptions : OptionsContainer
         {
             _heightScale = value;
             _settings.SetHeightScale(value);
+            OnMeshOptionsChanged?.Invoke();
+        }
+    }
+
+    [InputLine(Description = "Mesh interpolation:")]
+    [InputLineCombobox(selected: 1, bind: ComboboxBind.Id)]
+    [InputOption("None",        id: (int)MapExtensions.InterpolationType.None)]
+    [InputOption("Linear",      id:(int)MapExtensions.InterpolationType.Bilinear)]
+    [InputOption("Smooth step", id: (int)MapExtensions.InterpolationType.SmoothStep)]
+    public MapExtensions.InterpolationType Interpolation
+    {
+        get => _interpolation;
+        set
+        {
+            _interpolation = value;
+            _settings.SetInterpolation(value);
             OnMeshOptionsChanged?.Invoke();
         }
     }

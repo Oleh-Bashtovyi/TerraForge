@@ -43,6 +43,16 @@ public static class Interpolations
         return interpolatedValue;
     }
 
+    public static float Discrete(float value, int steps = 5)
+    {
+        // Divide the height into "steps"
+        float step = 1.0f / steps;
+        float stepValue = Mathf.Snapped(value, step);
+        //GD.Print($"Snapped value: {value} to {stepValue}");
+        return stepValue;
+    }
+
+
     /// <summary>
     /// Smooth step interpolation - smooth transition between two edges using a cubic polynomial y = 3*x^2 - 2*x^3
     /// </summary>

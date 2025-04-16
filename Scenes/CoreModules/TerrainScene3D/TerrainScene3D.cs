@@ -18,12 +18,14 @@ public partial class TerrainScene3D : Node3D
     private Node3D _treesContainer;
     private Node3D _chunksContainer;
     private MovableCamera _movableCamera;
+    private DirectionalLight3D _directionalLight;
 
     private readonly Dictionary<PackedScene, NodePool<MeshInstance3D>> _treePools = new();
     private readonly Logger<TerrainScene3D> _logger = new();
     private readonly List<Node3D> _currentTrees = new();
     private TerrainMeshSettings _terrainMeshSettings = new();
     private TerrainChunk? _currentTerrainChunk;
+    private float[,]? _heightMap;
     private bool _isTerrainGenerated = false;
     private int _curTerrainGridRow = 0;
     private int _curTerrainGridCol = 0;
@@ -54,6 +56,7 @@ public partial class TerrainScene3D : Node3D
         _treesContainer = GetNode<Node3D>("%TreesContainer");
         _chunksContainer = GetNode<Node3D>("%ChunksContainer");
         _movableCamera = GetNode<MovableCamera>("%MovableCamera");
+        _directionalLight = GetNode<DirectionalLight3D>("%DirectionalLight3D");
 
         ChunkMaterial.VertexColorUseAsAlbedo = true;
         ChunkMaterial.RoughnessTexture = null;
@@ -82,6 +85,7 @@ public partial class TerrainScene3D : Node3D
             _treesContainer.RemoveChild(child);
         }
 
+        _heightMap = null;
         _curTerrainGridRow = 0;
         _curTerrainGridCol = 0;
         _curTreeGridRow = 0;
@@ -128,6 +132,18 @@ public partial class TerrainScene3D : Node3D
         var minY = -20;
         var maxY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + 20;
         _movableCamera.SetMovementLimits(minX, maxX, minY, maxY, minZ, maxZ);
+
+
+        // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
+        // Set direction light position
+        GD.Print($"Mesh size x: {meshSizeX}");
+        GD.Print($"Mesh size z: {meshSizeZ}");
+        GD.Print($"Mesh size x / 2: {meshSizeX / 2.0f}");
+        GD.Print($"Mesh size z / 2: {meshSizeZ / 2.0f}");
+        var lightPosX = meshSizeX / 2.0f;
+        var lightPosY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + 20;
+        var lightPosZ = meshSizeZ / 2.0f;
+        _directionalLight.Position = new Vector3(lightPosX, lightPosY, lightPosZ);
     }
 
 
@@ -211,16 +227,19 @@ public partial class TerrainScene3D : Node3D
             throw new InvalidOperationException("Previous chunk is not applied");
         }
 
-        var map = _worldData.TerrainData.HeightMap;
+        if (_heightMap == null)
+        {
+            _heightMap = _worldData.TerrainData.GetHeightMapCopy();
+        }
 
         // Calculate bounds for current chunk
         var rowStart = _curTerrainGridRow;
-        var rowEnd = Math.Min(rowStart + TerrainChunkCellsCoverage, map.Height() - 1);
+        var rowEnd = Math.Min(rowStart + TerrainChunkCellsCoverage, _heightMap.Height() - 1);
         var colStart = _curTerrainGridCol;
-        var colEnd = Math.Min(colStart + TerrainChunkCellsCoverage, map.Width() - 1);
+        var colEnd = Math.Min(colStart + TerrainChunkCellsCoverage, _heightMap.Width() - 1);
 
         // Check if we've reached the end
-        if (rowStart >= map.Height() - 1 || colStart >= map.Width() - 1 ||
+        if (rowStart >= _heightMap.Height() - 1 || colStart >= _heightMap.Width() - 1 ||
             rowStart == rowEnd || colStart == colEnd)
         {
             _isTerrainGenerated = true;
@@ -234,13 +253,14 @@ public partial class TerrainScene3D : Node3D
         scene.GridCellResolution = TerrainGridCellResolution;
         scene.HeightScaleFactor = TerrainHeightScale;
 
-        scene.GenerateChunk(map,
+        scene.GenerateChunk(_heightMap,
             rowStart,
             rowEnd,
             colStart,
             colEnd,
             _visualSettings,
-            _worldData);
+            _worldData,
+            _terrainMeshSettings.MeshInterpolation);
 
         // Set the position of the chunk in world space
         var posGrid = new Vector3(colStart * TerrainGridCellSize, 0, rowStart * TerrainGridCellSize);
@@ -284,7 +304,12 @@ public partial class TerrainScene3D : Node3D
 
         var meshSizeX = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapWidth - 1);
         var meshSizeZ = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapHeight - 1);
-        var map = _worldData.TerrainData.HeightMap;
+
+        if (_heightMap == null)
+        {
+            _heightMap = _worldData.TerrainData.GetHeightMapCopy();
+        }
+
         var random = new RandomNumberGenerator();
 
         foreach (var item in treeData.GetLayers())
@@ -313,7 +338,7 @@ public partial class TerrainScene3D : Node3D
                         var posY = y + (float)GD.RandRange(0.35, 0.65);
                         var progX = treeMap.WidthProgress(posX);
                         var progY = treeMap.HeightProgress(posY);
-                        var height = map.GetValueUsingIndexProgress(progY, progX);
+                        var height = _heightMap.GetValueUsingIndexProgress(progY, progX);
                         
                         //var treeScene = packedScene.Instantiate() as Node3D;
                         var treeScene = pool.GetNode();

@@ -44,10 +44,10 @@ public partial class TerrainChunk : MeshInstance3D
         set
         {
             _chunkMaterial = value;
-/*            if (Mesh != null)
+            if (Mesh != null)
             {
-                Mesh.SurfaceSetMaterial(0, _material);
-            }*/
+                Mesh.SurfaceSetMaterial(0, _chunkMaterial);
+            }
         }
     }
 
@@ -58,7 +58,8 @@ public partial class TerrainChunk : MeshInstance3D
         int colStart, 
         int colEnd,
         IWorldVisualSettings settings,
-        IWorldData worldData)
+        IWorldData worldData,
+        MapExtensions.InterpolationType interpolation)
     {
         if (rowStart == rowEnd || colStart == colEnd)
         {
@@ -87,7 +88,7 @@ public partial class TerrainChunk : MeshInstance3D
                     Mathf.Lerp(colStart, colEnd, percentX),
                     Mathf.Lerp(rowStart, rowEnd, percentZ));
 
-                var height = map.GetValueAt(mapPos);
+                var height = map.GetValueAt(mapPos, interpolation);
                 vertex.Y = height * HeightScaleFactor;
 
                 var color = settings.TerrainSettings.GetColor(mapPos, worldData, false);

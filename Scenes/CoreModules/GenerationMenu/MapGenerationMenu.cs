@@ -25,7 +25,8 @@ public partial class MapGenerationMenu : Control
         Linear,
         HighlightHighValues,
         HighlightLowValues,
-        HighlightExtremes
+        HighlightExtremes,
+        Discrete
     }
 
 	private const int MaxSmoothCycles = 10;
@@ -45,7 +46,8 @@ public partial class MapGenerationMenu : Control
     private WaterErosionOptions _waterErosionOptions;
     private TreePlacementOptions _treePlacementOptions;
 
-	private int _curSmoothCycles = 2;
+    private int _discreteSteps = 10;
+    private int _curSmoothCycles = 2;
     private float _curNoiseInfluence = 1.0f;
     private float _curSeaLevel = 0.2f;
 	private bool _enableDomainWarping;
@@ -63,10 +65,10 @@ public partial class MapGenerationMenu : Control
 
     [InputLine(Description = "Generator:", Category = "Generator selection", Id = "GeneratorOptions")]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
-    [InputOption("Diamond square", 1)]
-    [InputOption("Perlin noise", 2)]
-    [InputOption("Worley noise", 3)]
-    [InputOption("Simplex noise", 4)]
+    [InputOption("Diamond square", id: 1)]
+    [InputOption("Perlin noise",   id: 2)]
+    [InputOption("Worley noise",   id: 3)]
+    [InputOption("Simplex noise",  id: 4)]
     public int SelectedGeneratorItemId
     {
         set
@@ -94,16 +96,29 @@ public partial class MapGenerationMenu : Control
 
     [InputLine(Description = "Map interpolation:", Category = "Adjustments", Id = "MapInterpolation")]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
-    [InputOption("Linear", id: (int)MapInterpolationType.Linear)]
+    [InputOption("Linear",               id: (int)MapInterpolationType.Linear)]
     [InputOption("Highlight high areas", id: (int)MapInterpolationType.HighlightHighValues)]
-    [InputOption("Highlight low areas", id: (int)MapInterpolationType.HighlightLowValues)]
-    [InputOption("Highlight extremes", id: (int)MapInterpolationType.HighlightExtremes)]
+    [InputOption("Highlight low areas",  id: (int)MapInterpolationType.HighlightLowValues)]
+    [InputOption("Highlight extremes",   id: (int)MapInterpolationType.HighlightExtremes)]
+    [InputOption("Discrete",             id: (int)MapInterpolationType.Discrete)]
     public MapInterpolationType CurMapInterpolationType
     {
         get => _mapInterpolationType;
         set
         {
             _mapInterpolationType = value;
+            HandleParametersChanged();
+        }
+    }
+
+    [InputLine(Description = "Discrete steps:", Category = "Adjustments")]
+    [InputLineSlider(1, 100)]
+    public int DiscreteSteps
+    {
+        get => _discreteSteps;
+        set
+        {
+            _discreteSteps = value;
             HandleParametersChanged();
         }
     }
@@ -235,6 +250,9 @@ public partial class MapGenerationMenu : Control
                         break;
                     case MapInterpolationType.HighlightExtremes:
                         map[y, x] = Interpolations.HighlightExtremes(map[y, x]);
+                        break;
+                    case MapInterpolationType.Discrete:
+                        map[y, x] = Interpolations.Discrete(map[y, x], DiscreteSteps);
                         break;
                 }
             }
