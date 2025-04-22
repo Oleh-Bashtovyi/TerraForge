@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Generators.DomainWarping;
 using TerrainGenerationApp.Domain.Generators.Islands;
@@ -258,6 +259,23 @@ public partial class MapGenerationMenu : Control
             }
         }
     }
+
+    public Dictionary<string, object> GetLastUsedGenerationOptions()
+    {
+        var result = new Dictionary<string, object>();
+
+        var adjustmentsParameters = _adjustmentsContainer.GetLastUsedOptionValues();
+        result.Add("Adjustments", adjustmentsParameters);
+
+        var curGeneratorParameters = _selectedGenerator?.GetLastUsedOptionValues();
+        if (curGeneratorParameters != null)
+        {
+            result.Add("Generator", curGeneratorParameters);
+        }
+
+        return result;
+    }
+
 
     public void DisableAllOptions()
     {

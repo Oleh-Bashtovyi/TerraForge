@@ -1,6 +1,5 @@
-﻿using System;
-using System.Data;
-using Godot;
+﻿using Godot;
+using System;
 using TerrainGenerationApp.Domain.Core;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Visualization;
@@ -51,6 +50,12 @@ public partial class TerrainChunk : MeshInstance3D
         }
     }
 
+    private int RowStart;
+    private int RowEnd;
+    private int ColStart;
+    private int ColEnd;
+    private ArrayMesh generatedMesh;
+
     public void GenerateChunk(
         float[,] map, 
         int rowStart, 
@@ -65,6 +70,11 @@ public partial class TerrainChunk : MeshInstance3D
         {
             return;
         }
+
+        ColEnd = colEnd;
+        ColStart = colStart;
+        RowStart = rowStart;
+        RowEnd = rowEnd;
 
         ArrayMesh aMesh;
         var totalResolutionHeight = (rowEnd - rowStart) * GridCellResolution; // + 1?
@@ -126,6 +136,46 @@ public partial class TerrainChunk : MeshInstance3D
         //surfaceTool.GenerateTangents();
         surfaceTool.SetMaterial(ChunkMaterial);
         aMesh = surfaceTool.Commit();
+        generatedMesh = aMesh;
         Mesh = aMesh;
+
+        
     }
+
+
+
+    public void RedrawChunk(float[,] map, IWorldVisualSettings settings, IWorldData worldData)
+    {
+        var arrays = generatedMesh.SurfaceGetArrays(0);
+
+        var colorsArray = arrays[(int)Mesh.ArrayType.Color].AsColorArray();
+
+        var totalResolutionHeight = (RowEnd - RowStart) * GridCellResolution; // + 1?
+        var totalResolutionWidth = (ColEnd - ColStart) * GridCellResolution; // + 1?
+        var counter = 0;
+
+        GD.Print($"--> REDRAWING: Row start: {RowStart}, Row end: {RowEnd}, Col start: {ColStart}, Col end: {ColEnd}, Colors array size: {colorsArray.Length}");
+
+        for (int z = 0; z < totalResolutionHeight + 1; z++)
+        {
+            for (int x = 0; x < totalResolutionWidth + 1; x++)
+            {
+                var percentX = (float)x / totalResolutionWidth;
+                var percentZ = (float)z / totalResolutionHeight;
+                var mapPos = new Vector2(
+                    Mathf.Lerp(ColStart, ColEnd, percentX),
+                    Mathf.Lerp(RowStart, RowEnd, percentZ));
+                var color = settings.TerrainSettings.GetColor(mapPos, worldData, false);
+                colorsArray[counter++] = color;
+            }
+        }
+        arrays[(int)Mesh.ArrayType.Color] = colorsArray;
+
+        generatedMesh = new ArrayMesh();
+        generatedMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+        generatedMesh.SurfaceSetMaterial(0, ChunkMaterial);
+        Mesh = generatedMesh;
+        //generatedMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+    }
+    
 }

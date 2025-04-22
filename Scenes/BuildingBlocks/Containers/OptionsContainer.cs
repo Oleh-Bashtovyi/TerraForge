@@ -1,5 +1,7 @@
 ﻿using Godot;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
@@ -7,6 +9,8 @@ namespace TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 #nullable enable
 public partial class OptionsContainer : VBoxContainer
 {
+    private readonly Dictionary<string, object> _lastUsedOptionValues = new();
+    private readonly Dictionary<string, object> _newOptionValues = new();
     private int _optionsFontSize = 16;
 
     public event Action? ParametersChanged;
@@ -121,6 +125,63 @@ public partial class OptionsContainer : VBoxContainer
             }
         }
         return null;
+    }
+
+    /// <summary>  
+    /// Updates the current value of an option in the _newOptionValues dictionary.  
+    /// </summary>  
+    /// <param name="id">The identifier of the option.</param>  
+    /// <param name="value">The new value.</param>  
+    protected void UpdateOptionValue(string id, object value)
+    {
+        _newOptionValues[id] = value;
+    }
+
+    /// <summary>  
+    /// Saves the current option values as the last used ones.  
+    /// </summary>  
+    public void UpdateCurrentOptionsAsLastUsed()
+    {
+        foreach (var pair in _newOptionValues)
+        {
+            _lastUsedOptionValues[pair.Key] = pair.Value;
+        }
+        _newOptionValues.Clear();
+    }
+
+    /// <summary>  
+    /// Retrieves the dictionary of the last used parameters.  
+    /// </summary>  
+    /// <returns>A dictionary containing the last used parameters.</returns>  
+    public Dictionary<string, object> GetLastUsedOptionValues()
+    {
+        return new Dictionary<string, object>(_lastUsedOptionValues);
+    }
+
+    /// <summary>  
+    /// Loads the provided parameters into the container by matching them with the input lines' IDs.  
+    /// If a matching input line is found, its value is updated without invoking events.  
+    /// Updates the internal dictionary of new option values.  
+    /// </summary>  
+    /// <param name="parameters">A dictionary containing parameter IDs and their corresponding values.</param>  
+    public void LoadParameters(Dictionary<string, object> parameters)
+    {
+        var options = GetChildren().OfType<BaseInputLine>().ToList();
+
+        foreach (var parameter in parameters)
+        {
+            var id = parameter.Key;
+            var value = parameter.Value;
+            var inputLine = options.FirstOrDefault(x => x.Id == id);
+
+            if (inputLine != null)
+            {
+                if (inputLine.TrySetValue(value, invokeEvent: false))
+                {
+                    UpdateOptionValue(id, value);
+                }
+            }
+        }
     }
 
     /// <summary>

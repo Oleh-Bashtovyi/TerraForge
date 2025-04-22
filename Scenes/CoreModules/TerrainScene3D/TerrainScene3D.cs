@@ -35,7 +35,6 @@ public partial class TerrainScene3D : Node3D
 
     public int TreeChunkSize { get; } = 30;
     public int TerrainChunkCellsCoverage { get; } = 15;
-
     public float TerrainHeightScale => _terrainMeshSettings.HeightScale;
     public float TerrainGridCellSize => _terrainMeshSettings.GridCellSize;
     public int TerrainGridCellResolution => _terrainMeshSettings.GridCellResolution;
@@ -43,7 +42,7 @@ public partial class TerrainScene3D : Node3D
 
     public StandardMaterial3D ChunkMaterial = new StandardMaterial3D();
 
-    private PackedScene TerrainChunkScene =
+    private readonly PackedScene _terrainChunkScene =
         ResourceLoader.Load<PackedScene>("res://Scenes/CoreModules/TerrainScene3D/TerrainChunk.tscn");
 
 
@@ -71,7 +70,7 @@ public partial class TerrainScene3D : Node3D
         _visualSettings = settings;
     }
 
-    public void ClearChunks()
+    public void ClearWorld()
     {
         _logger.Log("Clearing world...");
 
@@ -136,10 +135,6 @@ public partial class TerrainScene3D : Node3D
 
         // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
         // Set direction light position
-        GD.Print($"Mesh size x: {meshSizeX}");
-        GD.Print($"Mesh size z: {meshSizeZ}");
-        GD.Print($"Mesh size x / 2: {meshSizeX / 2.0f}");
-        GD.Print($"Mesh size z / 2: {meshSizeZ / 2.0f}");
         var lightPosX = meshSizeX / 2.0f;
         var lightPosY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + 20;
         var lightPosZ = meshSizeZ / 2.0f;
@@ -247,7 +242,7 @@ public partial class TerrainScene3D : Node3D
         }
 
         // Create and setup the new chunk
-        var scene = TerrainChunkScene.Instantiate<TerrainChunk>();
+        var scene = _terrainChunkScene.Instantiate<TerrainChunk>();
         scene.ChunkMaterial = ChunkMaterial;
         scene.GridCellSize = TerrainGridCellSize;
         scene.GridCellResolution = TerrainGridCellResolution;
@@ -270,6 +265,22 @@ public partial class TerrainScene3D : Node3D
         _currentTerrainChunk = scene;
     }
 
+
+    public void RedrawChunks()
+    {
+        if (_isTerrainGenerated)
+        {
+            var map = _worldData.TerrainData.GetHeightMapCopy();
+            _logger.Log("=======> REDRAWING CHUNKS");
+            foreach (var item in _chunksContainer.GetChildren())
+            {
+                if (item is TerrainChunk chunk)
+                {
+                    chunk.RedrawChunk(map, _visualSettings, _worldData);
+                }
+            }
+        }
+    }
 
 
 

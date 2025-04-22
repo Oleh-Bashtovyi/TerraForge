@@ -25,6 +25,9 @@ public partial class Game : Node3D
     private Button _applyWaterErosionButton;
     private Button _showIn2DButton;
     private Button _showIn3DButton;
+    private FileDialog _saveFileDialog;
+    private FileDialog _loadFileDialog;
+    private MenuButton _fileMenuButton;
 
     private readonly Logger<Game> _logger = new();
     private readonly WorldData _worldData = new();
@@ -45,7 +48,7 @@ public partial class Game : Node3D
         _terrainVisualOptions = GetNode<TerrainVisualOptions>("%DisplayOptions");
         _generateMapButton = GetNode<Button>("%GenerateMapButton");
         _terrainMeshOptions = GetNode<TerrainMeshOptions>("%MeshOptions");
-        //_applyWaterErosionButton = GetNode<Button>("%ApplyWaterErosionButton");
+        _fileMenuButton = GetNode<MenuButton>("%FileMenuButton");
         _showIn2DButton = GetNode<Button>("%ShowIn2DButton");
         _showIn3DButton = GetNode<Button>("%ShowIn3DButton");
         _showIn2DButton.Pressed += _showIn2DButton_Pressed;
@@ -75,8 +78,32 @@ public partial class Game : Node3D
             _worldVisualSettings.TerrainSettings.AddWaterGradientPoint(item.Key, item.Value);
         }
 
+        _fileMenuButton.GetPopup().AddItem("Load", id: 1);
+        _fileMenuButton.GetPopup().AddItem("Save", id: 2);
+        _fileMenuButton.GetPopup().IdPressed += (long id) =>
+        {
+            if (id == 1)
+            {
+                LoadTerrain();
+            }
+            else if (id == 2)
+            {
+                SaveTerrain();
+            }
+        };
 
+        _saveFileDialog = new FileDialog();
+        _saveFileDialog.Title = "Select save file location";
+        _saveFileDialog.Filters = ["*.json"];
+        _saveFileDialog.FileMode = FileDialog.FileModeEnum.SaveFile;
+        _saveFileDialog.FileSelected += SaveFileDialogOnFileSelected;
 
+        _loadFileDialog = new FileDialog();
+        _loadFileDialog.Title = "Select file to load";
+        _loadFileDialog.FileMode = FileDialog.FileModeEnum.OpenFile;
+        _loadFileDialog.Filters = ["*.json"];
+        _loadFileDialog.FileSelected += LoadFileDialogOnFileSelected;
+        AddChild(_saveFileDialog);
 
 
         _mapGenerationMenu.OnWaterLevelChanged += MapGenerationMenuOnOnWaterLevelChanged;
@@ -85,6 +112,50 @@ public partial class Game : Node3D
         _generateMapButton.Pressed += GenerateMapButtonOnPressed;
         //_applyWaterErosionButton.Pressed += ApplyWaterErosionButtonOnPressed;
     }
+
+    private void LoadFileDialogOnFileSelected(string path)
+    {
+        var loadFile = FileAccess.Open(path, FileAccess.ModeFlags.Read);
+
+        var data = loadFile.GetAsText();
+
+        _worldData.LoadFromJson(data);
+        
+        _terrainScene2D.RedrawAllImages();
+        _terrainScene2D.UpdateAllTextures();
+        _terrainScene3D.ClearWorld();
+    }
+
+    private void SaveFileDialogOnFileSelected(string path)
+    {
+        _logger.Log(path);
+
+        var generationConfig = _mapGenerationMenu.GetLastUsedGenerationOptions();
+
+        var data = _worldData.ToJson(generationConfig);
+
+        var saveFile = FileAccess.Open(path, FileAccess.ModeFlags.Write);
+
+        saveFile.StoreLine(data);
+    }
+
+    private void SaveTerrain()
+    {
+        if (!_saveFileDialog.Visible)
+        {
+            _saveFileDialog.Show();
+        }
+    }
+
+    private void LoadTerrain()
+    {
+        if (!_loadFileDialog.Visible)
+        {
+            _loadFileDialog.Show();
+        }
+    }
+
+
 
     private void _showIn3DButton_Pressed()
     {
@@ -164,6 +235,8 @@ public partial class Game : Node3D
     {
         _terrainScene2D.RedrawAllImages();
         _terrainScene2D.UpdateAllTextures();
+        
+        _terrainScene3D.RedrawChunks();
     }
 
     private void GenerateMapButtonOnPressed()
@@ -366,6 +439,6 @@ public partial class Game : Node3D
     private async Task ClearChunks()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _terrainScene3D.ClearChunks();
+        _terrainScene3D.ClearWorld();
     }
 }

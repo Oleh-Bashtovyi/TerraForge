@@ -129,4 +129,26 @@ public partial class InputLineSlider : BaseInputLine
         _textFormat = textFormat;
         LineEdit.Text = Slider.Value.ToString(_textFormat);
     }
+
+    public override bool TrySetValue(object value, bool invokeEvent = true)
+    {
+        switch (value)
+        {
+            case int intValue:
+                SetValue(intValue, invokeEvent);
+                return true;
+            case float floatValue:
+                SetValue(floatValue, invokeEvent);
+                return true;
+            case string stringValue:
+                if (float.TryParse(stringValue, out float parsedValue))
+                {
+                    SetValue(parsedValue, invokeEvent);
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
 }

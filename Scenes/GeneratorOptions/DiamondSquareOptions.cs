@@ -17,6 +17,7 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
 		set
 		{
 			_terrainPower = value;
+			UpdateOptionValue(nameof(TerrainPower), TerrainPower);
 			InvokeParametersChangedEvent();
 		}
 	}
@@ -49,10 +50,15 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
 	{
 		base._Ready();
 		InputLineManager.CreateInputLinesForObject(obj: this, container: this);
+		UpdateOptionValue(nameof(TerrainPower), TerrainPower);
+		UpdateOptionValue(nameof(Seed), Seed);
+		UpdateOptionValue(nameof(Roughness), Roughness);
 	}
 
 	public override float[,] GenerateMap()
 	{
-		return Domain.Generators.DiamondSquare.GenerateMap(TerrainPower, Roughness, Seed);
-	}
+		var map = Domain.Generators.DiamondSquare.GenerateMap(TerrainPower, Roughness, Seed);
+        UpdateCurrentOptionsAsLastUsed();
+        return map;
+    }
 }

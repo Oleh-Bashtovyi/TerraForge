@@ -5,10 +5,10 @@ namespace TerrainGenerationApp.Domain.Visualization;
 
 public class TerrainMeshSettings
 {
-    private int _gridCellResolution = 1;
+    private int _gridCellResolution = 6;
     private float _gridCellSize = 1.0f;
     private float _heightScale = 15.0f;
-    private MapExtensions.InterpolationType _meshInterpolation;
+    private MapExtensions.InterpolationType _meshInterpolation = MapExtensions.InterpolationType.Bilinear;
 
     public int GridCellResolution
     {

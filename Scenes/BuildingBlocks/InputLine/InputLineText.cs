@@ -83,4 +83,10 @@ public partial class InputLineText : BaseInputLine
 
 		OnTextChanged?.Invoke(InputLineEdit.Text);
 	}
+
+    public override bool TrySetValue(object value, bool invokeEvent = true)
+    {
+        SetText(value.ToString(), invokeEvent);
+        return true;
+    }
 }

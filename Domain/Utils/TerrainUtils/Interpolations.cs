@@ -52,6 +52,19 @@ public static class Interpolations
         return stepValue;
     }
 
+/*    // Smooth interpolation - between linear and smoothstep
+    public static float SmoothInterpolation(float a, float b, float t)
+    {
+        // This is a custom easing function that's smoother than linear
+        // but not as pronounced as smoothstep
+        float t2 = t * t;
+        float tComplement = 1 - t;
+        float tComplement2 = tComplement * tComplement;
+
+        // Modified bezier curve that's less rounded than smoothstep
+        return a * tComplement2 + b * t2;
+    }*/
+
 
     /// <summary>
     /// Smooth step interpolation - smooth transition between two edges using a cubic polynomial y = 3*x^2 - 2*x^3

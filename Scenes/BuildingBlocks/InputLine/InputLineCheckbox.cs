@@ -45,6 +45,24 @@ public partial class InputLineCheckbox : BaseInputLine
         Checkbox.Disabled = true;
     }
 
+    public override bool TrySetValue(object value, bool invokeEvent = true)
+    {
+        switch (value)
+        {
+            case bool boolValue:
+                SetValue(boolValue, invokeEvent);
+                return true;
+            case int intValue:
+                SetValue(intValue != 0, invokeEvent);
+                return true;
+            case float floatValue:
+                SetValue(floatValue != 0, invokeEvent);
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private void OnCheckboxToggled(bool toggledOn)
     {
         OnValueChanged?.Invoke(toggledOn);

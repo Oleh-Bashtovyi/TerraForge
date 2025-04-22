@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://cpg2jy1sloek"]
+[gd_scene load_steps=5 format=3 uid="uid://cpg2jy1sloek"]
 
 [ext_resource type="Script" uid="uid://bftuyl18ohe6c" path="res://Scenes/CoreModules/TerrainScene2D/TerrainScene2D.cs" id="1_vss7r"]
 
@@ -8,9 +8,6 @@
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_p2mk5"]
 specular_color = Color(1, 0.129412, 1, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3wgnw"]
-bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [node name="TerrainScene2D" type="Control"]
 layout_mode = 3
@@ -101,17 +98,18 @@ grow_vertical = 2
 texture = SubResource("CanvasTexture_p2mk5")
 expand_mode = 1
 
-[node name="BlackoutPanelContainer" type="PanelContainer" parent="Background/MarginContainer/AspectRatioContainer/Control"]
-visible = false
+[node name="MouseCapturer" type="ColorRect" parent="Background/MarginContainer/AspectRatioContainer/Control"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_3wgnw")
+color = Color(1, 1, 1, 0)
 
-[node name="CheckBox" type="CheckBox" parent="Background/MarginContainer/AspectRatioContainer/Control"]
+[node name="TreesVisibilityCheckBox" type="CheckBox" parent="Background/MarginContainer/AspectRatioContainer/Control"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -119,7 +117,7 @@ anchor_bottom = 1.0
 offset_right = 113.0
 offset_bottom = 31.0
 grow_vertical = 0
-tooltip_text = "Show trees"
+tooltip_text = "Trees visibility checkbox"
 button_pressed = true
 text = "🌳Visibility"
 

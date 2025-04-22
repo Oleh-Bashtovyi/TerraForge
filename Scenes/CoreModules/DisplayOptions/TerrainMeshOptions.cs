@@ -98,8 +98,10 @@ public partial class TerrainMeshOptions : OptionsContainer
         _gridCellResolution = _settings.GridCellResolution;
         _gridCellSize = _settings.GridCellSize;
         _heightScale = _settings.HeightScale;
+        _interpolation = _settings.MeshInterpolation;
         FindInputLine<InputLineSlider>(nameof(HeightScale))?.SetValue(_heightScale, invokeEvent: false);
         FindInputLine<InputLineSlider>(nameof(GridCellSize))?.SetValue(_gridCellSize, invokeEvent: false);
         FindInputLine<InputLineSlider>(nameof(GridCellResolution))?.SetValue(_gridCellResolution, invokeEvent: false);
+        FindInputLine<InputLineCombobox>(nameof(Interpolation))?.SetSelectedById((int)Interpolation, invokeEvent:false);
     }
 }

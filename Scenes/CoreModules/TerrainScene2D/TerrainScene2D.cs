@@ -14,6 +14,8 @@ public partial class TerrainScene2D : Control
     private TextureRect _terrainTextureRect;
     private TextureRect _waterTextureRect;
     private TextureRect _treesTextureRect;
+    private ColorRect _mouseCapturer;
+    private CheckBox _treesVisibilityCheckBox;
 
     private readonly Logger<TerrainScene2D> _logger = new();
     private bool _terrainImageTextureResizeRequired;
@@ -34,9 +36,12 @@ public partial class TerrainScene2D : Control
         _waterTextureRect = GetNode<TextureRect>("%WaterTextureRect");
         _treesTextureRect = GetNode<TextureRect>("%TreesTextureRect");
         _generationStatusLabel = GetNode<Label>("%GenerationStatusLabel");
+        _mouseCapturer = GetNode<ColorRect>("%MouseCapturer");
         _cellInfoLabel = GetNode<Label>("%CellInfoLabel");
-        _terrainTextureRect.MouseExited += OnMapTextureRectMouseExited;
-        _terrainTextureRect.GuiInput += OnMapTextureRectGuiInput;
+        _treesVisibilityCheckBox = GetNode<CheckBox>("%TreesVisibilityCheckBox");
+        _treesVisibilityCheckBox.Toggled += TreesVisibilityCheckBoxOnToggled;
+        _mouseCapturer.MouseExited += OnMapTextureRectMouseExited;
+        _mouseCapturer.GuiInput += OnMapTextureRectGuiInput;
 
         _terrainImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
         _treesImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgba8); // RGBA8 for transparency
@@ -44,6 +49,11 @@ public partial class TerrainScene2D : Control
         _treesImageTexture = ImageTexture.CreateFromImage(_treesImage);
         _terrainTextureRect.Texture = _terrainImageTexture;
         _treesTextureRect.Texture = _treesImageTexture;
+    }
+
+    private void TreesVisibilityCheckBoxOnToggled(bool toggledOn)
+    {
+        _treesTextureRect.Visible = toggledOn;
     }
 
     /// <summary>
@@ -169,7 +179,7 @@ public partial class TerrainScene2D : Control
     {
         if (@event is InputEventMouseMotion)
         {
-            _logger.Log("Mouse moved over texture rect");
+            //_logger.Log("Mouse moved over texture rect");
             Vector2 localPosition = _terrainTextureRect.GetLocalMousePosition();
             var h = _worldData.TerrainData.TerrainMapHeight;
             var w = _worldData.TerrainData.TerrainMapWidth;
@@ -183,14 +193,14 @@ public partial class TerrainScene2D : Control
             {
                 var height = _worldData.TerrainData.HeightAt(cellY, cellX);
                 var slope = _worldData.TerrainData.SlopeAt(cellY, cellX);
-                _cellInfoLabel.Text = string.Format("Cell: [ {0} ; {1} ] <---> Value: {2} <---> Slope: {3}", cellX, cellY, height, slope);
+                _cellInfoLabel.Text = $"Cell: [ {cellX} ; {cellY} ] - Value: {height:F5}; Slope: {slope:F5}";
             }
         }
     }
 
     private void OnMapTextureRectMouseExited()
     {
-        _logger.Log("Exiting texture rect");
+        //_logger.Log("Exiting texture rect");
         _cellInfoLabel.Text = "";
     }
 

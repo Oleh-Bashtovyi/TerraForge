@@ -1,4 +1,6 @@
-﻿using Godot;
+﻿using System;
+using System.Collections.Generic;
+using Godot;
 using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 
 namespace TerrainGenerationApp.Domain.Extensions;
@@ -121,5 +123,86 @@ public static class MapExtensions
         var r = Mathf.Clamp(Mathf.RoundToInt(row), 0, map.Height() - 1);
         var c = Mathf.Clamp(Mathf.RoundToInt(col), 0, map.Width() - 1);
         map[r, c] = value;
+    }
+
+    public static T[][] ToJaggedArray<T>(this T[,] twoDimensionalArray)
+    {
+        var h = twoDimensionalArray.Height();
+        var w = twoDimensionalArray.Width();
+        var jaggedArray = new T[h][];
+
+        for (int i = 0; i < h; i++)
+        {
+            jaggedArray[i] = new T[w];
+
+            for (int j = 0; j < w; j++)
+            {
+                jaggedArray[i][j] = twoDimensionalArray[i, j];
+            }
+        }
+
+        return jaggedArray;
+    }
+
+    public static T[] ToOneDimensionArray<T>(this T[,] arr)
+    {
+        var h = arr.Height();
+        var w = arr.Width();
+        var result = new T[h * w];
+
+        for (int row = 0; row < h; row++)
+        {
+            for (int col = 0; col < w; col++)
+            {
+                result[row * w + col] = arr[row, col];
+            }
+        }
+
+        return result;
+    }
+
+    public static T[,] ToTwoDimensionArray<T>(T[] arr, int height, int width)
+    {
+        if (height * width != arr.Length)
+        {
+            throw new ArgumentException("The length of the array does not match the specified dimensions.");
+        }
+
+        var result = new T[height, width];
+
+        for (int i = 0; i < height; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                result[i, j] = arr[i * width + j];
+            }
+        }
+
+        return result;
+    }
+
+    public static T[,] ToTwoDimensionArray<T>(this IEnumerable<T> arr, int height, int width)
+    {
+        var result = new T[height, width];
+        var row = 0;
+        var col = 0;
+
+        foreach (var value in arr)
+        {
+            result[row, col] = value;
+
+            col++;
+            if (col == width)
+            {
+                col = 0;
+                row++;
+                if (row == height)
+                {
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 }

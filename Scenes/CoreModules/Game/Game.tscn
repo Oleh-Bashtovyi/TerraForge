@@ -89,7 +89,8 @@ offset_left = 7.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MenuButton" type="MenuButton" parent="Generation_Layer/ColorRect/HBoxContainer"]
+[node name="FileMenuButton" type="MenuButton" parent="Generation_Layer/ColorRect/HBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_27wfy")
 text = "File"

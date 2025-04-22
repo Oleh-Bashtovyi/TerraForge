@@ -40,4 +40,14 @@ public partial class BaseInputLine : HBoxContainer
     public virtual void DisableInput()
     {
     }
+
+    public virtual bool TrySetValue(object value, bool invokeEvent = true)
+    {
+        return false;
+    }
+
+    public virtual object? GetObjectValue()
+    {
+        return null;
+    }
 }
