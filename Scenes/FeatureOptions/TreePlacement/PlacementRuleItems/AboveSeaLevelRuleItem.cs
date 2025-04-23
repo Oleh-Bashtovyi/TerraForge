@@ -23,7 +23,7 @@ public partial class AboveSeaLevelRuleItem : BasePlacementRuleItem<AboveSeaLevel
             if (_lowerBound > _upperBound)
             {
                 _upperBound = _lowerBound;
-                _upperBoundInput?.SetValueNoSignal(_upperBound);
+                _upperBoundInput?.SetValue(_upperBound, invokeEvent:false);
             }
             InvokeRuleParametersChangedEvent();
         }
@@ -41,12 +41,11 @@ public partial class AboveSeaLevelRuleItem : BasePlacementRuleItem<AboveSeaLevel
             if (_upperBound < _lowerBound)
             {
                 _lowerBound = _upperBound;
-                _lowerBoundInput?.SetValueNoSignal(_lowerBound);
+                _lowerBoundInput?.SetValue(_lowerBound, invokeEvent: false);
             }
             InvokeRuleParametersChangedEvent();
         }
     }
-
 
     public override void _Ready()
     {

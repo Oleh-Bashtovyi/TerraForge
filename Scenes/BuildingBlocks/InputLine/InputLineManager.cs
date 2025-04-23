@@ -267,7 +267,7 @@ public static class InputLineManager
 
     private static InputLineCombobox CreateInputLineComboboxForProperty<T>(T obj, PropertyInfo property) where T : class
     {
-        var inputLine = BuildingBlockLoadedScenes.INPUT_LINE_COMBOBOX.Instantiate<InputLine.InputLineCombobox>();
+        var inputLine = BuildingBlockLoadedScenes.INPUT_LINE_COMBOBOX.Instantiate<InputLineCombobox>();
         var inputLineAttr = property.GetCustomAttribute<InputLineAttribute>();
         var inputLineComboboxAttr = property.GetCustomAttribute<InputLineComboboxAttribute>();
 

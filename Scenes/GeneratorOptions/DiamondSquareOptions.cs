@@ -14,51 +14,33 @@ public partial class DiamondSquareOptions : BaseGeneratorOptions
 	public int TerrainPower
 	{
 		get => _terrainPower;
-		set
-		{
-			_terrainPower = value;
-			UpdateOptionValue(nameof(TerrainPower), TerrainPower);
-			InvokeParametersChangedEvent();
-		}
-	}
+        set => SetAndInvokeParametersChangedEvent(ref _terrainPower, value);
+    }
 
 	[InputLine(Description = "Seed:")]
 	[InputLineSlider(1, 10_000)]
 	public int Seed
 	{
 		get => _seed;
-		set
-		{
-			_seed = value;
-			InvokeParametersChangedEvent();
-		}
-	}
+		set => SetAndInvokeParametersChangedEvent(ref _seed, value);
+    }
 
 	[InputLine(Description = "Roughness:")]
 	[InputLineSlider(0.1f, 10f, 0.1f)]
 	public float Roughness
 	{
 		get => _roughness;
-		set
-		{
-			_roughness = value;
-			InvokeParametersChangedEvent();
-		}
-	}
+		set => SetAndInvokeParametersChangedEvent(ref _roughness, value);
+    }
 
 	public override void _Ready()
 	{
 		base._Ready();
 		InputLineManager.CreateInputLinesForObject(obj: this, container: this);
-		UpdateOptionValue(nameof(TerrainPower), TerrainPower);
-		UpdateOptionValue(nameof(Seed), Seed);
-		UpdateOptionValue(nameof(Roughness), Roughness);
 	}
 
 	public override float[,] GenerateMap()
 	{
-		var map = Domain.Generators.DiamondSquare.GenerateMap(TerrainPower, Roughness, Seed);
-        UpdateCurrentOptionsAsLastUsed();
-        return map;
+        return Domain.Generators.DiamondSquare.GenerateMap(TerrainPower, Roughness, Seed);
     }
 }

@@ -72,7 +72,7 @@ public partial class TerrainVisualOptions : OptionsContainer
     {
         _curDisplayFormat = _settings.MapDisplayFormat;
         _curSlopeThreshold = _settings.SlopeThreshold;
-        FindInputLine<InputLineSlider>(nameof(CurSlopeThreshold))?.SetValueNoSignal(_curSlopeThreshold);
+        FindInputLine<InputLineSlider>(nameof(CurSlopeThreshold))?.SetValue(_curSlopeThreshold, invokeEvent:false);
         FindInputLine<InputLineCombobox>(nameof(CurDisplayFormat))?.SetSelectedById((int)_curDisplayFormat);
     }
 }

@@ -280,6 +280,8 @@ public partial class Game : Node3D
                 await GenerateTrees();
 
             await GenerateTerrainAsync();
+
+            _mapGenerationMenu.UpdateLastUsedOptions();
         }
         catch (Exception e)
         {

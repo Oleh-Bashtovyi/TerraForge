@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
@@ -12,10 +11,15 @@ public class OptionSelectedEventArgs(string label, int id, int index)
     public int Index { get; } = index;
 }
 
+public class SelectedOption(int id, int index)
+{
+    public int Id { get; } = id;
+    public int Index { get; } = index;
+}
+
 public partial class InputLineCombobox : BaseInputLine
 {
 	private OptionButton _optionButton;
-	private bool _isOptionButtonConnected = false;
 
     public event Action<OptionSelectedEventArgs> OnOptionChanged;
 
@@ -30,12 +34,8 @@ public partial class InputLineCombobox : BaseInputLine
 
 	public override void _Ready()
 	{
-        if (!_isOptionButtonConnected)
-        {
-            OptionButton.ItemSelected += OnOptionButtonItemSelected;
-            _isOptionButtonConnected = true;
-        }
-	}
+        OptionButton.ItemSelected += OnOptionButtonItemSelected;
+    }
 
 	public void ClearOptions()
 	{
@@ -71,11 +71,6 @@ public partial class InputLineCombobox : BaseInputLine
     /// <param name="invokeEvent"></param>
 	public void SetSelected(int index, bool invokeEvent = true)
 	{
-		if (!_isOptionButtonConnected)
-        {
-            _optionButton.ItemSelected += OnOptionButtonItemSelected;
-            _isOptionButtonConnected = true;
-        }
         OptionButton.Select(index);
         
         if (invokeEvent)
@@ -91,12 +86,6 @@ public partial class InputLineCombobox : BaseInputLine
     /// <param name="invokeEvent"></param>
     public void SetSelectedById(int id, bool invokeEvent = true)
     {
-        if (!_isOptionButtonConnected)
-        {
-            _optionButton.ItemSelected += OnOptionButtonItemSelected;
-            _isOptionButtonConnected = true;
-        }
-
         var index = OptionButton.GetItemIndex(id);
         
         if (index > -1)
@@ -127,8 +116,36 @@ public partial class InputLineCombobox : BaseInputLine
         OptionButton.AddThemeFontSizeOverride("font_size", size);
     }
 
+    public override object GetValueAsObject()
+    {
+        if (OptionButton.Selected == -1)
+        {
+            return null;
+        }
+
+        var index = OptionButton.Selected;
+        var id = OptionButton.GetItemId(index);
+        return new SelectedOption(id, index);
+    }
+
+    public override bool TrySetValue(object value, bool invokeEvent = true)
+    {
+        switch (value)
+        {
+            case SelectedOption selectOption:
+                SetSelectedById(selectOption.Id, invokeEvent);
+                return true;
+            case int id:
+                SetSelectedById(id, invokeEvent);
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private void OnOptionButtonItemSelected(long index)
 	{
+        TrackCurrentValue();
 		var idx = (int)index;
         var id = _optionButton.GetItemId(idx);
 		var text = _optionButton.GetItemText(idx);

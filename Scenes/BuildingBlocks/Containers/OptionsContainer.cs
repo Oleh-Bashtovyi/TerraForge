@@ -9,15 +9,11 @@ namespace TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 #nullable enable
 public partial class OptionsContainer : VBoxContainer
 {
-    private readonly Dictionary<string, object> _lastUsedOptionValues = new();
-    private readonly Dictionary<string, object> _newOptionValues = new();
+    private readonly LastUsedInputLineValueTracker _lastUsedValuesTracker = new();
     private int _optionsFontSize = 16;
 
     public event Action? ParametersChanged;
 
-    /// <summary>
-    /// The font size for the options in the container.
-    /// </summary>
     [Export(PropertyHint.Range, "1,30,1")]
     public int OptionsFontSize
     {
@@ -33,35 +29,13 @@ public partial class OptionsContainer : VBoxContainer
     {
         ChildEnteredTree += OnChildEnteredTree;
         SetOptionsFontSizeForChildren();
+        SetInputLineTrackerForChildren();
     }
 
     private void OnChildEnteredTree(Node node)
     {
         SetFontSize(node);
-    }
-
-    private void SetOptionsFontSizeForChildren()
-    {
-        foreach (var child in GetChildren())
-        {
-            SetFontSize(child);
-        }
-    }
-
-    /// <summary>
-    /// Sets the font size for the given node. This is used to set the font size for input lines and options containers.
-    /// </summary>
-    /// <param name="node"></param>
-    private void SetFontSize(Node node)
-    {
-        if (node is BaseInputLine inputLine)
-        {
-            inputLine.SetFontSize(OptionsFontSize);
-        }
-        else if (node is OptionsContainer optionsContainer)
-        {
-            optionsContainer.OptionsFontSize = OptionsFontSize;
-        }
+        SetInputLineTracker(node);
     }
 
     /// <summary>
@@ -71,7 +45,7 @@ public partial class OptionsContainer : VBoxContainer
     {
         foreach (Node child in GetChildren())
         {
-            if (child is BaseInputLine inputLine)
+            if (child is IInputLine inputLine)
             {
                 inputLine.DisableInput();
             }
@@ -89,7 +63,7 @@ public partial class OptionsContainer : VBoxContainer
     {
         foreach (Node child in GetChildren())
         {
-            if (child is BaseInputLine inputLine)
+            if (child is IInputLine inputLine)
             {
                 inputLine.EnableInput();
             }
@@ -107,7 +81,7 @@ public partial class OptionsContainer : VBoxContainer
     /// <param name="id"></param>
     /// <param name="recursive"></param>
     /// <returns></returns>
-    public T? FindInputLine<T>(string id, bool recursive = false) where T : BaseInputLine
+    public T? FindInputLine<T>(string id, bool recursive = false) where T : IInputLine
     {
         foreach (Node child in GetChildren())
         {
@@ -124,17 +98,7 @@ public partial class OptionsContainer : VBoxContainer
                 }
             }
         }
-        return null;
-    }
-
-    /// <summary>  
-    /// Updates the current value of an option in the _newOptionValues dictionary.  
-    /// </summary>  
-    /// <param name="id">The identifier of the option.</param>  
-    /// <param name="value">The new value.</param>  
-    protected void UpdateOptionValue(string id, object value)
-    {
-        _newOptionValues[id] = value;
+        return default;
     }
 
     /// <summary>  
@@ -142,20 +106,17 @@ public partial class OptionsContainer : VBoxContainer
     /// </summary>  
     public void UpdateCurrentOptionsAsLastUsed()
     {
-        foreach (var pair in _newOptionValues)
-        {
-            _lastUsedOptionValues[pair.Key] = pair.Value;
-        }
-        _newOptionValues.Clear();
+        _lastUsedValuesTracker.UpdateLastUsedValues();
     }
 
     /// <summary>  
-    /// Retrieves the dictionary of the last used parameters.  
+    /// Retrieves the dictionary of the last used parameters for generation or similar things.
+    /// Used to export configuration to files. 
     /// </summary>  
     /// <returns>A dictionary containing the last used parameters.</returns>  
-    public Dictionary<string, object> GetLastUsedOptionValues()
+    public IReadOnlyDictionary<string, object> GetLastUsedInputLineValues()
     {
-        return new Dictionary<string, object>(_lastUsedOptionValues);
+        return _lastUsedValuesTracker.GetLastUsedValues();
     }
 
     /// <summary>  
@@ -176,12 +137,51 @@ public partial class OptionsContainer : VBoxContainer
 
             if (inputLine != null)
             {
-                if (inputLine.TrySetValue(value, invokeEvent: false))
-                {
-                    UpdateOptionValue(id, value);
-                }
+                inputLine.TrySetValue(value, invokeEvent: false);
             }
         }
+    }
+
+    private void SetInputLineTrackerForChildren()
+    {
+        foreach (var child in GetChildren())
+        {
+            SetInputLineTracker(child);
+        }
+    }
+
+    private void SetInputLineTracker(Node node)
+    {
+        if (node is IInputLine inputLine)
+        {
+            inputLine.SetValueTracker(_lastUsedValuesTracker.ValueTracker);
+        }
+    }
+
+    private void SetOptionsFontSizeForChildren()
+    {
+        foreach (var child in GetChildren())
+        {
+            SetFontSize(child);
+        }
+    }
+
+    private void SetFontSize(Node node)
+    {
+        if (node is BaseInputLine inputLine)
+        {
+            inputLine.SetFontSize(OptionsFontSize);
+        }
+        else if (node is OptionsContainer optionsContainer)
+        {
+            optionsContainer.OptionsFontSize = OptionsFontSize;
+        }
+    }
+
+    protected void SetAndInvokeParametersChangedEvent<T>(ref T property, T value)
+    {
+        property = value;
+        InvokeParametersChangedEvent();
     }
 
     /// <summary>

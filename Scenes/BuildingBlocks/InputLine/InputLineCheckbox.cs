@@ -1,4 +1,5 @@
-﻿using Godot;
+﻿#nullable enable
+using Godot;
 using System;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
@@ -25,13 +26,12 @@ public partial class InputLineCheckbox : BaseInputLine
 
     public void SetValue(bool value, bool invokeEvent = true)
     {
+        Checkbox.SetPressedNoSignal(value);
+        TrackCurrentValue();
+
         if (invokeEvent)
         {
-            Checkbox.ButtonPressed = value;
-        }
-        else
-        {
-            Checkbox.SetPressedNoSignal(value);
+            OnValueChanged?.Invoke(value);
         }
     }
 
@@ -45,7 +45,12 @@ public partial class InputLineCheckbox : BaseInputLine
         Checkbox.Disabled = true;
     }
 
-    public override bool TrySetValue(object value, bool invokeEvent = true)
+    public override object GetValueAsObject()
+    {
+        return Checkbox.ButtonPressed;
+    }
+
+    public override bool TrySetValue(object? value, bool invokeEvent = true)
     {
         switch (value)
         {
@@ -58,6 +63,13 @@ public partial class InputLineCheckbox : BaseInputLine
             case float floatValue:
                 SetValue(floatValue != 0, invokeEvent);
                 return true;
+            case string stringValue:
+                if (bool.TryParse(stringValue, out var paresResult))
+                {
+                    SetValue(paresResult, invokeEvent);
+                    return true;
+                }
+                return false;
             default:
                 return false;
         }
@@ -65,6 +77,7 @@ public partial class InputLineCheckbox : BaseInputLine
 
     private void OnCheckboxToggled(bool toggledOn)
     {
+        TrackCurrentValue();
         OnValueChanged?.Invoke(toggledOn);
     }
 }

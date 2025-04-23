@@ -1,10 +1,12 @@
-﻿using Godot;
+﻿#nullable enable
+using Godot;
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
-public partial class BaseInputLine : HBoxContainer
+public partial class BaseInputLine : HBoxContainer, IInputLine
 {
     private Label _descriptionLabel;
+    private IInputLineValueTracker? _valueTracker;
     private string _id;
 
     protected Label DescriptionLabel
@@ -33,6 +35,17 @@ public partial class BaseInputLine : HBoxContainer
         DescriptionLabel.AddThemeFontSizeOverride("font_size", size);
     }
 
+    public void SetValueTracker(IInputLineValueTracker tracker)
+    {
+        _valueTracker = tracker;
+        TrackCurrentValue();
+    }
+
+    protected void TrackCurrentValue()
+    {
+        _valueTracker?.TrackValue(this);
+    }
+
     public virtual void EnableInput()
     {
     }
@@ -41,12 +54,12 @@ public partial class BaseInputLine : HBoxContainer
     {
     }
 
-    public virtual bool TrySetValue(object value, bool invokeEvent = true)
+    public virtual bool TrySetValue(object? value, bool invokeEvent = true)
     {
         return false;
     }
 
-    public virtual object? GetObjectValue()
+    public virtual object? GetValueAsObject()
     {
         return null;
     }

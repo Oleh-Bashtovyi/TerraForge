@@ -264,16 +264,22 @@ public partial class MapGenerationMenu : Control
     {
         var result = new Dictionary<string, object>();
 
-        var adjustmentsParameters = _adjustmentsContainer.GetLastUsedOptionValues();
+        var adjustmentsParameters = _adjustmentsContainer.GetLastUsedInputLineValues();
         result.Add("Adjustments", adjustmentsParameters);
 
-        var curGeneratorParameters = _selectedGenerator?.GetLastUsedOptionValues();
+        var curGeneratorParameters = _selectedGenerator?.GetLastUsedInputLineValues();
         if (curGeneratorParameters != null)
         {
             result.Add("Generator", curGeneratorParameters);
         }
 
         return result;
+    }
+
+    public void UpdateLastUsedOptions()
+    {
+        _adjustmentsContainer.UpdateCurrentOptionsAsLastUsed();
+        _selectedGenerator?.UpdateCurrentOptionsAsLastUsed();
     }
 
 

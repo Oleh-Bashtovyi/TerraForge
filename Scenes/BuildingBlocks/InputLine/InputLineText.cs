@@ -10,6 +10,8 @@ public partial class InputLineText : BaseInputLine
 
 	public event Action<string> OnTextChanged;
 
+    public string CurValue => InputLineEdit?.Text;
+
 	public LineEdit InputLineEdit
 	{
 		get
@@ -28,10 +30,11 @@ public partial class InputLineText : BaseInputLine
 	public void SetText(string text, bool invokeEvent = true)
 	{
 		InputLineEdit.Text = text;
+		TrackCurrentValue();
 
         if (invokeEvent)
         {
-            OnTextChanged?.Invoke(InputLineEdit.Text);
+            OnTextChanged?.Invoke(CurValue);
         }
 	}
 
@@ -81,12 +84,17 @@ public partial class InputLineText : BaseInputLine
 			return;
 		}
 
-		OnTextChanged?.Invoke(InputLineEdit.Text);
+		OnTextChanged?.Invoke(CurValue);
 	}
 
     public override bool TrySetValue(object value, bool invokeEvent = true)
     {
         SetText(value.ToString(), invokeEvent);
         return true;
+    }
+
+    public override object GetValueAsObject()
+    {
+        return CurValue;
     }
 }

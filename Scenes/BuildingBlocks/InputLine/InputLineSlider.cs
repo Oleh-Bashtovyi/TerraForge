@@ -31,7 +31,7 @@ public partial class InputLineSlider : BaseInputLine
         }
     }
 
-    public float Value => (float)Slider.Value;
+    public float CurValue => (float)Slider.Value;
 
     public override void _Ready()
     {
@@ -67,6 +67,7 @@ public partial class InputLineSlider : BaseInputLine
     {
         var val = (float)value;
         LineEdit.Text = val.ToString(_textFormat);
+        TrackCurrentValue();
         OnValueChanged?.Invoke(val);
     }
 
@@ -75,7 +76,7 @@ public partial class InputLineSlider : BaseInputLine
     {
         Slider.MinValue = minValue;
         Slider.MaxValue = maxValue; 
-        LineEdit.Text = Slider.Value.ToString(_textFormat);
+        LineEdit.Text = CurValue.ToString(_textFormat);
     }
 
     public override void SetFontSize(int size)
@@ -106,28 +107,20 @@ public partial class InputLineSlider : BaseInputLine
 
     public void SetValue(float value, bool invokeEvent = true)
     {
+        Slider.SetValueNoSignal(value);
+        LineEdit.Text = CurValue.ToString(_textFormat);
+        TrackCurrentValue();
+
         if (invokeEvent)
         {
-            Slider.Value = value;
-            LineEdit.Text = Slider.Value.ToString(_textFormat);
+            OnValueChanged?.Invoke(CurValue);
         }
-        else
-        {
-            Slider.SetValueNoSignal(value);
-            LineEdit.Text = Slider.Value.ToString(_textFormat);
-        }
-    }
-
-    public void SetValueNoSignal(float value)
-    {
-        Slider.SetValueNoSignal(value);
-        LineEdit.Text = Slider.Value.ToString(_textFormat);
     }
 
     public void SetTextFormat(string textFormat)
     {
         _textFormat = textFormat;
-        LineEdit.Text = Slider.Value.ToString(_textFormat);
+        LineEdit.Text = CurValue.ToString(_textFormat);
     }
 
     public override bool TrySetValue(object value, bool invokeEvent = true)
@@ -150,5 +143,10 @@ public partial class InputLineSlider : BaseInputLine
             default:
                 return false;
         }
+    }
+
+    public override object GetValueAsObject()
+    {
+        return CurValue;
     }
 }
