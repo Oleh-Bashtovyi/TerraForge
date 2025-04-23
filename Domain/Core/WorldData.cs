@@ -55,45 +55,4 @@ public class WorldData : IWorldData
 
 		return result;
 	}
-
-
-	public void LoadFromJson(string json)
-	{
-		var options = new JsonSerializerOptions
-		{
-			PropertyNameCaseInsensitive = true
-		};
-
-		using var jsonDoc = JsonDocument.Parse(json);
-		var root = jsonDoc.RootElement;
-
-		var seaLevel = root.GetProperty("SeaLevel").GetSingle();
-
-		var mapHeight = root.GetProperty("MapHeight").GetInt32();
-		var mapWidth = root.GetProperty("MapWidth").GetInt32();
-		var heightMap = root.GetProperty("HeightMap").EnumerateArray()
-			.Select(e => e.GetSingle())
-			.ToTwoDimensionArray(mapHeight, mapWidth);
-
-
-		var treeLayersDict = new Dictionary<string, bool[,]>();
-		var treeLayersWidth = root.GetProperty("TreeLayersWidth").GetInt32();
-		var treeLayersHeight = root.GetProperty("TreeLayersHeight").GetInt32();
-		var treeLayers = root.GetProperty("TreesLayer").EnumerateArray();
-		
-		foreach (var layer in treeLayers)
-		{
-			var layerName = layer.GetProperty("LayerName").GetString();
-			var treeMapArray = layer.GetProperty("Map").EnumerateArray()
-				.Select(e => e.GetBoolean())
-				.ToTwoDimensionArray(treeLayersHeight, treeLayersWidth);
-
-			if (!string.IsNullOrEmpty(layerName))
-				treeLayersDict.Add(layerName, treeMapArray);
-		}
-
-		SeaLevel = seaLevel;
-		TerrainData.SetTerrain(heightMap);
-		TreesData.SetLayers(treeLayersDict);
-	}
 }

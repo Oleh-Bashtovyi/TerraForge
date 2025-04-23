@@ -264,6 +264,9 @@ public partial class MapGenerationMenu : Control
     {
         var result = new Dictionary<string, object>();
 
+        var selectedGenerator = _generatorsContainer.GetLastUsedInputLineValues();
+        result.Add("SelectedGenerator", selectedGenerator);
+
         var adjustmentsParameters = _adjustmentsContainer.GetLastUsedInputLineValues();
         result.Add("Adjustments", adjustmentsParameters);
 
@@ -278,11 +281,24 @@ public partial class MapGenerationMenu : Control
 
     public void UpdateLastUsedOptions()
     {
+        _generatorsContainer.UpdateCurrentOptionsAsLastUsed();
         _adjustmentsContainer.UpdateCurrentOptionsAsLastUsed();
         _selectedGenerator?.UpdateCurrentOptionsAsLastUsed();
     }
 
+    public void LoadFromConfiguration(Dictionary<string, object> config)
+    {
+        if (config.GetValueOrDefault("Adjustments") is Dictionary<string, object> adjustmentsConfig)
+            _adjustmentsContainer.LoadInputLineValuesFromConfig(adjustmentsConfig);
 
+        if (config.GetValueOrDefault("SelectedGenerator") is Dictionary<string, object> selectedGeneratorConfig)
+            _generatorsContainer.LoadInputLineValuesFromConfig(selectedGeneratorConfig);
+
+        if (config.GetValueOrDefault("Generator") is Dictionary<string, object> generatorConfig)
+            _selectedGenerator?.LoadInputLineValuesFromConfig(generatorConfig);
+    }
+
+    
     public void DisableAllOptions()
     {
         _selectedGenerator?.DisableAllOptions();

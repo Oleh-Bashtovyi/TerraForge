@@ -132,6 +132,14 @@ public partial class InputLineCombobox : BaseInputLine
     {
         switch (value)
         {
+            case Dictionary<string, object> configDictionary:
+                if (configDictionary.GetValueOrDefault("Id") is int intId)
+                {
+                    SetSelectedById(intId, invokeEvent);
+                    return true;
+                }
+
+                return false;
             case SelectedOption selectOption:
                 SetSelectedById(selectOption.Id, invokeEvent);
                 return true;

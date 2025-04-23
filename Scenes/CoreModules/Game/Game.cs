@@ -104,7 +104,7 @@ public partial class Game : Node3D
         _loadFileDialog.Filters = ["*.json"];
         _loadFileDialog.FileSelected += LoadFileDialogOnFileSelected;
         AddChild(_saveFileDialog);
-
+        AddChild(_loadFileDialog);
 
         _mapGenerationMenu.OnWaterLevelChanged += MapGenerationMenuOnOnWaterLevelChanged;
         //_mapGenerationMenu.GenerationParametersChanged += MapGenerationMenuOnGenerationParametersChanged;
@@ -119,8 +119,13 @@ public partial class Game : Node3D
 
         var data = loadFile.GetAsText();
 
-        _worldData.LoadFromJson(data);
-        
+        //_worldData.LoadFromJson(data);
+        var parsedData = WorldDataParser.LoadFromJson(data);
+        _worldData.TerrainData.SetTerrain(parsedData.HeightMap);
+        _worldData.TreesData.SetLayers(parsedData.TreeLayersDict);
+        _worldData.SetSeaLevel(parsedData.SeaLevel);
+        _mapGenerationMenu.LoadFromConfiguration(parsedData.GenerationConfiguration);
+
         _terrainScene2D.RedrawAllImages();
         _terrainScene2D.UpdateAllTextures();
         _terrainScene3D.ClearWorld();
