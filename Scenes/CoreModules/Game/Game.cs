@@ -107,10 +107,8 @@ public partial class Game : Node3D
         AddChild(_loadFileDialog);
 
         _mapGenerationMenu.OnWaterLevelChanged += MapGenerationMenuOnOnWaterLevelChanged;
-        //_mapGenerationMenu.GenerationParametersChanged += MapGenerationMenuOnGenerationParametersChanged;
         _terrainVisualOptions.OnDisplayOptionsChanged += TerrainVisualOptionsOnOnTerrainVisualOptionsChanged;
         _generateMapButton.Pressed += GenerateMapButtonOnPressed;
-        //_applyWaterErosionButton.Pressed += ApplyWaterErosionButtonOnPressed;
     }
 
     private void LoadFileDialogOnFileSelected(string path)
@@ -124,7 +122,13 @@ public partial class Game : Node3D
         _worldData.TerrainData.SetTerrain(parsedData.HeightMap);
         _worldData.TreesData.SetLayers(parsedData.TreeLayersDict);
         _worldData.SetSeaLevel(parsedData.SeaLevel);
-        _mapGenerationMenu.LoadFromConfiguration(parsedData.GenerationConfiguration);
+        _mapGenerationMenu.LoadConfigFrom(parsedData.GenerationConfiguration);
+        var treesColors = _treePlacementOptions.GetTreesColors();
+        var treesModels = _treePlacementOptions.GetTreesModels();
+        _worldVisualSettings.TreeSettings.ClearTreesLayersColors();
+        _worldVisualSettings.TreeSettings.ClearTreesLayersScenes();
+        _worldVisualSettings.TreeSettings.SetTreeLayersColors(treesColors);
+        _worldVisualSettings.TreeSettings.SetTreeLayersScenes(treesModels);
 
         _terrainScene2D.RedrawAllImages();
         _terrainScene2D.UpdateAllTextures();
@@ -135,7 +139,7 @@ public partial class Game : Node3D
     {
         _logger.Log(path);
 
-        var generationConfig = _mapGenerationMenu.GetLastUsedGenerationOptions();
+        var generationConfig = _mapGenerationMenu.GetLastUsedConfig();
 
         var data = _worldData.ToJson(generationConfig);
 
@@ -226,11 +230,11 @@ public partial class Game : Node3D
         e.OnTreeColorChanged += TreePlacementRuleItemOnTreeColorChanged;
     }
 
-    private void TreePlacementRuleItemOnTreeColorChanged(object sender, TreeColorChangedEventArgs e)
+    private void TreePlacementRuleItemOnTreeColorChanged(object sender, TreeLayerColorChangedEventArgs e)
     {
-        if (_worldData.TreesData.HasLayer(e.TreeId))
+        if (_worldData.TreesData.HasLayer(e.LayerId))
         {
-            _worldVisualSettings.TreeSettings.SetTreesLayerColor(e.TreeId, e.NewColor);
+            _worldVisualSettings.TreeSettings.SetTreesLayerColor(e.LayerId, e.NewColor);
             _terrainScene2D.RedrawTreesImage();
             _terrainScene2D.UpdateTreesTexture();
         }
@@ -286,7 +290,7 @@ public partial class Game : Node3D
 
             await GenerateTerrainAsync();
 
-            _mapGenerationMenu.UpdateLastUsedOptions();
+            _mapGenerationMenu.UpdateCurrentConfigAsLastUsed();
         }
         catch (Exception e)
         {
@@ -367,7 +371,6 @@ public partial class Game : Node3D
         _worldData.TreesData.SetLayers(trees);
         var treesColors = _treePlacementOptions.GetTreesColors();
         var treesModels = _treePlacementOptions.GetTreesModels();
-
         _worldVisualSettings.TreeSettings.ClearTreesLayersColors();
         _worldVisualSettings.TreeSettings.ClearTreesLayersScenes();
         _worldVisualSettings.TreeSettings.SetTreeLayersColors(treesColors);
@@ -379,14 +382,14 @@ public partial class Game : Node3D
     {
         _logger.LogMethodStart();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _mapGenerationMenu.DisableAllOptions();
+        _mapGenerationMenu.DisableOptions();
         _logger.LogMethodEnd();
     }
     private async Task EnableGenerationOptions()
     {
         _logger.LogMethodStart();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _mapGenerationMenu.EnableAllOptions();
+        _mapGenerationMenu.EnableOptions();
         _logger.LogMethodEnd();
     }
     private async Task Clear2DSceneAsync()

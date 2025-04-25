@@ -2,7 +2,7 @@
 
 namespace TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
-public class InputLineValueTracker(Dictionary<string, object> valuesDictionary) : IInputLineValueTracker
+public class InputLineValueTracker(Dictionary<string, object> lastUsedValues, Dictionary<string, object> currentValues) : IInputLineValueTracker
 {
     public void TrackValue(IInputLine inputLine)
     {
@@ -14,6 +14,14 @@ public class InputLineValueTracker(Dictionary<string, object> valuesDictionary) 
 
     public void TrackValue(string id, object value)
     {
-        valuesDictionary[id] = value;
+        if (lastUsedValues.TryGetValue(id, out var lastValue))
+        {
+            if (Equals(lastValue, value))
+            {
+                return; 
+            }
+        }
+
+        currentValues[id] = value;
     }
 }

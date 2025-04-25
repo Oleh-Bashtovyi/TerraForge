@@ -1,4 +1,5 @@
 ﻿using Godot;
+using System.Collections.Generic;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Rules.PlacementRules;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
@@ -44,16 +45,16 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
         RedrawMap();
     }
 
-    public override void EnableAllOptions()
+    public override void EnableOptions()
     {
-        base.EnableAllOptions();
-        _perlinOptions.EnableAllOptions();
+        base.EnableOptions();
+        _perlinOptions.EnableOptions();
     }
 
-    public override void DisableAllOptions()
+    public override void DisableOptions()
     {
-        base.DisableAllOptions();
-        _perlinOptions.DisableAllOptions();
+        base.DisableOptions();
+        _perlinOptions.DisableOptions();
     }
 
     private void PerlinOptionsOnParametersChanged()
@@ -70,8 +71,11 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 
     private void RedrawMap()
     {
-        if (_sizeChanged)
+        var curImageSize = _noiseImage.GetSize();
+
+        if (curImageSize.X != _perlinOptions.MapWidth || curImageSize.Y != _perlinOptions.MapHeight)
         {
+            _sizeChanged = true;
             _noiseImage.Resize(_perlinOptions.MapWidth, _perlinOptions.MapHeight);
         }
 
@@ -100,14 +104,31 @@ public partial class NoiseMapRuleItem : BasePlacementRuleItem<NoiseMapRuleItem>
 
     private void InvokeParametersChangedEvent()
     {
-        var size = new Vector2I(_perlinOptions.MapWidth, _perlinOptions.MapHeight);
-        
-        if (_noiseImage.GetSize() != size)
-        {
-            _sizeChanged = true;
-        }
-
         RedrawMap();
         InvokeRuleParametersChangedEvent();
+    }
+
+    public override Dictionary<string, object> GetLastUsedConfig()
+    {
+        var dict = base.GetLastUsedConfig();
+        dict["Noise"] = _perlinOptions.GetLastUsedConfig();
+        return dict;
+    }
+
+    public override void UpdateCurrentConfigAsLastUsed()
+    {
+        base.UpdateCurrentConfigAsLastUsed();
+        _perlinOptions.UpdateCurrentConfigAsLastUsed();
+    }
+
+    protected override void LoadConfigInternal(Dictionary<string, object> config)
+    {
+        base.LoadConfigInternal(config);
+
+        if (config.GetValueOrDefault("Noise") is Dictionary<string, object> noiseConfig)
+        {
+            _perlinOptions.LoadConfigFrom(noiseConfig);
+            RedrawMap();
+        }
     }
 }

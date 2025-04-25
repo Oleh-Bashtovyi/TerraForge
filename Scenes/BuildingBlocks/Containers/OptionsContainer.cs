@@ -11,7 +11,7 @@ namespace TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 /// A container for managing UI input options that handles value tracking, parameter changes, and configuration loading.
 /// Provides functionality for nested input elements, font size management, and bidirectional data binding.
 /// </summary>
-public partial class OptionsContainer : VBoxContainer
+public partial class OptionsContainer : VBoxContainer, ILastUsedConfigProvider, IOptionsToggleable
 {
     private readonly LastUsedInputLineValueTracker _lastUsedValuesTracker = new();
     private int _optionsFontSize = 16;
@@ -64,7 +64,7 @@ public partial class OptionsContainer : VBoxContainer
     /// Disables all input options in the container and its children.
     /// Recursively applies to nested <see cref="OptionsContainer"/> instances.
     /// </summary>
-    public void DisableAllOptions()
+    public void DisableOptions()
     {
         foreach (Node child in GetChildren())
         {
@@ -74,7 +74,7 @@ public partial class OptionsContainer : VBoxContainer
             }
             else if (child is OptionsContainer optionsContainer)
             {
-                optionsContainer.DisableAllOptions();
+                optionsContainer.DisableOptions();
             }
         }
     }
@@ -83,7 +83,7 @@ public partial class OptionsContainer : VBoxContainer
     /// Enables all input options in the container and its children.
     /// Recursively applies to nested <see cref="OptionsContainer"/> instances.
     /// </summary>
-    public void EnableAllOptions()
+    public void EnableOptions()
     {
         foreach (Node child in GetChildren())
         {
@@ -93,7 +93,7 @@ public partial class OptionsContainer : VBoxContainer
             }
             else if (child is OptionsContainer optionsContainer)
             {
-                optionsContainer.EnableAllOptions();
+                optionsContainer.EnableOptions();
             }
         }
     }
@@ -129,7 +129,7 @@ public partial class OptionsContainer : VBoxContainer
     /// Saves the current option values as the last used ones.
     /// Useful for preserving state between operations or exporting as dictionary.
     /// </summary>  
-    public void UpdateCurrentOptionsAsLastUsed()
+    public void UpdateCurrentConfigAsLastUsed()
     {
         _lastUsedValuesTracker.UpdateLastUsedValues();
     }
@@ -139,7 +139,7 @@ public partial class OptionsContainer : VBoxContainer
     /// Used to export configuration to files or save state.
     /// </summary>  
     /// <returns>A dictionary containing the last used parameter IDs and their values.</returns>  
-    public IReadOnlyDictionary<string, object> GetLastUsedInputLineValues()
+    public Dictionary<string, object> GetLastUsedConfig()
     {
         return _lastUsedValuesTracker.GetLastUsedValues();
     }
@@ -150,7 +150,7 @@ public partial class OptionsContainer : VBoxContainer
     /// After loading, the <see cref="LoadCallback"/> method is called to allow derived classes to perform additional actions.
     /// </summary>  
     /// <param name="config">A dictionary containing parameter IDs and their corresponding values.</param>  
-    public void LoadInputLineValuesFromConfig(Dictionary<string, object> config)
+    public void LoadConfigFrom(Dictionary<string, object> config)
     {
         try
         {

@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using TerrainGenerationApp.Domain.Core;
 using TerrainGenerationApp.Domain.Enums;
 using TerrainGenerationApp.Domain.Generators.Trees;
@@ -14,7 +15,7 @@ using TerrainGenerationApp.Scenes.LoadedScenes;
 
 namespace TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
 
-public partial class TreePlacementOptions : VBoxContainer
+public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, ILastUsedConfigProvider
 {
     private OptionsContainer _optionsContainer;
     private VBoxContainer _rulesContainer;
@@ -26,21 +27,21 @@ public partial class TreePlacementOptions : VBoxContainer
     private List<TreePlacementRule> _cachedRules = new();
     private bool _isRulesCacheDirty = true;
     private float _frequency = 1.0f;
+    private int _idCounter;
 
     public event EventHandler<TreePlacementRuleItem> OnTreePlacementRuleItemAdded;
     public event EventHandler<TreePlacementRuleItem> OnTreePlacementRuleItemRemoved;
     public event EventHandler OnTreePlacementRuleItemsOrderChanged;
     public event EventHandler OnTreePlacementRulesChanged;
 
+    private bool IsLoading { get; set; }
+
     [InputLine(Description = "Frequency")]
     [InputLineSlider(0.0f, 5.0f, 0.1f)]
     public float Frequency
     {
         get => _frequency;
-        set
-        {
-            _frequency = value;
-        }
+        set => _frequency = value;
     }
 
     public TreesApplier TreesApplier => _treesApplier;
@@ -55,18 +56,23 @@ public partial class TreePlacementOptions : VBoxContainer
         _addRuleButton.Pressed += AddTreePlacementRuleButtonOnPressed;
 	}
 
-    public void EnableAllOptions()
+    public void EnableOptions()
     {
-        _optionsContainer.EnableAllOptions();
         _addRuleButton.Disabled = false;
-        _treePlacementRules.ForEach(x => x.EnableAllOptions());
+        _optionsContainer.EnableOptions();
+        _treePlacementRules.ForEach(x => x.EnableOptions());
     }
 
-    public void DisableAllOptions()
+    public void DisableOptions()
     {
-        _optionsContainer.DisableAllOptions();
         _addRuleButton.Disabled = true;
-        _treePlacementRules.ForEach(x => x.DisableAllOptions());
+        _optionsContainer.DisableOptions();
+        _treePlacementRules.ForEach(x => x.DisableOptions());
+    }
+
+    private string GetNextTreeLayerId()
+    {
+        return (_idCounter++).ToString();
     }
 
     public List<TreePlacementRule> GetRules()
@@ -82,12 +88,12 @@ public partial class TreePlacementOptions : VBoxContainer
 
     public Dictionary<string, Color> GetTreesColors()
     {
-        return _treePlacementRules.ToDictionary(x => x.TreeId, x => x.TreeColor);
+        return _treePlacementRules.ToDictionary(x => x.LayerId, x => x.TreeColor);
     }
 
     public Dictionary<string, PackedScene> GetTreesModels()
     {
-        return _treePlacementRules.ToDictionary(x => x.TreeId, x => x.GetModel());
+        return _treePlacementRules.ToDictionary(x => x.LayerId, x => x.GetModel());
     }
 
     public List<TreesLayer> GenerateTrees(IWorldData worldData)
@@ -105,6 +111,11 @@ public partial class TreePlacementOptions : VBoxContainer
     }
     private void AddTreePlacementRuleButtonOnPressed()
     {
+        AddTreePlacementRule();
+    }
+
+    private TreePlacementRuleItem AddTreePlacementRule()
+    {
         _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} ADDING...");
 
         var scene = TreePlacementRuleLoadedScenes.TREE_PLACEMENT_RULE_ITEM_SCENE.Instantiate();
@@ -119,25 +130,29 @@ public partial class TreePlacementOptions : VBoxContainer
             throw new Exception(message);
         }
 
+        item.SetId(GetNextTreeLayerId());
         _rulesContainer.AddChild(item);
         _treePlacementRules.Add(item);
 
         SubscribeEventsToItem(item);
         _isRulesCacheDirty = true;
 
-        OnTreePlacementRuleItemAdded?.Invoke(this, item);
+        InvokeTreePlacementRuleAdded(item);
+        return item;
     }
-    private void TreePlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
+
+
+    private void RemoveTreePlacementRule(Node node)
     {
         _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} DELETION...");
 
-        var item = sender as TreePlacementRuleItem;
+        var item = node as TreePlacementRuleItem;
 
         if (item == null)
         {
             var message = $"Can`t DELETE TREE PLACEMENT RULE, because it is not " +
                           $"of type {typeof(TreePlacementRuleItem)}, " +
-                          $"actual type: {sender.GetType()}";
+                          $"actual type: {node.GetType()}";
             _logger.Log(message, LogMark.Error);
             throw new Exception(message);
         }
@@ -148,8 +163,13 @@ public partial class TreePlacementOptions : VBoxContainer
         UnsubscribeEventsFromItem(item);
         _isRulesCacheDirty = true;
         item.QueueFree();
+        InvokeTreePlacementRuleRemoved(item);
+    }
 
-        OnTreePlacementRuleItemRemoved?.Invoke(this, item);
+
+    private void TreePlacementRuleItemOnDeleteButtonPressed(object sender, EventArgs e)
+    {
+        RemoveTreePlacementRule(sender as Node);
     }
 
     private void SubscribeEventsToItem(TreePlacementRuleItem item)
@@ -166,7 +186,6 @@ public partial class TreePlacementOptions : VBoxContainer
         item.OnMoveUpButtonPressed -= TreePlacementRuleItemOnMoveUpButtonPressed;
         item.OnRulesChanged -= TreePlacementRuleItemOnRulesChanged;
     }
-
     private void TreePlacementRuleItemOnMoveDownButtonPressed(object sender, EventArgs e)
 	{
         _logger.Log($"HANDLING {nameof(TreePlacementRuleItem)} MOVED DOWN");
@@ -188,5 +207,78 @@ public partial class TreePlacementOptions : VBoxContainer
         _isRulesCacheDirty = true;
 		
         OnTreePlacementRuleItemsOrderChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+
+
+
+    public Dictionary<string, object> GetLastUsedConfig()
+    {
+        var result = new Dictionary<string, object>();
+        var placementRulesConfig = new List<Dictionary<string, object>>();
+        result["Options"] = _optionsContainer.GetLastUsedConfig();
+        result["Rules"] = placementRulesConfig;
+
+        foreach (var placementRule in _treePlacementRules)
+        {
+            placementRulesConfig.Add(placementRule.GetLastUsedConfig());
+        }
+
+        return result;
+    }
+
+    public void UpdateCurrentConfigAsLastUsed()
+    {
+        _optionsContainer.UpdateCurrentConfigAsLastUsed();
+        _treePlacementRules.ForEach(x => x.UpdateCurrentConfigAsLastUsed());
+    }
+
+    public void LoadConfigFrom(Dictionary<string, object> config)
+    {
+        try
+        {
+            IsLoading = true;
+
+            foreach (var child in _rulesContainer.GetChildren())
+            {
+                RemoveTreePlacementRule(child);
+            }
+
+            if (config.GetValueOrDefault("Options") is Dictionary<string, object> optionsConfig)
+                _optionsContainer.LoadConfigFrom(optionsConfig);
+
+            if (config.GetValueOrDefault("Rules") is List<object> rulesConfig)
+            {
+                foreach (var item in rulesConfig)
+                {
+                    if (item is Dictionary<string, object> ruleConfig)
+                    {
+                        var addedItem = AddTreePlacementRule();
+                        addedItem.LoadConfigFrom(ruleConfig);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+
+    private void InvokeTreePlacementRuleAdded(TreePlacementRuleItem item)
+    {
+        if (!IsLoading)
+        {
+            OnTreePlacementRuleItemAdded?.Invoke(this, item);
+        }
+    }
+
+    private void InvokeTreePlacementRuleRemoved(TreePlacementRuleItem item)
+    {
+        if (!IsLoading)
+        {
+            OnTreePlacementRuleItemRemoved?.Invoke(this, item);
+        }
     }
 }

@@ -12,7 +12,7 @@ public class LastUsedInputLineValueTracker
 
     public LastUsedInputLineValueTracker()
     {
-        _currentValueTracker = new InputLineValueTracker(_currentValues);
+        _currentValueTracker = new InputLineValueTracker(_lastUsedValues, _currentValues);
     }
 
     public void UpdateLastUsedValues()
@@ -24,12 +24,17 @@ public class LastUsedInputLineValueTracker
         }
     }
 
-    public IReadOnlyDictionary<string, object> GetLastUsedValues()
+    public Dictionary<string, object> GetLastUsedValues()
+    {
+        return new(_lastUsedValues);
+    }
+
+    public IReadOnlyDictionary<string, object> GetLastUsedValuesReadonly()
     {
         return _lastUsedValues;
     }
 
-    public IReadOnlyDictionary<string, object> GetCurrentValues()
+    public IReadOnlyDictionary<string, object> GetCurrentValuesReadonly()
     {
         return _currentValues;
     }

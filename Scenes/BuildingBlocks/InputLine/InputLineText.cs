@@ -23,8 +23,7 @@ public partial class InputLineText : BaseInputLine
 
 	public override void _Ready()
 	{
-		var lineEdit = InputLineEdit;
-		lineEdit.EditingToggled += LineEditOnEditingToggled;
+        InputLineEdit.EditingToggled += LineEditOnEditingToggled;
 	}
 
 	public void SetText(string text, bool invokeEvent = true)
@@ -84,12 +83,13 @@ public partial class InputLineText : BaseInputLine
 			return;
 		}
 
+		TrackCurrentValue();
 		OnTextChanged?.Invoke(CurValue);
 	}
 
     public override bool TrySetValue(object value, bool invokeEvent = true)
     {
-        SetText(value.ToString(), invokeEvent);
+        SetText(value?.ToString(), invokeEvent);
         return true;
     }
 

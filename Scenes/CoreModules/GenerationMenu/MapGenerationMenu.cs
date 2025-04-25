@@ -19,7 +19,7 @@ using TerrainGenerationApp.Scenes.GeneratorOptions;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.GenerationMenu;
 
-public partial class MapGenerationMenu : Control
+public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedConfigProvider
 {
     public enum MapInterpolationType
     {
@@ -260,70 +260,105 @@ public partial class MapGenerationMenu : Control
         }
     }
 
-    public Dictionary<string, object> GetLastUsedGenerationOptions()
+    public Dictionary<string, object> GetLastUsedConfig()
     {
         var result = new Dictionary<string, object>();
 
-        var selectedGenerator = _generatorsContainer.GetLastUsedInputLineValues();
+        var selectedGenerator = _generatorsContainer.GetLastUsedConfig();
         result.Add("SelectedGenerator", selectedGenerator);
 
-        var adjustmentsParameters = _adjustmentsContainer.GetLastUsedInputLineValues();
+        var adjustmentsParameters = _adjustmentsContainer.GetLastUsedConfig();
         result.Add("Adjustments", adjustmentsParameters);
 
-        var curGeneratorParameters = _selectedGenerator?.GetLastUsedInputLineValues();
+        var curGeneratorParameters = _selectedGenerator?.GetLastUsedConfig();
         if (curGeneratorParameters != null)
         {
             result.Add("Generator", curGeneratorParameters);
         }
 
+        result["WarpingEnabled"] = EnableDomainWarping;
+        if (EnableDomainWarping)
+        {
+            result["Warping"] = _domainWarpingOptions.GetLastUsedConfig();
+        }
+
+        result["IslandsEnabled"] = EnableIslands;
+        if (EnableIslands)
+        {
+            result["Islands"] = _islandOptions.GetLastUsedConfig();
+        }
+
+        result["TreesEnabled"] = EnableTrees;
+        if (EnableTrees)
+        {
+            result["TreesPlacement"] = _treePlacementOptions.GetLastUsedConfig();
+        }
+
         return result;
     }
 
-    public void UpdateLastUsedOptions()
+    public void UpdateCurrentConfigAsLastUsed()
     {
-        _generatorsContainer.UpdateCurrentOptionsAsLastUsed();
-        _adjustmentsContainer.UpdateCurrentOptionsAsLastUsed();
-        _selectedGenerator?.UpdateCurrentOptionsAsLastUsed();
+        _generatorsContainer.UpdateCurrentConfigAsLastUsed();
+        _adjustmentsContainer.UpdateCurrentConfigAsLastUsed();
+        _selectedGenerator?.UpdateCurrentConfigAsLastUsed();
+        _domainWarpingOptions.UpdateCurrentConfigAsLastUsed();
+        _islandOptions.UpdateCurrentConfigAsLastUsed();
+        _treePlacementOptions.UpdateCurrentConfigAsLastUsed();
     }
 
-    public void LoadFromConfiguration(Dictionary<string, object> config)
+    public void LoadConfigFrom(Dictionary<string, object> config)
     {
         if (config.GetValueOrDefault("Adjustments") is Dictionary<string, object> adjustmentsConfig)
-            _adjustmentsContainer.LoadInputLineValuesFromConfig(adjustmentsConfig);
+            _adjustmentsContainer.LoadConfigFrom(adjustmentsConfig);
 
         if (config.GetValueOrDefault("SelectedGenerator") is Dictionary<string, object> selectedGeneratorConfig)
-            _generatorsContainer.LoadInputLineValuesFromConfig(selectedGeneratorConfig);
+            _generatorsContainer.LoadConfigFrom(selectedGeneratorConfig);
 
         if (config.GetValueOrDefault("Generator") is Dictionary<string, object> generatorConfig)
-            _selectedGenerator?.LoadInputLineValuesFromConfig(generatorConfig);
-    }
+            _selectedGenerator?.LoadConfigFrom(generatorConfig);
 
+        if (config.GetValueOrDefault("WarpingEnabled") is bool warpingEnabled) EnableDomainWarping = warpingEnabled;
+        _domainWarpingCheckBox.ButtonPressed = EnableDomainWarping;
+        if (EnableDomainWarping && config.GetValueOrDefault("Warping") is Dictionary<string, object> warpingConfig)
+            _domainWarpingOptions.LoadConfigFrom(warpingConfig);
+
+        if (config.GetValueOrDefault("IslandsEnabled") is bool islandsEnabled) EnableIslands = islandsEnabled;
+        _islandsOptionsCheckbox.ButtonPressed = EnableIslands;
+        if (EnableIslands && config.GetValueOrDefault("Islands") is Dictionary<string, object> islandsConfig)
+            _islandOptions.LoadConfigFrom(islandsConfig);
+
+        if (config.GetValueOrDefault("TreesEnabled") is bool treesEnabled) EnableTrees = treesEnabled;
+        _treeOptionsCheckbox.ButtonPressed = EnableTrees;
+        if (EnableTrees && config.GetValueOrDefault("TreesPlacement") is Dictionary<string, object> treesConfig)
+            _treePlacementOptions.LoadConfigFrom(treesConfig);
+    }
     
-    public void DisableAllOptions()
+    public void DisableOptions()
     {
-        _selectedGenerator?.DisableAllOptions();
-        _adjustmentsContainer.DisableAllOptions();
+        _selectedGenerator?.DisableOptions();
+        _adjustmentsContainer.DisableOptions();
         _domainWarpingCheckBox.Disabled = true;
         _waterErosionCheckbox.Disabled = true;
         _islandsOptionsCheckbox.Disabled = true;
         _treeOptionsCheckbox.Disabled = true;
-		_domainWarpingOptions.DisableAllOptions();
-        _waterErosionOptions.DisableAllOptions();
-        _islandOptions.DisableAllOptions();
-        _treePlacementOptions.DisableAllOptions();
+		_domainWarpingOptions.DisableOptions();
+        _waterErosionOptions.DisableOptions();
+        _islandOptions.DisableOptions();
+        _treePlacementOptions.DisableOptions();
     }
-    public void EnableAllOptions()
+    public void EnableOptions()
     {
-        _selectedGenerator?.EnableAllOptions();
-        _adjustmentsContainer.EnableAllOptions();
+        _selectedGenerator?.EnableOptions();
+        _adjustmentsContainer.EnableOptions();
         _domainWarpingCheckBox.Disabled = false;
         _waterErosionCheckbox.Disabled = false;
         _islandsOptionsCheckbox.Disabled = false;
         _treeOptionsCheckbox.Disabled = false;
-        _domainWarpingOptions.EnableAllOptions();
-        _waterErosionOptions.EnableAllOptions();
-        _islandOptions.EnableAllOptions();
-        _treePlacementOptions.EnableAllOptions();
+        _domainWarpingOptions.EnableOptions();
+        _waterErosionOptions.EnableOptions();
+        _islandOptions.EnableOptions();
+        _treePlacementOptions.EnableOptions();
     }
     private void HandleParametersChanged()
     {

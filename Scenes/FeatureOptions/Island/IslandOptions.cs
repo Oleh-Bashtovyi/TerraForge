@@ -131,6 +131,7 @@ public partial class IslandOptions : OptionsContainer
 
     public override void _Ready()
     {
+        base._Ready();
         InputLineManager.CreateInputLinesForObject(obj: this, container: this);
     }
 }
