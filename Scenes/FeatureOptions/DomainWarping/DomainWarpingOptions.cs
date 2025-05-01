@@ -33,8 +33,8 @@ public partial class DomainWarpingOptions : OptionsContainer
         set
         {
             _noiseScale = value;
-            _domainWarpingApplier.XNoise.Scale = value;
-            _domainWarpingApplier.YNoise.Scale = value;
+            _domainWarpingApplier.XNoise.Frequency = value;
+            _domainWarpingApplier.YNoise.Frequency = value;
             InvokeParametersChangedEvent();
         }
     }
@@ -44,8 +44,8 @@ public partial class DomainWarpingOptions : OptionsContainer
     public override void _Ready()
 	{
         base._Ready();
-        _domainWarpingApplier.XNoise.Scale = 8;
-		_domainWarpingApplier.YNoise.Scale = 8;
+        _domainWarpingApplier.XNoise.Frequency = 0.125f;
+		_domainWarpingApplier.YNoise.Frequency = 0.125f;
         InputLineManager.CreateInputLinesForObject(obj: this, container: this);
     }
 }

@@ -41,7 +41,7 @@ public class SimplexNoiseGenerator
 
     private byte[] _perm;
     private int _seed = 0;
-    private float _scale = 25.0f;
+    private float _frequency = 0.01f;
     private int _octaves = 2;
     private Vector2 _offset = Vector2.Zero;
     private float _persistence = 0.5f;
@@ -71,10 +71,10 @@ public class SimplexNoiseGenerator
         }
     }
 
-    public float Scale
+    public float Frequency
     {
-        get => _scale;
-        set => _scale = value;
+        get => _frequency;
+        set => _frequency = value;
     }
 
     public Vector2 Offset
@@ -116,8 +116,8 @@ public class SimplexNoiseGenerator
         {
             for (int x = 0; x < mapWidth; x++)
             {
-                float xSample = x / _scale + _offset.X;
-                float ySample = y / _scale + _offset.Y;
+                float xSample = (x + _offset.X) * _frequency;
+                float ySample = (y + _offset.Y) * _frequency;
                 float height = Calc2DOctaves(xSample, ySample);
                 map[y, x] = (height + 1.0f) / 2.0f;
             }

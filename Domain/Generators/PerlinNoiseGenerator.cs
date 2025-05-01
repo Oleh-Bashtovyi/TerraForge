@@ -66,7 +66,7 @@ public class PerlinNoiseGenerator
 
     private byte[] _perm;
     private int _seed = 0;
-    private float _scale = 25.0f;
+    private float _frequency = 0.01f;
     private int _octaves = 2;
     private Vector2 _offset = Vector2.Zero;
     private float _persistence = 0.5f;
@@ -96,10 +96,10 @@ public class PerlinNoiseGenerator
         }
     }
 
-    public float Scale
+    public float Frequency
     {
-        get => _scale;
-        set => _scale = value;
+        get => _frequency;
+        set => _frequency = value;
     }
 
     public Vector2 Offset
@@ -161,8 +161,8 @@ public class PerlinNoiseGenerator
         {
             for (int x = 0; x < mapWidth; x++)
             {
-                float xSample = x / _scale + _offset.X;
-                float ySample = y / _scale + _offset.Y;
+                float xSample = (x + _offset.X) * _frequency;
+                float ySample = (y + _offset.Y) * _frequency;
                 float height = 0.0f;
 
                 if (_enableWarping)
@@ -329,6 +329,96 @@ public class PerlinNoiseGenerator
         // Final interpolation along Z
         return Lerp(ny0, ny1, w);
     }
+
+
+
+    public float Perlin2DRidgeOctaves(float x, float y)
+    {
+        float value = 0.0f;
+        float amplitude = 1.0f;
+        float frequency = 1.0f;
+        float maxValue = 0.0f;
+
+        for (int i = 0; i < _octaves; i++)
+        {
+            // Take the absolute value of the noise and invert it (1 - abs)
+            // This creates ridge-like features
+            float noiseValue = Perlin2D(x * frequency, y * frequency);
+            noiseValue = 1.0f - Math.Abs(noiseValue);
+
+            // Apply a sharpening effect to make ridges more pronounced (optional)
+            noiseValue = noiseValue * noiseValue;
+
+            value += noiseValue * amplitude;
+            maxValue += amplitude;
+
+            amplitude *= _persistence;
+            frequency *= _lacunarity;
+        }
+
+        // Normalize to range [0; 1] (instead of [-1; 1])
+        return value / maxValue;
+    }
+
+    public float Perlin3DRidgeOctaves(float x, float y, float z)
+    {
+        float value = 0.0f;
+        float amplitude = 1.0f;
+        float frequency = 1.0f;
+        float maxValue = 0.0f;
+
+        for (int i = 0; i < _octaves; i++)
+        {
+            // Take the absolute value of the noise and invert it
+            float noiseValue = Perlin3D(x * frequency, y * frequency, z * frequency);
+            noiseValue = 1.0f - Math.Abs(noiseValue);
+
+            // Apply a sharpening effect to make ridges more pronounced (optional)
+            noiseValue = noiseValue * noiseValue;
+
+            value += noiseValue * amplitude;
+            maxValue += amplitude;
+
+            amplitude *= _persistence;
+            frequency *= _lacunarity;
+        }
+
+        // Normalize to range [0; 1]
+        return value / maxValue;
+    }
+
+    // Add a modified GenerateMap method that uses the ridge effect
+    public float[,] GenerateRidgeMap(int mapHeight, int mapWidth)
+    {
+        var map = new float[mapHeight, mapWidth];
+        var wstr = _warpingStrength;
+        var wsize = _warpingSize;
+
+        for (int y = 0; y < mapHeight; y++)
+        {
+            for (int x = 0; x < mapWidth; x++)
+            {
+                float xSample = (x + _offset.X) * _frequency;
+                float ySample = (y + _offset.Y) * _frequency;
+                float height = 0.0f;
+
+                if (_enableWarping)
+                {
+                    height = Perlin3DRidgeOctaves(xSample, ySample, wstr * Perlin2D(xSample * wsize, ySample * wsize));
+                }
+                else
+                {
+                    height = Perlin2DRidgeOctaves(xSample, ySample);
+                }
+
+                // The height is already in range [0; 1] since we're using 1-abs(noise)
+                map[y, x] = height;
+            }
+        }
+        return map;
+    }
+
+
 
     protected float Grad1D(int h, float x)
     {

@@ -51,6 +51,12 @@ public partial class TerrainScene2D : Control
         _treesTextureRect.Texture = _treesImageTexture;
     }
 
+    public Image GetTerrainImage()
+    {
+        return _terrainImage;
+    }
+
+
     private void TreesVisibilityCheckBoxOnToggled(bool toggledOn)
     {
         _treesTextureRect.Visible = toggledOn;

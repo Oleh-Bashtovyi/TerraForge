@@ -1,11 +1,11 @@
-using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
+﻿using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
 namespace TerrainGenerationApp.Scenes.GeneratorOptions;
 
-public partial class SimplexOptions : BaseGeneratorOptions
+public partial class ValueNoiseOptions : BaseGeneratorOptions
 {
-    private readonly Domain.Generators.SimplexNoiseGenerator _generator = new();
+    private readonly Domain.Generators.ValueNoiseGenerator _generator = new();
     private int _mapHeight = 100;
     private int _mapWidth = 100;
 
@@ -82,7 +82,7 @@ public partial class SimplexOptions : BaseGeneratorOptions
     }
 
     [InputLine(Description = "Persistence:")]
-    [InputLineSlider(0.001f, 3f, 0.001f, format: "0.###")]
+    [InputLineSlider(0.001f, 3f, 0.001f)]
     public float Persistence
     {
         get => _generator.Persistence;
@@ -121,11 +121,48 @@ public partial class SimplexOptions : BaseGeneratorOptions
         }
     }
 
-    public Domain.Generators.SimplexNoiseGenerator Generator => _generator;
+    [InputLine(Description = "Use domain warping")]
+    [InputLineCheckBox]
+    public bool UseDomainWarping
+    {
+        get => _generator.EnableWarping;
+        set
+        {
+            _generator.EnableWarping = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [InputLine(Description = "Warping size:")]
+    [InputLineSlider(0.1f, 2.0f, 0.1f, format: "0.#")]
+    public float WarpingSize
+    {
+        get => _generator.WarpingSize;
+        set
+        {
+            _generator.WarpingSize = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [InputLine(Description = "Warping strength:")]
+    [InputLineSlider(0.1f, 30.0f, 0.1f, format: "0.#")]
+    public float WarpingStrength
+    {
+        get => _generator.WarpingStrength;
+        set
+        {
+            _generator.WarpingStrength = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    public Domain.Generators.ValueNoiseGenerator Generator => _generator;
 
     public override void _Ready()
     {
         base._Ready();
+        Generator.EnableWarping = false;
         InputLineManager.CreateInputLinesForObject(obj: this, container: this);
     }
 

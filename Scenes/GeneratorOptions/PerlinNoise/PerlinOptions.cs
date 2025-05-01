@@ -57,20 +57,20 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
-    [InputLine(Description = "Scale:")]
-    [InputLineSlider(0.1f, 100f, 0.1f)]
+    [InputLine(Description = "Frequency:")]
+    [InputLineSlider(0.00001f, 1f, 0.00001f, format: "0.#####")]
     public float Frequency
     {
-        get => _generator.Scale;
+        get => _generator.Frequency;
         set
         {
-            _generator.Scale = value;
+            _generator.Frequency = value;
             InvokeParametersChangedEvent();
         }
     }
 
     [InputLine(Description = "Lacunarity:")]
-    [InputLineSlider(0.001f, 10f, 0.001f)]
+    [InputLineSlider(0.001f, 10f, 0.001f, format: "0.###")]
     public float Lacunarity
     {
         get => _generator.Lacunarity;
@@ -82,7 +82,7 @@ public partial class PerlinOptions : BaseGeneratorOptions
     }
 
     [InputLine(Description = "Persistence:")]
-    [InputLineSlider(0.001f, 3f, 0.001f)]
+    [InputLineSlider(0.001f, 3f, 0.001f, format: "0.###")]
     public float Persistence
     {
         get => _generator.Persistence;

@@ -13,6 +13,5 @@
   <ItemGroup>
     <Folder Include="Scenes\BuildingBlocks\Separators\" />
     <Folder Include="Scenes\CoreModules\Camera\" />
-    <Folder Include="Scenes\GeneratorOptions\" />
   </ItemGroup>
 </Project>

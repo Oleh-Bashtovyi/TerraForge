@@ -30,8 +30,8 @@ public class DomainWarpingApplier : IDomainWarpingApplier
 
     public DomainWarpingApplier()
     {
-        xNoise = new PerlinNoiseGenerator { Octaves = 1, Offset = new Vector2(120, 40), Scale = 8 };
-        yNoise = new PerlinNoiseGenerator { Octaves = 1, Offset = new Vector2(3479, 9823), Scale = 8 };
+        xNoise = new PerlinNoiseGenerator { Octaves = 1, Offset = new Vector2(120, 40), Frequency = 0.125f };
+        yNoise = new PerlinNoiseGenerator { Octaves = 1, Offset = new Vector2(3479, 9823), Frequency = 0.125f };
     }
 
 

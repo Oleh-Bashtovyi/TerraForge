@@ -6,20 +6,51 @@ namespace TerrainGenerationApp.Domain.Utils;
 
 public static class ColorPallets
 {
+    /*    public static readonly IReadOnlyDictionary<float, Color> DefaultTerrainColors = new ReadOnlyDictionary<float, Color>(
+            new Dictionary<float, Color>()
+            {
+                    { 0f, new Color("f2d16b") }, // light yellow sand
+                    { 0.05f, new Color("d8c857") }, // yellow-green transition
+                    { 0.1f, new Color("8cc751") }, // light green (lowland)
+                    { 0.18f, new Color("66b546") }, // green
+                    { 0.28f, new Color("399e2d") }, // deep green
+                    { 0.4f, new Color("2d7039") }, // dark green (upland)
+                    { 0.48f, new Color("8a9188") }, // grayish (mountain base)
+                    { 0.6f, new Color("c9ccc8") }, // whitish (mountain peaks)
+                    { 1.0f, new Color("c9ccc8") } // whitish (mountain peaks)
+            });*/
+
+
     public static readonly IReadOnlyDictionary<float, Color> DefaultTerrainColors = new ReadOnlyDictionary<float, Color>(
         new Dictionary<float, Color>()
         {
-            { 0f, new Color("f2d16b") }, // light yellow sand
-			{ 0.05f, new Color("d8c857") }, // yellow-green transition
-			{ 0.1f, new Color("8cc751") }, // light green (lowland)
-			{ 0.18f, new Color("66b546") }, // green
-			{ 0.28f, new Color("399e2d") }, // deep green
-			{ 0.4f, new Color("2d7039") }, // dark green (upland)
-			{ 0.48f, new Color("8a9188") }, // grayish (mountain base)
-			{ 0.6f, new Color("c9ccc8") }, // whitish (mountain peaks)
-			{ 1.0f, new Color("c9ccc8") } // whitish (mountain peaks)
-		});
+            { 0f, new Color("e9ce96") }, // yellow-green transition
+            { 0.05f, new Color("e9d6a0") }, // light yellow sand
+            { 0.1f, new Color("fee59f") }, // light green (lowland)
+            { 0.14f, new Color("328c0f") }, // green
+            { 0.28f, new Color("227f0a") }, // deep green
+            { 0.4f, new Color("016500") }, // dark green (upland)
+            { 0.48f, new Color("8a9188") }, // grayish (mountain base)
+            { 0.6f, new Color("c9ccc8") }, // whitish (mountain peaks)
+            { 1.0f, new Color("c9ccc8") } // whitish (mountain peaks)
+        });
 
+
+
+    /*    public static readonly IReadOnlyDictionary<float, Color> DefaultTerrainColors = new ReadOnlyDictionary<float, Color>(
+            new Dictionary<float, Color>()
+            {
+                { 0f, new Color("f1d699") }, 
+                { 0.05f, new Color("F2EE99") }, // yellow-green transition
+                { 0.1f, new Color("8cc751") }, // light green (lowland)
+                { 0.18f, new Color("66b546") }, // green
+                { 0.28f, new Color("399e2d") }, // deep green
+                { 0.4f, new Color("2d7039") }, // dark green (upland)
+                { 0.48f, new Color("8a9188") }, // grayish (mountain base)
+                { 0.6f, new Color("c9ccc8") }, // whitish (mountain peaks)
+                { 1.0f, new Color("c9ccc8") } // whitish (mountain peaks)
+            });
+    */
     public static readonly IReadOnlyDictionary<float, Color> DefaultWaterColors = new ReadOnlyDictionary<float, Color>(
         new Dictionary<float, Color>()
         {

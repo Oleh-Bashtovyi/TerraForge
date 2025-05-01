@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using TerrainGenerationApp.Domain.Core;
 using TerrainGenerationApp.Domain.Enums;
@@ -28,6 +29,7 @@ public partial class Game : Node3D
     private FileDialog _saveFileDialog;
     private FileDialog _loadFileDialog;
     private MenuButton _fileMenuButton;
+    private Label _generationTitleTip;
 
     private readonly Logger<Game> _logger = new();
     private readonly WorldData _worldData = new();
@@ -51,6 +53,7 @@ public partial class Game : Node3D
         _fileMenuButton = GetNode<MenuButton>("%FileMenuButton");
         _showIn2DButton = GetNode<Button>("%ShowIn2DButton");
         _showIn3DButton = GetNode<Button>("%ShowIn3DButton");
+        _generationTitleTip = GetNode<Label>("%GenerationStatusLabel");
         _showIn2DButton.Pressed += _showIn2DButton_Pressed;
         _showIn3DButton.Pressed += _showIn3DButton_Pressed;
 
@@ -65,6 +68,7 @@ public partial class Game : Node3D
 
         _treePlacementOptions = _mapGenerationMenu.TreePlacementOptions;
         _treePlacementOptions.OnTreePlacementRuleItemAdded += TreePlacementOptionsOnOnTreePlacementRuleItemAdded;
+        _mapGenerationMenu.GenerationParametersChanged += OnGenerationParameters;
         //_treePlacementOptions.OnTreePlacementRuleItemRemoved += TreePlacementOptionsOnOnTreePlacementRuleItemRemoved;
         //_treePlacementOptions.OnTreePlacementRulesChanged += TreePlacementOptionsOnOnTreePlacementRulesChanged;
 
@@ -94,7 +98,7 @@ public partial class Game : Node3D
 
         _saveFileDialog = new FileDialog();
         _saveFileDialog.Title = "Select save file location";
-        _saveFileDialog.Filters = ["*.json"];
+        _saveFileDialog.Filters = ["*.json", "*.png"];
         _saveFileDialog.FileMode = FileDialog.FileModeEnum.SaveFile;
         _saveFileDialog.FileSelected += SaveFileDialogOnFileSelected;
 
@@ -109,6 +113,25 @@ public partial class Game : Node3D
         _mapGenerationMenu.OnWaterLevelChanged += MapGenerationMenuOnOnWaterLevelChanged;
         _terrainVisualOptions.OnDisplayOptionsChanged += TerrainVisualOptionsOnOnTerrainVisualOptionsChanged;
         _generateMapButton.Pressed += GenerateMapButtonOnPressed;
+    }
+
+    private void OnGenerationParameters(object sender, EventArgs e)
+    {
+        _logger.Log("Parameters changed, trying to regenerate");
+        var generator = _mapGenerationMenu.SelectedGenerator;
+        if (generator == null) return;
+
+        WorldData.TerrainData.Clear();
+        WorldData.TreesData.ClearLayers();
+        var map = generator.GenerateMap();
+
+        _mapGenerationMenu.ApplySelectedInterpolation(map);
+        MapHelpers.MultiplyHeight(map, _mapGenerationMenu.CurNoiseInfluence);
+        map = MapHelpers.SmoothMap(map);
+
+        WorldData.TerrainData.SetTerrain(map);
+        _terrainScene2D.RedrawTerrainImage();
+        _terrainScene2D.UpdateTerrainTexture();
     }
 
     private void LoadFileDialogOnFileSelected(string path)
@@ -139,13 +162,21 @@ public partial class Game : Node3D
     {
         _logger.Log(path);
 
-        var generationConfig = _mapGenerationMenu.GetLastUsedConfig();
+        if (path.GetExtension() == "json")
+        {
+            var generationConfig = _mapGenerationMenu.GetLastUsedConfig();
+            
+            var data = _worldData.ToJson(generationConfig);
 
-        var data = _worldData.ToJson(generationConfig);
+            var saveFile = FileAccess.Open(path, FileAccess.ModeFlags.Write);
 
-        var saveFile = FileAccess.Open(path, FileAccess.ModeFlags.Write);
-
-        saveFile.StoreLine(data);
+            saveFile.StoreLine(data);
+        }
+        else if (path.GetExtension() == "png")
+        {
+            var image = _terrainScene2D.GetTerrainImage();
+            image.SavePng(path);
+        }
     }
 
     private void SaveTerrain()
@@ -421,7 +452,8 @@ public partial class Game : Node3D
     {
         _logger.Log($"Generation title tip: {tip}", LogMark.Start);
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _terrainScene2D.SetTitleTip(tip);
+        //_terrainScene2D.SetTitleTip(tip);
+        _generationTitleTip.Text = tip;
         _logger.Log($"Generation title tip: {tip}", LogMark.End);
     }
     private async Task GenerateTerrainAsync()

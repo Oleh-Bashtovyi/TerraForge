@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://ckgwmiiux24bu"]
+[gd_scene load_steps=14 format=3 uid="uid://ckgwmiiux24bu"]
 
 [ext_resource type="Script" uid="uid://c8djttepxw168" path="res://Scenes/CoreModules/GenerationMenu/MapGenerationMenu.cs" id="1_5x4vo"]
 [ext_resource type="Script" uid="uid://dnsj27ohnr26u" path="res://Scenes/GeneratorOptions/DiamondSquareOptions.cs" id="3_m3gtq"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/BuildingBlocks/Containers/OptionsContainer.tscn" id="5_odnn8"]
 [ext_resource type="Script" uid="uid://csqs03kan253h" path="res://Scenes/GeneratorOptions/SimplexOptions.cs" id="6_m3gtq"]
 [ext_resource type="PackedScene" uid="uid://cs3qk4i5r62mw" path="res://Scenes/FeatureOptions/Island/IslandOptions.tscn" id="6_mscmd"]
+[ext_resource type="Script" uid="uid://cps8x3wxwyp6e" path="res://Scenes/GeneratorOptions/ValueNoiseOptions.cs" id="7_e0j43"]
 [ext_resource type="PackedScene" uid="uid://c111y36ggt3us" path="res://Scenes/FeatureOptions/TreePlacement/TreePlacementOptions.tscn" id="7_oqg8v"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jixox"]
@@ -123,6 +124,12 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("6_m3gtq")
+
+[node name="ValueNoiseOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+script = ExtResource("7_e0j43")
 
 [node name="AdjustmentsMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2

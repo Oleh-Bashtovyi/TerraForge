@@ -36,6 +36,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private BaseGeneratorOptions _worleyOptions;
     private BaseGeneratorOptions _perlinOptions;
     private BaseGeneratorOptions _simplexOptions;
+    private BaseGeneratorOptions _valueNoiseOptions;
     private OptionsContainer _adjustmentsContainer;
     private OptionsContainer _generatorsContainer;
     private CheckBox _domainWarpingCheckBox;
@@ -70,23 +71,22 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     [InputOption("Perlin noise",   id: 2)]
     [InputOption("Worley noise",   id: 3)]
     [InputOption("Simplex noise",  id: 4)]
+    [InputOption("Value noise",    id: 5)]
     public int SelectedGeneratorItemId
     {
         set
         {
+            _selectedGenerator?.Hide();
+
             _selectedGenerator = value switch
             {
                 1 => _diamondSquareOptions,
                 2 => _perlinOptions,
                 3 => _worleyOptions,
                 4 => _simplexOptions,
+                5 => _valueNoiseOptions,
                 _ => _selectedGenerator
             };
-
-            _diamondSquareOptions.Hide();
-            _perlinOptions.Hide();
-            _worleyOptions.Hide();
-            _simplexOptions.Hide();
 
             if (_selectedGenerator != null)
             {
@@ -201,12 +201,15 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         _perlinOptions = GetNode<BaseGeneratorOptions>("%PerlinOptions");
         _worleyOptions = GetNode<BaseGeneratorOptions>("%WorleyOptions");
         _simplexOptions = GetNode<BaseGeneratorOptions>("%SimplexOptions");
+        _valueNoiseOptions = GetNode<BaseGeneratorOptions>("%ValueNoiseOptions");
         _diamondSquareOptions = GetNode<BaseGeneratorOptions>("%DiamondSquareOptions");
         _generatorsContainer = GetNode<OptionsContainer>("%GeneratorsContainer");
         _adjustmentsContainer = GetNode<OptionsContainer>("%AdjustmentsContainer");
         _diamondSquareOptions.ParametersChanged += HandleParametersChanged;
         _perlinOptions.ParametersChanged += HandleParametersChanged;
         _worleyOptions.ParametersChanged += HandleParametersChanged;
+        _simplexOptions.ParametersChanged += HandleParametersChanged;
+        _valueNoiseOptions.ParametersChanged += HandleParametersChanged;
         InputLineManager.CreateInputLinesForObject(this, _adjustmentsContainer, "Adjustments");
         InputLineManager.CreateInputLinesForObject(this, _generatorsContainer, "Generator selection");
         
