@@ -1,18 +1,13 @@
-﻿using System;
+﻿using Godot;
+using System;
 using System.Collections.Generic;
-using Godot;
+using TerrainGenerationApp.Domain.Enums;
 using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 
 namespace TerrainGenerationApp.Domain.Extensions;
 
 public static class MapExtensions
 {
-    public enum InterpolationType
-    {
-        None,
-        Bilinear,
-        SmoothStep,
-    }
     public static int Height<T>(this T[,] map) => map.GetLength(0);
 
     public static int Width<T>(this T[,] map) => map.GetLength(1);
@@ -53,17 +48,17 @@ public static class MapExtensions
 
     public static float GetValueAt(this float[,] map, 
         Vector2 position, 
-        InterpolationType interpolation = InterpolationType.Bilinear) => map.GetValueAt(position.Y, position.X, interpolation);
+        MapInterpolation mapInterpolation = MapInterpolation.Bilinear) => map.GetValueAt(position.Y, position.X, mapInterpolation);
 
     public static float GetValueAt(this float[,] map,
         float row, 
         float col, 
-        InterpolationType interpolation = InterpolationType.Bilinear)
+        MapInterpolation mapInterpolation = MapInterpolation.Bilinear)
     {
         row = Mathf.Clamp(row, 0f, map.Height() - 1);
         col = Mathf.Clamp(col, 0f, map.Width() - 1);
 
-        if (interpolation == InterpolationType.Bilinear)
+        if (mapInterpolation == MapInterpolation.Bilinear)
         {
             var row1 = Mathf.FloorToInt(row);
             var row2 = Mathf.CeilToInt(row);
@@ -73,7 +68,7 @@ public static class MapExtensions
             var v2 = Mathf.Lerp(map[row2, col1], map[row2, col2], col - col1);
             return Mathf.Lerp(v1, v2, row - row1);
         }
-        if (interpolation == InterpolationType.SmoothStep)
+        if (mapInterpolation == MapInterpolation.SmoothStep)
         {
             var row1 = Mathf.FloorToInt(row);
             var row2 = Mathf.CeilToInt(row);
@@ -92,11 +87,11 @@ public static class MapExtensions
     public static float GetValueUsingIndexProgress(this float[,] map, 
         float rowProgress, 
         float colProgress, 
-        InterpolationType interpolation = InterpolationType.Bilinear)
+        MapInterpolation mapInterpolation = MapInterpolation.Bilinear)
     {
         var row = rowProgress * (map.Height() - 1);
         var col = colProgress * (map.Width() - 1);
-        return map.GetValueAt(row, col, interpolation);
+        return map.GetValueAt(row, col, mapInterpolation);
     }
 
     public static float GetValueAtCenter(this float[,] map,
@@ -105,7 +100,7 @@ public static class MapExtensions
     public static float GetValueAtCenter(this float[,] map, 
         int row, 
         int col, 
-        InterpolationType interpolation = InterpolationType.Bilinear) => map.GetValueAt(row + 0.5f, col + 0.5f, interpolation);
+        MapInterpolation mapInterpolation = MapInterpolation.Bilinear) => map.GetValueAt(row + 0.5f, col + 0.5f, mapInterpolation);
 
     public static void SetValueAt<T>(this T[,] map, Vector2I position, T value) => map.SetValueAt(position.Y, position.X, value);
 

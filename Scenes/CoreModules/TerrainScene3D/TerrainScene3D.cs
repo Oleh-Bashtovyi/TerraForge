@@ -276,7 +276,7 @@ public partial class TerrainScene3D : Node3D
         scene.GridCellResolution = TerrainGridCellResolution;
         scene.HeightScaleFactor = TerrainHeightScale;
         scene.SetBoundaries(rowStart, rowEnd, colStart, colEnd);
-        scene.GenerateChunk(_visualSettings, _worldData, _terrainMeshSettings.MeshInterpolation);
+        scene.GenerateChunk(_visualSettings, _worldData, _terrainMeshSettings.MeshMapInterpolation);
 
         // Set the position of the chunk in world space
         var posGrid = new Vector3(colStart * TerrainGridCellSize, 0, rowStart * TerrainGridCellSize);

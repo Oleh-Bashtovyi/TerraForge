@@ -1,4 +1,5 @@
 ﻿using System;
+using TerrainGenerationApp.Domain.Enums;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Visualization;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
@@ -13,7 +14,7 @@ public partial class TerrainMeshOptions : OptionsContainer
     private int _gridCellResolution = 5;
     private float _gridCellSize = 1.0f;
     private float _heightScale = 15.0f;
-    private MapExtensions.InterpolationType _interpolation = MapExtensions.InterpolationType.Bilinear;
+    private MapInterpolation _mapInterpolation = MapInterpolation.Bilinear;
 
     public event Action OnMeshOptionsChanged;
 
@@ -58,15 +59,15 @@ public partial class TerrainMeshOptions : OptionsContainer
 
     [InputLine(Description = "Mesh interpolation:")]
     [InputLineCombobox(selected: 1, bind: ComboboxBind.Id)]
-    [InputOption("None",        id: (int)MapExtensions.InterpolationType.None)]
-    [InputOption("Linear",      id:(int)MapExtensions.InterpolationType.Bilinear)]
-    [InputOption("Smooth step", id: (int)MapExtensions.InterpolationType.SmoothStep)]
-    public MapExtensions.InterpolationType Interpolation
+    [InputOption("None",        id: (int)MapInterpolation.None)]
+    [InputOption("Linear",      id: (int)MapInterpolation.Bilinear)]
+    [InputOption("Smooth step", id: (int)MapInterpolation.SmoothStep)]
+    public MapInterpolation MapInterpolation
     {
-        get => _interpolation;
+        get => _mapInterpolation;
         set
         {
-            _interpolation = value;
+            _mapInterpolation = value;
             _settings.SetInterpolation(value);
             OnMeshOptionsChanged?.Invoke();
         }
@@ -98,10 +99,10 @@ public partial class TerrainMeshOptions : OptionsContainer
         _gridCellResolution = _settings.GridCellResolution;
         _gridCellSize = _settings.GridCellSize;
         _heightScale = _settings.HeightScale;
-        _interpolation = _settings.MeshInterpolation;
+        _mapInterpolation = _settings.MeshMapInterpolation;
         FindInputLine<InputLineSlider>(nameof(HeightScale))?.SetValue(_heightScale, invokeEvent: false);
         FindInputLine<InputLineSlider>(nameof(GridCellSize))?.SetValue(_gridCellSize, invokeEvent: false);
         FindInputLine<InputLineSlider>(nameof(GridCellResolution))?.SetValue(_gridCellResolution, invokeEvent: false);
-        FindInputLine<InputLineCombobox>(nameof(Interpolation))?.SetSelectedById((int)Interpolation, invokeEvent:false);
+        FindInputLine<InputLineCombobox>(nameof(MapInterpolation))?.SetSelectedById((int)MapInterpolation, invokeEvent:false);
     }
 }

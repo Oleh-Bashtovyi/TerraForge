@@ -1,7 +1,7 @@
 ﻿using Godot;
 using System;
 using TerrainGenerationApp.Domain.Core;
-using TerrainGenerationApp.Domain.Extensions;
+using TerrainGenerationApp.Domain.Enums;
 using TerrainGenerationApp.Domain.Visualization;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.TerrainScene3D;
@@ -51,7 +51,7 @@ public partial class TerrainChunk : MeshInstance3D
     public float ChunkWidth => (_colEnd - _colStart) * GridCellSize;
     public float ChunkHeight => (_rowEnd - _rowStart) * GridCellSize;
 
-    public void GenerateChunk(IWorldVisualSettings settings, IWorldData worldData, MapExtensions.InterpolationType interpolation)
+    public void GenerateChunk(IWorldVisualSettings settings, IWorldData worldData, MapInterpolation mapInterpolation)
     {
         if (_rowStart >= _rowEnd || _colStart >= _colEnd)
         {
@@ -82,7 +82,7 @@ public partial class TerrainChunk : MeshInstance3D
                     Mathf.Lerp(_colStart, _colEnd, percentX),
                     Mathf.Lerp(_rowStart, _rowEnd, percentZ));
 
-                var height = worldData.TerrainData.HeightAt(mapPos, interpolation);
+                var height = worldData.TerrainData.HeightAt(mapPos, mapInterpolation);
                 vertex.Y = height * HeightScaleFactor;
 
                 var color = settings.TerrainSettings.GetColor(mapPos, worldData, false);
