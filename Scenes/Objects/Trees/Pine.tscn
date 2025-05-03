@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://uberjpv423cq"]
+
+[ext_resource type="ArrayMesh" uid="uid://ccf6gjnhvrnby" path="res://Resources/meshes/TreeV3_Plane_052.res" id="1_i753y"]
+
+[node name="Pine" type="MeshInstance3D"]
+transform = Transform3D(15, 0, 0, 0, -6.55671e-07, 15, 0, -15, -6.55671e-07, 0, 0, 0)
+mesh = ExtResource("1_i753y")

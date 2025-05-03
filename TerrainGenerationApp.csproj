@@ -1,0 +1,17 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.4.0">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>TerrainGenerationApp</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Scenes\FeaturesOptions\**" />
+    <Compile Remove="Scenes\GenerationOptions\TreePlacementOptions\**" />
+    <EmbeddedResource Remove="Scenes\FeaturesOptions\**" />
+    <EmbeddedResource Remove="Scenes\GenerationOptions\TreePlacementOptions\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Scenes\BuildingBlocks\Separators\" />
+    <Folder Include="Scenes\CoreModules\Camera\" />
+  </ItemGroup>
+</Project>

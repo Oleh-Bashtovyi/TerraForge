@@ -1,0 +1,14 @@
+[gd_resource type="PlaneMesh" load_steps=3 format=3 uid="uid://chcie4n2io61o"]
+
+[ext_resource type="Shader" uid="uid://ckpj7iuljx3gj" path="res://Resources/water.tres" id="1_xvoo2"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_62gk0"]
+render_priority = 0
+shader = ExtResource("1_xvoo2")
+shader_parameter/ColorParameter = Color(0.160784, 0.478431, 1, 1)
+
+[resource]
+material = SubResource("ShaderMaterial_62gk0")
+size = Vector2(160, 160)
+subdivide_width = 100
+subdivide_depth = 100

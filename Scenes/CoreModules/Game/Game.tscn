@@ -1,0 +1,250 @@
+[gd_scene load_steps=13 format=3 uid="uid://dhk7rgiforkic"]
+
+[ext_resource type="Script" uid="uid://bn1xteopq2m60" path="res://Scenes/CoreModules/Game/Game.cs" id="1_ug855"]
+[ext_resource type="PackedScene" uid="uid://djhdbxgy1amyg" path="res://Scenes/CoreModules/TerrainScene3D/TerrainScene3D.tscn" id="2_kmdfo"]
+[ext_resource type="PackedScene" uid="uid://ckgwmiiux24bu" path="res://Scenes/CoreModules/GenerationMenu/MapGenerationMenu.tscn" id="4_2ko6c"]
+[ext_resource type="PackedScene" uid="uid://cpg2jy1sloek" path="res://Scenes/CoreModules/TerrainScene2D/TerrainScene2D.tscn" id="4_a0xit"]
+[ext_resource type="PackedScene" uid="uid://dbnx0b1wuweva" path="res://Scenes/CoreModules/DisplayOptions/TerrainMeshOptions.tscn" id="6_1iig4"]
+[ext_resource type="PackedScene" uid="uid://by1ppq2hqwnt8" path="res://Scenes/CoreModules/DisplayOptions/TerrainVisualOptions.tscn" id="6_kwpie"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_27wfy"]
+content_margin_left = 10.0
+content_margin_top = 3.0
+content_margin_right = 10.0
+content_margin_bottom = 3.0
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 2
+border_width_top = 1
+border_width_right = 2
+border_width_bottom = 1
+border_color = Color(0.0846899, 0.0846899, 0.0846899, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+shadow_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_eqppl"]
+bg_color = Color(0.188235, 0.188235, 0.188235, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1iig4"]
+bg_color = Color(0.188235, 0.188235, 0.188235, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4s4h6"]
+resource_local_to_scene = true
+bg_color = Color(0.258824, 0.6, 0.286275, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wap7x"]
+bg_color = Color(0.862745, 0.815686, 0.337255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a0xit"]
+bg_color = Color(0.862745, 0.556863, 0.337255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_ug855")
+
+[node name="TerrainScene3D" parent="." instance=ExtResource("2_kmdfo")]
+unique_name_in_owner = true
+
+[node name="Generation_Layer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+
+[node name="ColorRect" type="ColorRect" parent="Generation_Layer"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 35.0
+grow_horizontal = 2
+color = Color(0.0941176, 0.0941176, 0.0941176, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Generation_Layer/ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FileMenuButton" type="MenuButton" parent="Generation_Layer/ColorRect/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_27wfy")
+text = "File"
+flat = false
+
+[node name="HSplitContainer" type="HSplitContainer" parent="Generation_Layer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 35.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/split_bar_background = SubResource("StyleBoxFlat_eqppl")
+split_offset = 60
+drag_area_highlight_in_editor = true
+
+[node name="RightContainer" type="Control" parent="Generation_Layer/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TerrainScene2D" parent="Generation_Layer/HSplitContainer/RightContainer" instance=ExtResource("4_a0xit")]
+unique_name_in_owner = true
+layout_mode = 1
+size_flags_horizontal = 3
+
+[node name="GenerationStatusLabel" type="Label" parent="Generation_Layer/HSplitContainer/RightContainer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 47.0
+offset_right = -47.0
+offset_bottom = 38.0
+grow_horizontal = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightPannel" type="ColorRect" parent="Generation_Layer/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.141176, 0.141176, 0.141176, 1)
+
+[node name="MapGenerationMenu" parent="Generation_Layer/HSplitContainer/RightPannel" instance=ExtResource("4_2ko6c")]
+unique_name_in_owner = true
+layout_mode = 1
+offset_bottom = -226.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Generation_Layer/HSplitContainer/RightPannel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -213.0
+offset_bottom = -67.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="TabContainer" type="TabContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1iig4")
+current_tab = 0
+tab_focus_mode = 1
+
+[node name="Display options" type="ScrollContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+metadata/_tab_index = 0
+
+[node name="Display options" type="MarginContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer/Display options"]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="DisplayOptions" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer/Display options/Display options" instance=ExtResource("6_kwpie")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Mesh options" type="ScrollContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+metadata/_tab_index = 1
+
+[node name="Mesh options" type="MarginContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer/Mesh options"]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="MeshOptions" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer/Mesh options/Mesh options" instance=ExtResource("6_1iig4")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ButtonsContainer" type="MarginContainer" parent="Generation_Layer/HSplitContainer/RightPannel"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -49.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_right = 20
+
+[node name="CenterContainer" type="CenterContainer" parent="Generation_Layer/HSplitContainer/RightPannel/ButtonsContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Generation_Layer/HSplitContainer/RightPannel/ButtonsContainer/CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="GenerateMapButton" type="Button" parent="Generation_Layer/HSplitContainer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 35)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_4s4h6")
+text = "Generate"
+
+[node name="ShowIn2DButton" type="Button" parent="Generation_Layer/HSplitContainer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 35)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_wap7x")
+text = "Show in 2d"
+
+[node name="ShowIn3DButton" type="Button" parent="Generation_Layer/HSplitContainer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 35)
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_a0xit")
+text = "Show in 3d"

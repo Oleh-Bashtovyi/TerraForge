@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bdl3gd0bpsw7y"]
+
+[ext_resource type="Script" uid="uid://d3oiyi7bxdgf5" path="res://Scenes/CoreModules/Camera/MovableCamera.cs" id="1_de016"]
+
+[node name="MovableCamera" type="Camera3D"]
+script = ExtResource("1_de016")

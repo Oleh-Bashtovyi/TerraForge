@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bggfl60e4fi02"]
+
+[ext_resource type="ArrayMesh" uid="uid://c8o0fd47rgk2f" path="res://Resources/meshes/TreeR1_Icosphere_001.res" id="1_efmia"]
+
+[node name="Tree" type="MeshInstance3D"]
+transform = Transform3D(15, 0, 0, 0, -6.55671e-07, 15, 0, -15, -6.55671e-07, 0, 0, 0)
+mesh = ExtResource("1_efmia")
