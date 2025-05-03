@@ -1,9 +1,8 @@
-[gd_scene load_steps=14 format=3 uid="uid://ckgwmiiux24bu"]
+[gd_scene load_steps=13 format=3 uid="uid://ckgwmiiux24bu"]
 
 [ext_resource type="Script" uid="uid://c8djttepxw168" path="res://Scenes/CoreModules/GenerationMenu/MapGenerationMenu.cs" id="1_5x4vo"]
 [ext_resource type="Script" uid="uid://dnsj27ohnr26u" path="res://Scenes/GeneratorOptions/DiamondSquareOptions.cs" id="3_m3gtq"]
 [ext_resource type="PackedScene" uid="uid://bagl6klwbcex2" path="res://Scenes/FeatureOptions/DomainWarping/DomainWarpingOptions.tscn" id="4_b8rru"]
-[ext_resource type="PackedScene" uid="uid://ds5ici2o3bfy0" path="res://Scenes/FeatureOptions/WaterErosion/WaterErosionOptions.tscn" id="5_3mgfn"]
 [ext_resource type="Script" uid="uid://beetbpesxql8s" path="res://Scenes/GeneratorOptions/WorleyOptions.cs" id="5_e0j43"]
 [ext_resource type="Script" uid="uid://dh2e31h2uv1se" path="res://Scenes/GeneratorOptions/PerlinNoise/PerlinOptions.cs" id="5_m3gtq"]
 [ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/BuildingBlocks/Containers/OptionsContainer.tscn" id="5_odnn8"]
@@ -192,20 +191,6 @@ size_flags_vertical = 3
 theme_override_constants/margin_left = 25
 
 [node name="TreePlacementOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/TreePlacementMargin" instance=ExtResource("7_oqg8v")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-
-[node name="WaterErosionCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "🌧Water erosion"
-
-[node name="WaterErosionMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_constants/margin_left = 25
-
-[node name="WaterErosionOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/WaterErosionMargin" instance=ExtResource("5_3mgfn")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

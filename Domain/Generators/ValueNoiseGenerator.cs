@@ -16,9 +16,9 @@ public class ValueNoiseGenerator
     private bool _enableWarping = true;
     private Random _random;
 
-    // Двовимірний масив для зберігання згенерованих випадкових значень
+    // Two-dimensional array for storing generated random values  
     private float[,] _noiseMap;
-    private int _noiseMapSize = 256;
+    private readonly int _noiseMapSize = 256;
 
     public int Seed
     {
@@ -89,12 +89,12 @@ public class ValueNoiseGenerator
     {
         _noiseMap = new float[_noiseMapSize, _noiseMapSize];
 
-        // Заповнюємо шумову карту випадковими значеннями
+        // Fill the noise map with random values  
         for (int y = 0; y < _noiseMapSize; y++)
         {
             for (int x = 0; x < _noiseMapSize; x++)
             {
-                _noiseMap[x, y] = (float)_random.NextDouble() * 2.0f - 1.0f; // Значення в діапазоні [-1, 1]
+                _noiseMap[x, y] = (float)_random.NextDouble();
             }
         }
     }
@@ -115,16 +115,14 @@ public class ValueNoiseGenerator
 
                 if (_enableWarping)
                 {
-                    // Застосовуємо domain warping за допомогою базового value noise
+                    // Apply domain warping using base value noise  
                     float warpX = Value2D(xSample * wsize, ySample * wsize) * wstr;
-                    height = Value2DOctaves(xSample + warpX, ySample + warpX);
+                    map[y, x] = Value2DOctaves(xSample + warpX, ySample + warpX);
                 }
                 else
                 {
-                    height = Value2DOctaves(xSample, ySample);
+                    map[y, x] = Value2DOctaves(xSample, ySample);
                 }
-
-                map[y, x] = (height + 1.0f) / 2.0f; // Нормалізуємо до діапазону [0, 1]
             }
         }
         return map;
@@ -145,7 +143,7 @@ public class ValueNoiseGenerator
             frequency *= _lacunarity;
         }
 
-        // Нормалізуємо до діапазону [-1, 1]
+        // Normalize to the range [0, 1]  
         return value / maxValue;
     }
 
@@ -164,56 +162,55 @@ public class ValueNoiseGenerator
             frequency *= _lacunarity;
         }
 
-        // Нормалізуємо до діапазону [-1, 1]
+        // Normalize to the range [0, 1]  
         return value / maxValue;
     }
 
     public float Value1D(float x)
     {
-        // Визначаємо цілочисельні координати для інтерполяції
+        // Determine integer coordinates for interpolation  
         int x0 = (int)Math.Floor(x) & (_noiseMapSize - 1);
         int x1 = (x0 + 1) & (_noiseMapSize - 1);
 
-        // Локальні координати для інтерполяції
+        // Local coordinates for interpolation  
         float dx = x - (float)Math.Floor(x);
 
-        // Згладжуємо локальні координати
+        // Smooth local coordinates  
         float u = Fade(dx);
 
-        // Отримуємо значення шуму у відповідних точках
+        // Get noise values at the corresponding points  
         float v0 = _noiseMap[x0, 0];
         float v1 = _noiseMap[x1, 0];
 
-        // Інтерполяція між значеннями
+        // Interpolate between values  
         return Lerp(v0, v1, u);
     }
 
     public float Value2D(float x, float y)
     {
-        // Визначаємо цілочисельні координати для інтерполяції
+        // Determine integer coordinates for interpolation  
         int x0 = (int)Math.Floor(x) & (_noiseMapSize - 1);
         int y0 = (int)Math.Floor(y) & (_noiseMapSize - 1);
         int x1 = (x0 + 1) & (_noiseMapSize - 1);
         int y1 = (y0 + 1) & (_noiseMapSize - 1);
 
-        // Локальні координати для інтерполяції
+        // Local coordinates for interpolation  
         float dx = x - (float)Math.Floor(x);
         float dy = y - (float)Math.Floor(y);
 
-        // Згладжуємо локальні координати
+        // Smooth local coordinates  
         float u = Fade(dx);
         float v = Fade(dy);
 
-        // Отримуємо значення шуму у кутах квадрата
+        // Get noise values at the corners of the square  
         float v00 = _noiseMap[x0, y0];
         float v10 = _noiseMap[x1, y0];
         float v01 = _noiseMap[x0, y1];
         float v11 = _noiseMap[x1, y1];
 
-        // Білінійна інтерполяція
+        // Bilinear interpolation  
         float nx0 = Lerp(v00, v10, u);
         float nx1 = Lerp(v01, v11, u);
-
         return Lerp(nx0, nx1, v);
     }
 

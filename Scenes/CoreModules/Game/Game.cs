@@ -37,7 +37,6 @@ public partial class Game : Node3D
     private readonly TerrainMeshSettings _terrainMeshSettings = new();
     private float[,] _curHeightMap;
     private Task? _generationTask;
-    private Task? _waterErosionTask;
 
     public IWorldData WorldData => _worldData;
     public IWorldVisualSettings VisualSettings => _worldVisualSettings;
@@ -129,6 +128,14 @@ public partial class Game : Node3D
         MapHelpers.MultiplyHeight(map, _mapGenerationMenu.CurNoiseInfluence);
         map = MapHelpers.SmoothMap(map);
 
+        
+
+        if (_mapGenerationMenu.EnableIslands)
+            map = _mapGenerationMenu.IslandsApplier.ApplyIslands(map);
+
+        if (_mapGenerationMenu.EnableDomainWarping)
+            map = _mapGenerationMenu.DomainWarpingApplier.ApplyWarping(map);
+
         WorldData.TerrainData.SetTerrain(map);
         _terrainScene2D.RedrawTerrainImage();
         _terrainScene2D.UpdateTerrainTexture();
@@ -217,40 +224,6 @@ public partial class Game : Node3D
         //_terrainScene2D.Visible = true;
     }
 
-    private void ApplyWaterErosionButtonOnPressed()
-    {
-        _applyWaterErosionButton.Disabled = true;
-
-        _waterErosionTask = Task.Run(WaterErosionPipelineAsync).ContinueWith(async t =>
-        {
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            _applyWaterErosionButton.Disabled = false;
-        });
-    }
-
-    private async Task WaterErosionPipelineAsync()
-    {
-        try
-        {
-            GD.Print("==============================================================");
-            _logger.LogMethodStart();
-
-            // TODO: Implement water erosion pipeline
-
-        }
-        catch (Exception e)
-        {
-            _logger.Log($"<ERROR>: {e.Message}");
-        }
-        finally
-        {
-            await EnableGenerationOptions();
-            await SetGenerationTitleTipAsync(string.Empty);
-            _logger.LogMethodEnd();
-            GD.Print("==============================================================");
-        }
-    }
-
     private void MapGenerationMenuOnOnWaterLevelChanged(object sender, EventArgs e)
     {
         _worldData.SetSeaLevel(_mapGenerationMenu.CurSeaLevel);
@@ -275,7 +248,6 @@ public partial class Game : Node3D
     {
         _terrainScene2D.RedrawAllImages();
         _terrainScene2D.UpdateAllTextures();
-        
         _terrainScene3D.RedrawChunks();
     }
 
@@ -300,12 +272,13 @@ public partial class Game : Node3D
             var generator = _mapGenerationMenu.SelectedGenerator;
             if (generator == null) return;
 
-            await DisableGenerationOptions();
+            await DisableGenerationOptionsAsync();
+
             await Clear2DSceneAsync();
             WorldData.TerrainData.Clear();
             WorldData.TreesData.ClearLayers();
 
-            await GenerateTerrainAsync(generator);
+            await GenerateTerrainAsync();
             await ApplyMapInterpolation();
             await ApplyInfluenceAsync();
             await ApplyTerrainSmoothingAsync();
@@ -319,81 +292,76 @@ public partial class Game : Node3D
             if (_mapGenerationMenu.EnableTrees)
                 await GenerateTrees();
 
-            await GenerateTerrainAsync();
+            await GenerateTerrain3DAsync();
 
             _mapGenerationMenu.UpdateCurrentConfigAsLastUsed();
         }
         catch (Exception e)
         {
-            _logger.Log($"<ERROR>: {e.Message}");
+            _logger.LogError(e.Message);
         }
         finally
         {
-            await EnableGenerationOptions();
+            await EnableGenerationOptionsAsync();
             await SetGenerationTitleTipAsync(string.Empty);
             _logger.LogMethodEnd();
             GD.Print("==============================================================");
         }
     }
-    private async Task GenerateTerrainAsync(BaseGeneratorOptions generator)
+
+    private async Task GenerateTerrainAsync()
     {
-        _logger.LogMethodStart();
+        _logger.Log("Generating terrain...");
         await SetGenerationTitleTipAsync("Generating map...");
-        _curHeightMap = generator.GenerateMap();
-        _worldData.TerrainData.SetTerrain(_curHeightMap);
-        await RedrawTerrainAsync();
-        _logger.LogMethodEnd();
+        _curHeightMap = _mapGenerationMenu.SelectedGenerator.GenerateMap();
+        await SetAndRedrawTerrainAsync(_curHeightMap);
     }
 
     private async Task ApplyMapInterpolation()
     {
-        _logger.LogMethodStart();
+        _logger.Log("Applying interpolation...");
         await SetGenerationTitleTipAsync("Applying interpolation...");
         _mapGenerationMenu.ApplySelectedInterpolation(_curHeightMap);
-        _worldData.TerrainData.SetTerrain(_curHeightMap);
-        await RedrawTerrainAsync();
-        _logger.LogMethodEnd();
+        await SetAndRedrawTerrainAsync(_curHeightMap);
     }
+
     private async Task ApplyInfluenceAsync()
     {
-        _logger.LogMethodStart();
+        _logger.Log("Applying influence...");
         await SetGenerationTitleTipAsync("Applying influence...");
         MapHelpers.MultiplyHeight(_curHeightMap, _mapGenerationMenu.CurNoiseInfluence);
-        _worldData.TerrainData.SetTerrain(_curHeightMap);
-        await RedrawTerrainAsync();
-        _logger.LogMethodEnd();
+        await SetAndRedrawTerrainAsync(_curHeightMap);
     }
+
     private async Task ApplyTerrainSmoothingAsync()
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Smoothing...");
+
         for (int i = 0; i < _mapGenerationMenu.CurSmoothCycles; i++)
         {
             _logger.Log($"Smoothing - iteration: {i + 1}/{_mapGenerationMenu.CurSmoothCycles}");
             _curHeightMap = MapHelpers.SmoothMap(_curHeightMap);
-            _worldData.TerrainData.SetTerrain(_curHeightMap);
-            await RedrawTerrainAsync();
+            await SetAndRedrawTerrainAsync(_curHeightMap);
         }
-        _logger.LogMethodEnd();
     }
+
     private async Task ApplyIslandsAsync()
     {
-        _logger.LogMethodStart();
+        _logger.Log("Making islands...");
         await SetGenerationTitleTipAsync("Making islands...");
         _curHeightMap = _mapGenerationMenu.IslandsApplier.ApplyIslands(_curHeightMap);
-        _worldData.TerrainData.SetTerrain(_curHeightMap);
-        await RedrawTerrainAsync();
-        _logger.LogMethodEnd();
+        await SetAndRedrawTerrainAsync(_curHeightMap);
     }
+
     private async Task ApplyDomainWarpingAsync()
     {
-        _logger.LogMethodStart();
+        _logger.Log("Applying domain warping...");
         await SetGenerationTitleTipAsync("Applying domain warping...");
         _curHeightMap = _mapGenerationMenu.DomainWarpingApplier.ApplyWarping(_curHeightMap);
-        _worldData.TerrainData.SetTerrain(_curHeightMap);
-        await RedrawTerrainAsync();
-        _logger.LogMethodEnd();
+        await SetAndRedrawTerrainAsync(_curHeightMap);
     }
+
     private async Task GenerateTrees()
     {
         _logger.LogMethodStart();
@@ -409,20 +377,8 @@ public partial class Game : Node3D
         await RedrawTreesAsync();
         _logger.LogMethodEnd();
     }
-    private async Task DisableGenerationOptions()
-    {
-        _logger.LogMethodStart();
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _mapGenerationMenu.DisableOptions();
-        _logger.LogMethodEnd();
-    }
-    private async Task EnableGenerationOptions()
-    {
-        _logger.LogMethodStart();
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _mapGenerationMenu.EnableOptions();
-        _logger.LogMethodEnd();
-    }
+
+
     private async Task Clear2DSceneAsync()
     {
         _logger.LogMethodStart();
@@ -431,15 +387,11 @@ public partial class Game : Node3D
         _terrainScene2D.UpdateAllTextures();
         _logger.LogMethodEnd();
     }
-    private async Task RedrawTerrainAsync()
-    {
-        _logger.LogMethodStart();
-        _terrainScene2D.RedrawTerrainImage();
-        _logger.Log("Waiting for Process frame...");
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        _terrainScene2D.UpdateTerrainTexture();
-        _logger.LogMethodEnd();
-    }
+
+
+
+
+
     private async Task RedrawTreesAsync()
     {
         _logger.LogMethodStart();
@@ -456,12 +408,14 @@ public partial class Game : Node3D
         _generationTitleTip.Text = tip;
         _logger.Log($"Generation title tip: {tip}", LogMark.End);
     }
-    private async Task GenerateTerrainAsync()
+    private async Task GenerateTerrain3DAsync()
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Generating chunks...");
         await ClearChunks();
-        await _terrainScene3D.InitWater();
+        await UpdateTerrain3DMisc();
+
+        //await _terrainScene3D.InitWater();
 
         while (_terrainScene3D.IsTerrainChunksGenerating())
         {
@@ -478,9 +432,60 @@ public partial class Game : Node3D
         _logger.LogMethodEnd();
     }
 
+
+    private async Task UpdateTerrain3DMisc()
+    {
+        _logger.Log("Updating terrain 3d misc...");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _terrainScene3D.UpdateWaterMesh();
+        _terrainScene3D.UpdateCameraMovementBounds();
+        _terrainScene3D.UpdateLight();
+    }
+
     private async Task ClearChunks()
     {
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _terrainScene3D.ClearWorld();
+    }
+
+    private void SetAndRedrawTerrain(float[,] terrain)
+    {
+        _worldData.TerrainData.SetTerrain(terrain);
+        _terrainScene2D.RedrawTerrainImage();
+        _terrainScene2D.UpdateTerrainTexture();
+    }
+
+    private async Task SetAndRedrawTerrainAsync(float[,] terrain)
+    {
+        _worldData.TerrainData.SetTerrain(terrain);
+        _terrainScene2D.RedrawTerrainImage();
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _terrainScene2D.UpdateTerrainTexture();
+    }
+
+    private void DisableGenerationOptions()
+    {
+        _logger.Log("Disabling options");
+        _mapGenerationMenu.DisableOptions();
+    }
+
+    private void EnableGenerationOptions()
+    {
+        _logger.Log("Enabling options");
+        _mapGenerationMenu.EnableOptions();
+    }
+
+    private async Task DisableGenerationOptionsAsync()
+    {
+        _logger.Log("Disabling options");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _mapGenerationMenu.DisableOptions();
+    }
+
+    private async Task EnableGenerationOptionsAsync()
+    {
+        _logger.Log("Enabling options");
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _mapGenerationMenu.EnableOptions();
     }
 }

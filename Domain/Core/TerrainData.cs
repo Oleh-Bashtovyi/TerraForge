@@ -10,7 +10,6 @@ public class TerrainData
     private readonly Logger<TerrainData> _logger = new();
     private float[,] _heightMap = new float[1, 1];
     private float[,] _slopesMap = new float[1, 1];
-    private bool _slopesGenerated = true;
 
     public float[,] HeightMap
     {
@@ -24,11 +23,7 @@ public class TerrainData
         private set => _slopesMap = value;
     }
 
-    public bool SlopesGenerated
-    {
-        get => _slopesGenerated;
-        private set => _slopesGenerated = value;
-    }
+    public bool SlopesGenerated { get; private set; } = true;
 
     public int TerrainMapHeight => _heightMap.Height();
     public int TerrainMapWidth => _heightMap.Width();
@@ -67,44 +62,44 @@ public class TerrainData
         }
     }
 
-    public float HeightAt(int row, int col)
+    public float HeightAt(int row, int col, MapExtensions.InterpolationType interpolation = MapExtensions.InterpolationType.Bilinear)
     {
-        return HeightMap.GetValueAt(row, col);
+        return HeightMap.GetValueAt(row, col, interpolation);
     }
 
-    public float HeightAt(float row, float col)
+    public float HeightAt(float row, float col, MapExtensions.InterpolationType interpolation = MapExtensions.InterpolationType.Bilinear)
     {
-        return HeightMap.GetValueAt(row, col);
+        return HeightMap.GetValueAt(row, col, interpolation);
     }
 
-    public float HeightAt(Vector2I position)
+    public float HeightAt(Vector2I position, MapExtensions.InterpolationType interpolation = MapExtensions.InterpolationType.Bilinear)
     {
-        return HeightMap.GetValueAt(position);
+        return HeightMap.GetValueAt(position, interpolation);
     }
 
-    public float HeightAt(Vector2 position)
+    public float HeightAt(Vector2 position, MapExtensions.InterpolationType interpolation = MapExtensions.InterpolationType.Bilinear)
     {
-        return HeightMap.GetValueAt(position);
+        return HeightMap.GetValueAt(position, interpolation);
     }
 
-    public float SlopeAt(Vector2I position)
+    public float SlopeAt(Vector2I position, MapExtensions.InterpolationType interpolation = MapExtensions.InterpolationType.Bilinear)
     {
-        return SlopesMap.GetValueAt(position);
+        return SlopesMap.GetValueAt(position, interpolation);
     }
 
-    public float SlopeAt(Vector2 position)
+    public float SlopeAt(Vector2 position, MapExtensions.InterpolationType interpolation = MapExtensions.InterpolationType.Bilinear)
     {
-        return SlopesMap.GetValueAt(position);
+        return SlopesMap.GetValueAt(position, interpolation);
     }
 
-    public float SlopeAt(int row, int col)
+    public float SlopeAt(int row, int col, MapExtensions.InterpolationType interpolation = MapExtensions.InterpolationType.Bilinear)
     {
-        return SlopesMap.GetValueAt(row, col);
+        return SlopesMap.GetValueAt(row, col, interpolation);
     }
 
-    public float SlopeAt(float row, float col)
+    public float SlopeAt(float row, float col, MapExtensions.InterpolationType interpolation = MapExtensions.InterpolationType.Bilinear)
     {
-        return SlopesMap.GetValueAt(row, col);
+        return SlopesMap.GetValueAt(row, col, interpolation);
     }
 }
 

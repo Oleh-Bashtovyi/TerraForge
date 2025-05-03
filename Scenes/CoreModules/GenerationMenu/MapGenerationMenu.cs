@@ -5,7 +5,6 @@ using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Generators.DomainWarping;
 using TerrainGenerationApp.Domain.Generators.Islands;
 using TerrainGenerationApp.Domain.Generators.Trees;
-using TerrainGenerationApp.Domain.Generators.WaterErosion;
 using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
@@ -13,7 +12,6 @@ using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 using TerrainGenerationApp.Scenes.FeatureOptions.DomainWarping;
 using TerrainGenerationApp.Scenes.FeatureOptions.Island;
 using TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
-using TerrainGenerationApp.Scenes.FeatureOptions.WaterErosion;
 using TerrainGenerationApp.Scenes.GeneratorOptions;
 
 
@@ -40,12 +38,10 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private OptionsContainer _adjustmentsContainer;
     private OptionsContainer _generatorsContainer;
     private CheckBox _domainWarpingCheckBox;
-    private CheckBox _waterErosionCheckbox;
     private CheckBox _islandsOptionsCheckbox;
     private CheckBox _treeOptionsCheckbox;
     private IslandOptions _islandOptions;
     private DomainWarpingOptions _domainWarpingOptions;
-    private WaterErosionOptions _waterErosionOptions;
     private TreePlacementOptions _treePlacementOptions;
 
     private int _discreteSteps = 10;
@@ -58,7 +54,6 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private MapInterpolationType _mapInterpolationType;
 	private BaseGeneratorOptions _selectedGenerator;
 	private DomainWarpingApplier _domainWarpingApplier;
-	private WaterErosionApplier _waterErosionApplier;
 	private IslandApplier _islandApplier;
     private TreesApplier _treesApplier;
 
@@ -190,7 +185,6 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     public BaseGeneratorOptions SelectedGenerator => _selectedGenerator;
     public IDomainWarpingApplier DomainWarpingApplier => _domainWarpingApplier;
     public IIslandsApplier IslandsApplier => _islandApplier;
-    public IWaterErosionApplier WaterErosionApplier => _waterErosionApplier;
     public ITreesApplier TreesApplier => _treesApplier;
 	public TreePlacementOptions TreePlacementOptions => _treePlacementOptions;
 
@@ -215,23 +209,19 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         
         // Features enabling
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
-        _waterErosionCheckbox = GetNode<CheckBox>("%WaterErosionCheckBox");
         _islandsOptionsCheckbox = GetNode<CheckBox>("%IslandOptionsCheckBox");
         _treeOptionsCheckbox = GetNode<CheckBox>("%TreePlacementCheckBox");
         _domainWarpingCheckBox.Toggled += OnDomainWarpingCheckBoxToggled;
-        _waterErosionCheckbox.Toggled += OnWaterErosionCheckBoxToggled;
         _islandsOptionsCheckbox.Toggled += OnIslandOptionsCheckBoxToggled;
         _treeOptionsCheckbox.Toggled += OnTreeOptionsCheckboxOnToggled;
 
         // Features
         _treePlacementOptions = GetNode<TreePlacementOptions>("%TreePlacementOptions");
         _domainWarpingOptions = GetNode<DomainWarpingOptions>("%DomainWarpingOptions");
-        _waterErosionOptions = GetNode<WaterErosionOptions>("%WaterErosionOptions");
         _islandOptions = GetNode<IslandOptions>("%IslandOptions");
         _domainWarpingOptions.ParametersChanged += HandleParametersChanged;
         _islandOptions.ParametersChanged += HandleParametersChanged;
         _domainWarpingApplier = _domainWarpingOptions.DomainWarpingApplier;
-        _waterErosionApplier = _waterErosionOptions.WaterErosionApplier;
         _islandApplier = _islandOptions.IslandApplier;
         _treesApplier = _treePlacementOptions.TreesApplier;
     }
@@ -342,11 +332,9 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         _selectedGenerator?.DisableOptions();
         _adjustmentsContainer.DisableOptions();
         _domainWarpingCheckBox.Disabled = true;
-        _waterErosionCheckbox.Disabled = true;
         _islandsOptionsCheckbox.Disabled = true;
         _treeOptionsCheckbox.Disabled = true;
 		_domainWarpingOptions.DisableOptions();
-        _waterErosionOptions.DisableOptions();
         _islandOptions.DisableOptions();
         _treePlacementOptions.DisableOptions();
     }
@@ -355,11 +343,9 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         _selectedGenerator?.EnableOptions();
         _adjustmentsContainer.EnableOptions();
         _domainWarpingCheckBox.Disabled = false;
-        _waterErosionCheckbox.Disabled = false;
         _islandsOptionsCheckbox.Disabled = false;
         _treeOptionsCheckbox.Disabled = false;
         _domainWarpingOptions.EnableOptions();
-        _waterErosionOptions.EnableOptions();
         _islandOptions.EnableOptions();
         _treePlacementOptions.EnableOptions();
     }
@@ -367,11 +353,6 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     {
         GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
     }
-    
-	private void OnWaterErosionCheckBoxToggled(bool toggledOn)
-	{
-		_waterErosionOptions.Visible = toggledOn;
-	}
 	
     private void OnDomainWarpingCheckBoxToggled(bool toggledOn)
 	{

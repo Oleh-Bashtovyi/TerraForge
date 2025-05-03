@@ -8,6 +8,7 @@ using TerrainGenerationApp.Domain.Utils;
 using TerrainGenerationApp.Domain.Visualization;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Pools;
 using TerrainGenerationApp.Scenes.CoreModules.Camera;
+using TerrainGenerationApp.Scenes.LoadedScenes;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.TerrainScene3D;
 
@@ -20,9 +21,13 @@ public partial class TerrainScene3D : Node3D
     private MovableCamera _movableCamera;
     private DirectionalLight3D _directionalLight;
 
-    private readonly Dictionary<PackedScene, NodePool<MeshInstance3D>> _treePools = new();
     private readonly Logger<TerrainScene3D> _logger = new();
+    private readonly NodePool<TerrainChunk> _chunkPool = new(LoadedScenes3D.TERRAIN_CHUNK_SCENE, 40);
+    private readonly Dictionary<PackedScene, NodePool<MeshInstance3D>> _treePools = new();
+    private readonly StandardMaterial3D _chunkMaterial = new();
     private readonly List<Node3D> _currentTrees = new();
+    private IWorldData _worldData;
+    private IWorldVisualSettings _visualSettings;
     private TerrainMeshSettings _terrainMeshSettings = new();
     private TerrainChunk? _currentTerrainChunk;
     private float[,]? _heightMap;
@@ -33,21 +38,14 @@ public partial class TerrainScene3D : Node3D
     private int _curTreeGridRow = 0;
     private int _curTreeGridCol = 0;
 
-    public int TreeChunkSize { get; } = 30;
-    public int TerrainChunkCellsCoverage { get; } = 15;
+    public int TreeChunkSize => 30;
+    public int TerrainChunkCellsCoverage => 15;
+    public int CameraMovementBoundsThreshold => 20; 
     public float TerrainHeightScale => _terrainMeshSettings.HeightScale;
     public float TerrainGridCellSize => _terrainMeshSettings.GridCellSize;
     public int TerrainGridCellResolution => _terrainMeshSettings.GridCellResolution;
-
-
-    public StandardMaterial3D ChunkMaterial = new StandardMaterial3D();
-
-    private readonly PackedScene _terrainChunkScene =
-        ResourceLoader.Load<PackedScene>("res://Scenes/CoreModules/TerrainScene3D/TerrainChunk.tscn");
-
-
-    private IWorldData _worldData;
-    private IWorldVisualSettings _visualSettings;
+    public float TerrainTotalMeshSizeX => TerrainGridCellSize * (_worldData.TerrainData.TerrainMapWidth - 1);
+    public float TerrainTotalMeshSizeZ => TerrainGridCellSize * (_worldData.TerrainData.TerrainMapHeight - 1);
 
     public override void _Ready()
     {
@@ -57,12 +55,12 @@ public partial class TerrainScene3D : Node3D
         _movableCamera = GetNode<MovableCamera>("%MovableCamera");
         _directionalLight = GetNode<DirectionalLight3D>("%DirectionalLight3D");
 
-        ChunkMaterial.VertexColorUseAsAlbedo = true;
-        ChunkMaterial.RoughnessTexture = null;
-        ChunkMaterial.Roughness = 1.0f;
-        ChunkMaterial.Metallic = 0.0f;
-        ChunkMaterial.MetallicSpecular = 0.5f;
-        ChunkMaterial.ShadingMode = BaseMaterial3D.ShadingModeEnum.PerPixel;
+        _chunkMaterial.VertexColorUseAsAlbedo = true;
+        _chunkMaterial.RoughnessTexture = null;
+        _chunkMaterial.Roughness = 1.0f;
+        _chunkMaterial.Metallic = 0.0f;
+        _chunkMaterial.MetallicSpecular = 0.5f;
+        _chunkMaterial.ShadingMode = BaseMaterial3D.ShadingModeEnum.PerPixel;
     }
 
     public void BindDisplayOptions(IWorldVisualSettings settings)
@@ -75,15 +73,15 @@ public partial class TerrainScene3D : Node3D
         _logger.Log("Clearing world...");
 
         foreach (var child in _chunksContainer.GetChildren())
-        {
-            child.QueueFree();
-        }
+            _chunksContainer.RemoveChild(child);
+        _chunkPool.Reset();
 
         foreach (var child in _treesContainer.GetChildren())
-        {
             _treesContainer.RemoveChild(child);
-        }
-
+        
+        foreach (var pool in _treePools.Values)
+            pool.Reset();
+        
         _heightMap = null;
         _curTerrainGridRow = 0;
         _curTerrainGridCol = 0;
@@ -93,12 +91,8 @@ public partial class TerrainScene3D : Node3D
         _areTreesGenerated = false;
         _currentTerrainChunk = null;
         _currentTrees.Clear();
-
-        foreach (var pool in _treePools.Values)
-        {
-            pool.Reset();
-        }
     }
+
 
     public bool IsTerrainChunksGenerating()
     {
@@ -112,34 +106,69 @@ public partial class TerrainScene3D : Node3D
 
     public async Task InitWater()
     {
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+/*        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         var meshSizeX = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapWidth - 1);
         var meshSizeZ = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapHeight - 1);
         _waterMesh.Position = new Vector3(
             meshSizeX / 2.0f,
             _worldData.SeaLevel * TerrainHeightScale,
             meshSizeZ / 2.0f);
-        ((PlaneMesh)_waterMesh.Mesh).Size = new Vector2(meshSizeX, meshSizeZ);
+        ((PlaneMesh)_waterMesh.Mesh).Size = new Vector2(meshSizeX, meshSizeZ);*/
 
 
-        // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
+/*        // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
         // Init camera limits
-        var minX = -20;
-        var maxX = meshSizeX + 20;
-        var minZ = -20;
-        var maxZ = meshSizeZ + 20;
-        var minY = -20;
-        var maxY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + 20;
-        _movableCamera.SetMovementLimits(minX, maxX, minY, maxY, minZ, maxZ);
+        var minX = -CameraMovementBoundsThreshold;
+        var maxX = meshSizeX + CameraMovementBoundsThreshold;
+        var minZ = -CameraMovementBoundsThreshold;
+        var maxZ = meshSizeZ + CameraMovementBoundsThreshold;
+        var minY = -CameraMovementBoundsThreshold;
+        var maxY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + CameraMovementBoundsThreshold;
+        _movableCamera.SetMovementLimits(minX, maxX, minY, maxY, minZ, maxZ);*/
 
 
         // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
         // Set direction light position
-        var lightPosX = meshSizeX / 2.0f;
+/*        var lightPosX = meshSizeX / 2.0f;
         var lightPosY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + 20;
         var lightPosZ = meshSizeZ / 2.0f;
+        _directionalLight.Position = new Vector3(lightPosX, lightPosY, lightPosZ);*/
+    }
+
+
+    public void UpdateWaterMesh()
+    {
+        _waterMesh.Position = new Vector3(
+           TerrainTotalMeshSizeX / 2.0f,
+            _worldData.SeaLevel * TerrainHeightScale,
+            TerrainTotalMeshSizeZ / 2.0f);
+
+        if (_waterMesh.Mesh is PlaneMesh planeWaterMesh)
+        {
+            planeWaterMesh.Size = new Vector2(TerrainTotalMeshSizeX, TerrainTotalMeshSizeZ);
+        }
+    }
+
+    public void UpdateLight()
+    {
+        // Set direction light position
+        var lightPosX = TerrainTotalMeshSizeX / 2.0f;
+        var lightPosY = TerrainHeightScale + Math.Max(TerrainTotalMeshSizeX, TerrainTotalMeshSizeZ) + 20;
+        var lightPosZ = TerrainTotalMeshSizeZ / 2.0f;
         _directionalLight.Position = new Vector3(lightPosX, lightPosY, lightPosZ);
     }
+
+    public void UpdateCameraMovementBounds()
+    {
+        var minX = -CameraMovementBoundsThreshold;
+        var maxX = TerrainTotalMeshSizeX + CameraMovementBoundsThreshold;
+        var minZ = -CameraMovementBoundsThreshold;
+        var maxZ = TerrainTotalMeshSizeZ + CameraMovementBoundsThreshold;
+        var minY = -CameraMovementBoundsThreshold;
+        var maxY = TerrainHeightScale + Math.Max(TerrainTotalMeshSizeX, TerrainTotalMeshSizeZ) + CameraMovementBoundsThreshold;
+        _movableCamera.SetMovementLimits(minX, maxX, minY, maxY, minZ, maxZ);
+    }
+
 
 
     public async Task ApplyCurrentTreeChunkAsync()
@@ -241,45 +270,32 @@ public partial class TerrainScene3D : Node3D
             return;
         }
 
-        // Create and setup the new chunk
-        var scene = _terrainChunkScene.Instantiate<TerrainChunk>();
-        scene.ChunkMaterial = ChunkMaterial;
+        var scene = _chunkPool.GetNode();
+        scene.ChunkMaterial = _chunkMaterial;
         scene.GridCellSize = TerrainGridCellSize;
         scene.GridCellResolution = TerrainGridCellResolution;
         scene.HeightScaleFactor = TerrainHeightScale;
-
-        scene.GenerateChunk(_heightMap,
-            rowStart,
-            rowEnd,
-            colStart,
-            colEnd,
-            _visualSettings,
-            _worldData,
-            _terrainMeshSettings.MeshInterpolation);
+        scene.SetBoundaries(rowStart, rowEnd, colStart, colEnd);
+        scene.GenerateChunk(_visualSettings, _worldData, _terrainMeshSettings.MeshInterpolation);
 
         // Set the position of the chunk in world space
         var posGrid = new Vector3(colStart * TerrainGridCellSize, 0, rowStart * TerrainGridCellSize);
-
         scene.Position = posGrid;
-
+        
         _currentTerrainChunk = scene;
     }
 
 
     public void RedrawChunks()
     {
-        if (_isTerrainGenerated)
+        foreach (var item in _chunksContainer.GetChildren())
         {
-            var map = _worldData.TerrainData.GetHeightMapCopy();
-            _logger.Log("=======> REDRAWING CHUNKS");
-            foreach (var item in _chunksContainer.GetChildren())
+            if (item is TerrainChunk chunk)
             {
-                if (item is TerrainChunk chunk)
-                {
-                    chunk.RedrawChunk(map, _visualSettings, _worldData);
-                }
+                chunk.RedrawChunk(_visualSettings, _worldData);
             }
         }
+        _currentTerrainChunk?.RedrawChunk(_visualSettings, _worldData);
     }
 
 

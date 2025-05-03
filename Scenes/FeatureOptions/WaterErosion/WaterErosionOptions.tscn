@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://ds5ici2o3bfy0"]
-
-[ext_resource type="Script" uid="uid://bwgrssimc17rr" path="res://Scenes/FeatureOptions/WaterErosion/WaterErosionOptions.cs" id="1_4mot0"]
-
-[node name="WaterErosionOptions" type="VBoxContainer"]
-size_flags_horizontal = 3
-size_flags_vertical = 3
-script = ExtResource("1_4mot0")
