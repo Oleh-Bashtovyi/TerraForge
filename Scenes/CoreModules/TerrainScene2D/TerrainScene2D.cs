@@ -105,6 +105,7 @@ public partial class TerrainScene2D : Control
 
     public void RedrawTerrainImage()
     {
+        _logger.Log("Redrawing terrain image");
         ThrowIfNoWorldDataOrDisplayOptions();
 
         ResizeTerrainImageIfRequired();
@@ -114,6 +115,7 @@ public partial class TerrainScene2D : Control
 
     public void UpdateTerrainTexture()
     {
+        _logger.Log("Updating terrain texture");
         if (_terrainImageTextureResizeRequired)
         {
             _terrainImageTexture.SetImage(_terrainImage);
@@ -139,10 +141,12 @@ public partial class TerrainScene2D : Control
 
     public void RedrawTreesImage()
     {
+        _logger.Log("Redrawing trees image");
         ThrowIfNoWorldDataOrDisplayOptions();
 
         if (!_worldData.TreesData.HasLayers())
         {
+            _logger.Log("NO TREES TO REDRAW");
             return;
         }
 
@@ -155,6 +159,7 @@ public partial class TerrainScene2D : Control
 
     public void UpdateTreesTexture()
     {
+        _logger.Log("Updating trees texture");
         if (_treesImageTextureResizeRequired)
         {
             _treesImageTexture.SetImage(_treesImage);

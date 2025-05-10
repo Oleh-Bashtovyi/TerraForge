@@ -5,6 +5,7 @@ using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Generators.DomainWarping;
 using TerrainGenerationApp.Domain.Generators.Islands;
 using TerrainGenerationApp.Domain.Generators.Trees;
+using TerrainGenerationApp.Domain.Utils;
 using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
@@ -47,6 +48,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private TreePlacementOptions _treePlacementOptions;
     private MoistureOptions _moistureOptions;
 
+    private readonly Logger<MapGenerationMenu> _logger = new();
     private int _discreteSteps = 10;
     private int _curSmoothCycles = 2;
     private float _curNoiseInfluence = 1.0f;
@@ -199,6 +201,9 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
             HandleParametersChanged();
         }
     }
+
+    private bool IsLoading { get; set; }
+
     public BaseGeneratorOptions SelectedGenerator => _selectedGenerator;
     public IDomainWarpingApplier DomainWarpingApplier => _domainWarpingApplier;
     public IIslandsApplier IslandsApplier => _islandApplier;
@@ -326,29 +331,78 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 
     public void LoadConfigFrom(Dictionary<string, object> config)
     {
-        if (config.GetValueOrDefault("Adjustments") is Dictionary<string, object> adjustmentsConfig)
-            _adjustmentsContainer.LoadConfigFrom(adjustmentsConfig);
+        try
+        {
+            IsLoading = true;
+            _logger.Log("Starting loading generation options from config....");
 
-        if (config.GetValueOrDefault("SelectedGenerator") is Dictionary<string, object> selectedGeneratorConfig)
-            _generatorsContainer.LoadConfigFrom(selectedGeneratorConfig);
+            // ADJUSTMENTS
+            if (config.GetValueOrDefault("Adjustments") is Dictionary<string, object> adjustmentsConfig)
+            {
+                _logger.Log("Loading adjustments...");
+                _adjustmentsContainer.LoadConfigFrom(adjustmentsConfig);
+            }
 
-        if (config.GetValueOrDefault("Generator") is Dictionary<string, object> generatorConfig)
-            _selectedGenerator?.LoadConfigFrom(generatorConfig);
+            // SELECTED GENERATOR
+            if (config.GetValueOrDefault("SelectedGenerator") is Dictionary<string, object> selectedGeneratorConfig)
+            {
+                _logger.Log("Loading selected generator...");
+                _generatorsContainer.LoadConfigFrom(selectedGeneratorConfig);
+            }
 
-        if (config.GetValueOrDefault("WarpingEnabled") is bool warpingEnabled) EnableDomainWarping = warpingEnabled;
-        _domainWarpingCheckBox.ButtonPressed = EnableDomainWarping;
-        if (EnableDomainWarping && config.GetValueOrDefault("Warping") is Dictionary<string, object> warpingConfig)
-            _domainWarpingOptions.LoadConfigFrom(warpingConfig);
+            // GENERATOR OPTIONS
+            if (config.GetValueOrDefault("Generator") is Dictionary<string, object> generatorConfig)
+            {
+                _logger.Log("Loading generator options...");
+                _selectedGenerator?.LoadConfigFrom(generatorConfig);
+            }
 
-        if (config.GetValueOrDefault("IslandsEnabled") is bool islandsEnabled) EnableIslands = islandsEnabled;
-        _islandsOptionsCheckbox.ButtonPressed = EnableIslands;
-        if (EnableIslands && config.GetValueOrDefault("Islands") is Dictionary<string, object> islandsConfig)
-            _islandOptions.LoadConfigFrom(islandsConfig);
+            // DOMAIN WARPING
+            if (config.GetValueOrDefault("WarpingEnabled") is bool warpingEnabled)
+            {
+                _logger.Log("Loading warping enabled (bool value)...");
+                EnableDomainWarping = warpingEnabled;
+                _domainWarpingCheckBox.ButtonPressed = EnableDomainWarping;
+            }
 
-        if (config.GetValueOrDefault("TreesEnabled") is bool treesEnabled) EnableTrees = treesEnabled;
-        _treeOptionsCheckbox.ButtonPressed = EnableTrees;
-        if (EnableTrees && config.GetValueOrDefault("TreesPlacement") is Dictionary<string, object> treesConfig)
-            _treePlacementOptions.LoadConfigFrom(treesConfig);
+            if (EnableDomainWarping && config.GetValueOrDefault("Warping") is Dictionary<string, object> warpingConfig)
+            {
+                _logger.Log("Loading warping feature options...");
+                _domainWarpingOptions.LoadConfigFrom(warpingConfig);
+            }
+
+            // ISLANDS
+            if (config.GetValueOrDefault("IslandsEnabled") is bool islandsEnabled)
+            {
+                _logger.Log("Loading islands enabled (bool value)...");
+                EnableIslands = islandsEnabled;
+                _islandsOptionsCheckbox.ButtonPressed = EnableIslands;
+            }
+
+            if (EnableIslands && config.GetValueOrDefault("Islands") is Dictionary<string, object> islandsConfig)
+            {
+                _logger.Log("Loading islands feature options...");
+                _islandOptions.LoadConfigFrom(islandsConfig);
+            }
+
+            // TREES
+            if (config.GetValueOrDefault("TreesEnabled") is bool treesEnabled)
+            {
+                _logger.Log("Loading trees enabled (bool value)...");
+                EnableTrees = treesEnabled;
+                _treeOptionsCheckbox.ButtonPressed = EnableTrees;
+            }
+
+            if (EnableTrees && config.GetValueOrDefault("TreesPlacement") is Dictionary<string, object> treesConfig)
+            {
+                _logger.Log("Loading trees feature options...");
+                _treePlacementOptions.LoadConfigFrom(treesConfig);
+            }
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
     
     public void DisableOptions()
@@ -375,7 +429,8 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     }
     private void HandleParametersChanged()
     {
-        GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
+        if(!IsLoading)
+            GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
     }
 	
     private void OnDomainWarpingCheckBoxToggled(bool toggledOn)

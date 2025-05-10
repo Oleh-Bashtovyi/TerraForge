@@ -12,17 +12,17 @@ namespace TerrainGenerationApp.Domain.Generators.Trees;
 
 public class TreesApplier : ITreesApplier
 {
-    //public record TreesLayer(string TreeId, bool[,] TreesMap);
-
-    public List<TreesLayer> GenerateTreesLayers(IWorldData worldData, IEnumerable<TreePlacementRule> rules, float frequency = 1.0f)
+    public void ApplyTreesLayers(IWorldData worldData, IEnumerable<TreePlacementRule> rules, float frequency = 1.0f)
     {
-        var dict = new Dictionary<string, bool[,]>();
+        var layerDict = new Dictionary<string, bool[,]>();
 
         var terrainMapHeight = worldData.TerrainData.TerrainMapHeight;
         var terrDataMapWidth = worldData.TerrainData.TerrainMapWidth;
         var h = Mathf.RoundToInt(terrainMapHeight * frequency);
         var w = Mathf.RoundToInt(terrDataMapWidth * frequency);
         var placedTrees = new bool[h, w];
+
+        worldData.TreesData.ClearLayers();
 
         foreach (var rule in rules)
         {
@@ -31,11 +31,13 @@ public class TreesApplier : ITreesApplier
                 continue;
             }
 
-            var id = rule.TreeId;
+            // Use LayerName for the layer dictionary key
+            var layerName = rule.LayerName;
+            var treeId = rule.TreeId;
 
-            if (dict.ContainsKey(id))
+            if (layerDict.ContainsKey(treeId))
             {
-                throw new ArgumentException($"Layer with name {id} already exists");
+                throw new ArgumentException($"Layer with id {treeId} already exists");
             }
 
             var trees = GenerateTreesLayer(worldData, rule.RadiusRule, frequency, 30);
@@ -60,7 +62,7 @@ public class TreesApplier : ITreesApplier
                             // If current tree layer can overwrite existing trees
                             if (rule.OverwriteLayers)
                             {
-                                foreach (var pair in dict)
+                                foreach (var pair in layerDict)
                                 {
                                     if (pair.Value[y, x])
                                     {
@@ -74,7 +76,6 @@ public class TreesApplier : ITreesApplier
                             {
                                 trees[y, x] = false;
                             }
-
                         }
                         // If position is empty and tree can be placed
                         else
@@ -85,10 +86,11 @@ public class TreesApplier : ITreesApplier
                 }
             }
 
-            dict[id] = trees;
+            worldData.TreesData.AddLayer(treeId, trees, layerName);
+            layerDict[treeId] = trees;
         }
 
-        return dict.Select(kvp => new TreesLayer(kvp.Key, kvp.Value)).ToList();
+        //return layerDict.Select(kvp => new TreesLayer(kvp.Key, kvp.Value)).ToList();
     }
 
 

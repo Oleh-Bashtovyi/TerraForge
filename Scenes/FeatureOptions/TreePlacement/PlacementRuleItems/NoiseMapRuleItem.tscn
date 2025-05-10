@@ -87,7 +87,6 @@ horizontal_alignment = 1
 [node name="PerlinOptions" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_fgcox")]
 unique_name_in_owner = true
 layout_mode = 2
-OptionsFontSize = 12
 
 [node name="DeleteButton" type="Button" parent="HBoxContainer"]
 unique_name_in_owner = true

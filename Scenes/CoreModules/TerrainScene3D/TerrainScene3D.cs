@@ -104,37 +104,6 @@ public partial class TerrainScene3D : Node3D
         return !_areTreesGenerated;
     }
 
-    public async Task InitWater()
-    {
-/*        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        var meshSizeX = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapWidth - 1);
-        var meshSizeZ = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapHeight - 1);
-        _waterMesh.Position = new Vector3(
-            meshSizeX / 2.0f,
-            _worldData.SeaLevel * TerrainHeightScale,
-            meshSizeZ / 2.0f);
-        ((PlaneMesh)_waterMesh.Mesh).Size = new Vector2(meshSizeX, meshSizeZ);*/
-
-
-/*        // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
-        // Init camera limits
-        var minX = -CameraMovementBoundsThreshold;
-        var maxX = meshSizeX + CameraMovementBoundsThreshold;
-        var minZ = -CameraMovementBoundsThreshold;
-        var maxZ = meshSizeZ + CameraMovementBoundsThreshold;
-        var minY = -CameraMovementBoundsThreshold;
-        var maxY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + CameraMovementBoundsThreshold;
-        _movableCamera.SetMovementLimits(minX, maxX, minY, maxY, minZ, maxZ);*/
-
-
-        // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
-        // Set direction light position
-/*        var lightPosX = meshSizeX / 2.0f;
-        var lightPosY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + 20;
-        var lightPosZ = meshSizeZ / 2.0f;
-        _directionalLight.Position = new Vector3(lightPosX, lightPosY, lightPosZ);*/
-    }
-
 
     public void UpdateWaterMesh()
     {
@@ -391,7 +360,7 @@ public partial class TerrainScene3D : Node3D
                 }
             }
 
-            _logger.Log($"Tree layer: {item.TreeId}, Trees count: {treesCount} Row range: [{rowStart}; {rowEnd}), Col range: [{colStart}; {colEnd})");
+            //_logger.Log($"Tree layer: {item.TreeId}, Trees count: {treesCount} Row range: [{rowStart}; {rowEnd}), Col range: [{colStart}; {colEnd})");
         }
     }
 
