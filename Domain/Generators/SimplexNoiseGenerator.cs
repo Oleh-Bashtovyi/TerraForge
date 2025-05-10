@@ -1,5 +1,4 @@
-﻿using Godot;
-using System;
+﻿using System;
 
 namespace TerrainGenerationApp.Domain.Generators;
 
@@ -7,7 +6,7 @@ namespace TerrainGenerationApp.Domain.Generators;
 /// Implementation of the Perlin simplex noise, an improved Perlin noise algorithm.
 /// Based loosely on SimplexNoise1234 by Stefan Gustavson: http://staffwww.itn.liu.se/~stegu/aqsis/aqsis-newnoise/
 /// </summary>
-public class SimplexNoiseGenerator
+public class SimplexNoiseGenerator : NoiseMapGenerator
 {
     private static readonly byte[] PermOriginal = {
         151,160,137,91,90,15,
@@ -41,14 +40,6 @@ public class SimplexNoiseGenerator
 
     private byte[] _perm;
     private int _seed = 0;
-    private float _frequency = 0.01f;
-    private int _octaves = 2;
-    private Vector2 _offset = Vector2.Zero;
-    private float _persistence = 0.5f;
-    private float _lacunarity = 2.0f;
-    private float _warpingStrength = 1.0f;
-    private float _warpingSize = 1.0f;
-    private bool _enableWarping = true;
 
     public int Seed
     {
@@ -71,212 +62,14 @@ public class SimplexNoiseGenerator
         }
     }
 
-    public float Frequency
-    {
-        get => _frequency;
-        set => _frequency = value;
-    }
-
-    public Vector2 Offset
-    {
-        get => _offset;
-        set => _offset = value;
-    }
-
-    public int Octaves
-    {
-        get => _octaves;
-        set => _octaves = Mathf.Clamp(value, 1, 10);
-    }
-
-    public float Persistence
-    {
-        get => _persistence;
-        set => _persistence = value;
-    }
-
-    public float Lacunarity
-    {
-        get => _lacunarity;
-        set => _lacunarity = value;
-    }
-
-
     public SimplexNoiseGenerator()
     {
         _perm = new byte[PermOriginal.Length];
         PermOriginal.CopyTo(_perm, 0);
     }
 
-    public float[,] GenerateMap(int mapHeight, int mapWidth)
-    {
-        var map = new float[mapHeight, mapWidth];
 
-        for (int y = 0; y < mapHeight; y++)
-        {
-            for (int x = 0; x < mapWidth; x++)
-            {
-                float xSample = (x + _offset.X) * _frequency;
-                float ySample = (y + _offset.Y) * _frequency;
-                float height = Calc2DOctaves(xSample, ySample);
-                map[y, x] = (height + 1.0f) / 2.0f;
-            }
-        }
-        return map;
-    }
-
-    public float Calc1DOctaves(float x)
-    {
-        float value = 0.0f;
-        float amplitude = 1.0f;
-        float frequency = 1.0f;
-        float maxValue = 0.0f;
-
-        for (int i = 0; i < _octaves; i++)
-        {
-            value += Generate(x * frequency) * amplitude;
-            maxValue += amplitude;
-            amplitude *= _persistence;
-            frequency *= _lacunarity;
-        }
-
-        // Normalize to range [-1; 1]
-        return value / maxValue;
-    }
-
-    public float Calc2DOctaves(float x, float y)
-    {
-        // v - value
-        // a - amplitude
-        // f - frequency
-        // m - max value
-        float v = 0.0f;
-        float a = 1.0f;
-        float f = 1.0f;
-        float m = 0.0f;
-
-        for (int i = 0; i < _octaves; i++)
-        {
-            v += Generate(x * f, y * f) * a;
-            m += a;
-            a *= _persistence;
-            f *= _lacunarity;
-        }
-
-        // Normalize to range [-1; 1]
-        return v / m;
-    }
-
-    public float Calc3DOctaves(float x, float y, float z)
-    {
-        float value = 0.0f;
-        float amplitude = 1.0f;
-        float frequency = 1.0f;
-        float maxValue = 0.0f;
-
-        for (int i = 0; i < _octaves; i++)
-        {
-            value += Generate(x * frequency, y * frequency, z * frequency) * amplitude;
-            maxValue += amplitude;
-            amplitude *= _persistence;
-            frequency *= _lacunarity;
-        }
-
-        // Normalize to range [-1; 1]
-        return value / maxValue;
-    }
-
-
-
-    /// <summary>
-    /// Creates 1D Simplex noise
-    /// </summary>
-    /// <param name="width">The number of points to generate</param>
-    /// <param name="scale">The scale of the noise. The greater the scale, the denser the noise gets</param>
-    /// <returns>An array containing 1D Simplex noise</returns>
-    public float[] Calc1D(int width, float scale)
-    {
-        var values = new float[width];
-        for (var i = 0; i < width; i++)
-            values[i] = Generate(i * scale) * 128 + 128;
-        return values;
-    }
-
-    /// <summary>
-    /// Creates 2D Simplex noise
-    /// </summary>
-    /// <param name="width">The number of points to generate in the 1st dimension</param>
-    /// <param name="height">The number of points to generate in the 2nd dimension</param>
-    /// <param name="scale">The scale of the noise. The greater the scale, the denser the noise gets</param>
-    /// <returns>An array containing 2D Simplex noise</returns>
-    public float[,] Calc2D(int width, int height, float scale)
-    {
-        var values = new float[width, height];
-        for (var i = 0; i < width; i++)
-        for (var j = 0; j < height; j++)
-            values[i, j] = Generate(i * scale, j * scale) * 128 + 128;
-        return values;
-    }
-
-
-
-
-    /// <summary>
-    /// Creates 3D Simplex noise
-    /// </summary>
-    /// <param name="width">The number of points to generate in the 1st dimension</param>
-    /// <param name="height">The number of points to generate in the 2nd dimension</param>
-    /// <param name="length">The number of points to generate in the 3nd dimension</param>
-    /// <param name="scale">The scale of the noise. The greater the scale, the denser the noise gets</param>
-    /// <returns>An array containing 3D Simplex noise</returns>
-    public float[,,] Calc3D(int width, int height, int length, float scale)
-    {
-        var values = new float[width, height, length];
-        for (var i = 0; i < width; i++)
-        for (var j = 0; j < height; j++)
-        for (var k = 0; k < length; k++)
-            values[i, j, k] = Generate(i * scale, j * scale, k * scale) * 128 + 128;
-        return values;
-    }
-
-    public float CalcPixel1D(int x, float scale)
-    {
-        return Generate(x * scale) * 128 + 128;
-    }
-
-    /// <summary>
-    /// Gets the value of an index of 2D simplex noise
-    /// </summary>
-    /// <param name="x">1st dimension index</param>
-    /// <param name="y">2st dimension index</param>
-    /// <param name="scale">The scale of the noise. The greater the scale, the denser the noise gets</param>
-    /// <returns>The value of an index of 2D simplex noise</returns>
-    public float CalcPixel2D(int x, int y, float scale)
-    {
-        return Generate(x * scale, y * scale) * 128 + 128;
-    }
-
-
-    /// <summary>
-    /// Gets the value of an index of 3D simplex noise
-    /// </summary>
-    /// <param name="x">1st dimension index</param>
-    /// <param name="y">2nd dimension index</param>
-    /// <param name="z">3rd dimension index</param>
-    /// <param name="scale">The scale of the noise. The greater the scale, the denser the noise gets</param>
-    /// <returns>The value of an index of 3D simplex noise</returns>
-    public float CalcPixel3D(int x, int y, int z, float scale)
-    {
-        return Generate(x * scale, y * scale, z * scale) * 128 + 128;
-    }
-
-
-    /// <summary>
-    /// 1D simplex noise
-    /// </summary>
-    /// <param name="x"></param>
-    /// <returns></returns>
-    private float Generate(float x)
+    public override float Noise1D(float x)
     {
         var i0 = FastFloor(x);
         var i1 = i0 + 1;
@@ -295,13 +88,7 @@ public class SimplexNoiseGenerator
         return 0.395f * (n0 + n1);
     }
 
-    /// <summary>
-    /// 2D simplex noise
-    /// </summary>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <returns></returns>
-    private float Generate(float x, float y)
+    public override float Noise2D(float x, float y)
     {
         const float F2 = 0.366025403f; // F2 = 0.5*(sqrt(3.0)-1.0)
         const float G2 = 0.211324865f; // G2 = (3.0-Math.sqrt(3.0))/6.0
@@ -371,7 +158,7 @@ public class SimplexNoiseGenerator
     }
 
 
-    private float Generate(float x, float y, float z)
+    public override float Noise3D(float x, float y, float z)
     {
         // Simple skewing factors for the 3D case
         const float F3 = 0.333333333f;
@@ -472,12 +259,6 @@ public class SimplexNoiseGenerator
         // Add contributions from each corner to get the final noise value.
         // The result is scaled to stay just inside [-1,1]
         return 32.0f * (n0 + n1 + n2 + n3); // TODO: The scale factor is preliminary!
-    }
-
-
-    private static int FastFloor(float x)
-    {
-        return (x > 0) ? ((int)x) : (((int)x) - 1);
     }
 
     private static int Mod(int x, int m)

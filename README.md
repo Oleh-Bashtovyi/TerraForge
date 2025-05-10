@@ -6,6 +6,11 @@ This is course project focuses on **procedural terrain generation** for video ga
 - **Terrain erosion 3 ways:** [Repository](https://github.com/dandrino/terrain-erosion-3-ways/tree/master)
 - **Terrain from noise:** [Article](https://www.redblobgames.com/maps/terrain-from-noise/)
 - **Realtime Procedural Terrain Generation:** [Document](https://web.mit.edu/cesium/Public/terrain.pdf) 
+- **Thesis work:** [Click](https://trepo.tuni.fi/bitstream/handle/10024/147549/SainioNiko.pdf)
+- **Endless terrain in Godot:** [Click](https://github.com/emulbreh/bridson/tree/master)
+- **How minecraft world generated:** [Click](https://minecraft.wiki/w/World_generation)
+- **Interactive map generation:** [Click](https://xbdev.net/fractals/fbm/index.php)
+- **Enhance noise functions:** [Click](https://www.youtube.com/watch?v=cWiLGZPwXCs)
 
 ## Implemented algorithms
 
@@ -34,9 +39,11 @@ This is course project focuses on **procedural terrain generation** for video ga
 ### 🌧Water erosion
 - **Repository 1:** [Click](https://github.com/dandrino/terrain-erosion-3-ways/tree/master)
 - **Repository 2:** [Click](https://github.com/patiltanma/15618-FinalProject/tree/master)
+- **Article:** [Click](https://old.cescg.org/CESCG-2011/papers/TUBudapest-Jako-Balazs.pdf)
 
 ### 🌳Trees placement
 - **Article:** [Click](https://sighack.com/post/poisson-disk-sampling-bridsons-algorithm)
+- **Repository 1:** [Click](https://github.com/emulbreh/bridson/tree/master)
 
 ### 3D Generation
 - **Repository 1:** [Click](https://github.com/Chevifier/Inifinte-Terrain-Generation)

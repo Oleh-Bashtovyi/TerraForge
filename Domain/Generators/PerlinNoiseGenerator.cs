@@ -1,9 +1,8 @@
-using Godot;
 using System;
 
 namespace TerrainGenerationApp.Domain.Generators;
 
-public class PerlinNoiseGenerator
+public class PerlinNoiseGenerator : NoiseMapGenerator
 {
     private static readonly byte[] PermOriginal =
     [
@@ -41,39 +40,12 @@ public class PerlinNoiseGenerator
             222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
     ];
 
-    // To generate map we need:
-    // Map height     #[1; 1024]     # The vertical size of the generated map.
-    // Map width      #[1; 1024]     # The horizontal size of the generated map.
-    // Seed           #[0; inf]      # The starting point for random number generation to ensure reproducibility.
-    // Scale          #[0.0001; 100] # Controls the zoom level of the noise; smaller values zoom in, larger values zoom out.
-    // Octaves        #[1; 10]       # Number of layers of noise to combine for added detail.
-    // Persistance    #[0; 1]        # Controls the amplitude reduction for each octave; lower values make octaves fade out faster.
-    // Frequency      #[0; inf]      # Controls the base frequency of the noise; higher values increase detail but may distort.
-    // Lacunarity     #[1; inf]      # Controls the increase in frequency for each octave; higher values make noise more detailed.
-    // Offset         #[-inf; inf]   # Shifts the noise pattern by a specific amount in x and y directions.
 
-    // Algorithm:
-    // 1) Determine the coordinates of the grid cell. To limit the input 
-    //    coordinates to 256 elements, the bitwise AND operator (&) is used.
-    // 2) Determine the local coordinates within the identified cell.
-    //    These will be values from 0 to 1 for both x and y.
-    // 3) Smooth the local coordinates.
-    //    Without smoothing, the noise won't be smooth or, in other words, natural.
-    //    A cubic interpolation function is used for smoothing.
-    //    For values from 0 to 1, it returns some smoothed value also between 0 and 1.
-    // 4) Calculate the final noise value by performing interpolation between 
-    //    the corners of a square (in 2D) or a cube (in 3D).
+
+
 
     private byte[] _perm;
-    private int _seed = 0;
-    private float _frequency = 0.01f;
-    private int _octaves = 2;
-    private Vector2 _offset = Vector2.Zero;
-    private float _persistence = 0.5f;
-    private float _lacunarity = 2.0f;
-    private float _warpingStrength = 1.0f;
-    private float _warpingSize = 1.0f;
-    private bool _enableWarping = true;
+    private int _seed;
 
     public int Seed
     {
@@ -96,152 +68,24 @@ public class PerlinNoiseGenerator
         }
     }
 
-    public float Frequency
-    {
-        get => _frequency;
-        set => _frequency = value;
-    }
-
-    public Vector2 Offset
-    {
-        get => _offset;
-        set => _offset = value;
-    }
-
-    public int Octaves
-    {
-        get => _octaves;
-        set => _octaves = Mathf.Clamp(value, 1, 10);
-    }
-
-    public float Persistence
-    {
-        get => _persistence;
-        set => _persistence = value;
-    }
-
-    public float Lacunarity
-    {
-        get => _lacunarity;
-        set => _lacunarity = value;
-    }
-
-    public float WarpingStrength
-    {
-        get => _warpingStrength;
-        set => _warpingStrength = value;
-    }
-
-    public float WarpingSize
-    {
-        get => _warpingSize;
-        set => _warpingSize = value;
-    }
-
-    public bool EnableWarping
-    {
-        get => _enableWarping;
-        set => _enableWarping = value;
-    }
-
+    // Algorithm:
+    // 1) Determine the coordinates of the grid cell. To limit the input 
+    //    coordinates to 256 elements, the bitwise AND operator (&) is used.
+    // 2) Determine the local coordinates within the identified cell.
+    //    These will be values from 0 to 1 for both x and y.
+    // 3) Smooth the local coordinates.
+    //    Without smoothing, the noise won't be smooth or, in other words, natural.
+    //    A cubic interpolation function is used for smoothing.
+    //    For values from 0 to 1, it returns some smoothed value also between 0 and 1.
+    // 4) Calculate the final noise value by performing interpolation between 
+    //    the corners of a square (in 2D) or a cube (in 3D).
     public PerlinNoiseGenerator()
     {
         _perm = new byte[PermOriginal.Length];
         PermOriginal.CopyTo(_perm, 0);
     }
 
-
-    public float[,] GenerateMap(int mapHeight, int mapWidth)
-    {
-        var map = new float[mapHeight, mapWidth];
-        var wstr = _warpingStrength;
-        var wsize = _warpingSize;
-
-        for (int y = 0; y < mapHeight; y++)
-        {
-            for (int x = 0; x < mapWidth; x++)
-            {
-                float xSample = (x + _offset.X) * _frequency;
-                float ySample = (y + _offset.Y) * _frequency;
-                float height = 0.0f;
-
-                if (_enableWarping)
-                {
-                    height = Perlin3DOctaves(xSample, ySample, wstr * Perlin2D(xSample * wsize, ySample * wsize));
-                }
-                else
-                {
-                    height = Perlin2DOctaves(xSample, ySample);
-                }
-
-                map[y, x] = (height + 1.0f) / 2.0f;
-            }
-        }
-        return map;
-    }
-
-    public float Perlin1DOctaves(float x)
-    {
-        float value = 0.0f;
-        float amplitude = 1.0f;
-        float frequency = 1.0f;
-        float maxValue = 0.0f;
-
-        for (int i = 0; i < _octaves; i++)
-        {
-            value += Perlin1D(x * frequency) * amplitude;
-            maxValue += amplitude;
-            amplitude *= _persistence;
-            frequency *= _lacunarity;
-        }
-
-        // Normalize to range [-1; 1]
-        return value / maxValue;
-    }
-
-    public float Perlin2DOctaves(float x, float y)
-    {
-        // v - value
-        // a - amplitude
-        // f - frequency
-        // m - max value
-        float v = 0.0f;
-        float a = 1.0f;
-        float f = 1.0f;
-        float m = 0.0f;
-
-        for (int i = 0; i < _octaves; i++)
-        {
-            v += Perlin2D(x * f, y * f) * a;
-            m += a;
-            a *= _persistence;
-            f *= _lacunarity;
-        }
-
-        // Normalize to range [-1; 1]
-        return v / m;
-    }
-
-    public float Perlin3DOctaves(float x, float y, float z)
-    {
-        float value = 0.0f;
-        float amplitude = 1.0f;
-        float frequency = 1.0f;
-        float maxValue = 0.0f;
-
-        for (int i = 0; i < _octaves; i++)
-        {
-            value += Perlin3D(x * frequency, y * frequency, z * frequency) * amplitude;
-            maxValue += amplitude;
-            amplitude *= _persistence;
-            frequency *= _lacunarity;
-        }
-
-        // Normalize to range [-1; 1]
-        return value / maxValue;
-    }
-
-    public float Perlin1D(float x)
+    public override float Noise1D(float x)
     {
         // Determine grid coordinates
         int x0 = (int)Math.Floor(x) & 255;
@@ -259,7 +103,7 @@ public class PerlinNoiseGenerator
         return Lerp(g0, g1, u);
     }
 
-    public float Perlin2D(float x, float y)
+    public override float Noise2D(float x, float y)
     {
         // Determine grid coordinates, coordinates of the square itself
         int y0 = (int)Math.Floor(y) & 255;
@@ -286,7 +130,7 @@ public class PerlinNoiseGenerator
         return Lerp(nx0, nx1, v);
     }
 
-    public float Perlin3D(float x, float y, float z)
+    public override float Noise3D(float x, float y, float z)
     {
         // Determine grid coordinates, coordinates of the square itself
         int y0 = (int)Math.Floor(y) & 255;
@@ -329,96 +173,6 @@ public class PerlinNoiseGenerator
         // Final interpolation along Z
         return Lerp(ny0, ny1, w);
     }
-
-
-
-    public float Perlin2DRidgeOctaves(float x, float y)
-    {
-        float value = 0.0f;
-        float amplitude = 1.0f;
-        float frequency = 1.0f;
-        float maxValue = 0.0f;
-
-        for (int i = 0; i < _octaves; i++)
-        {
-            // Take the absolute value of the noise and invert it (1 - abs)
-            // This creates ridge-like features
-            float noiseValue = Perlin2D(x * frequency, y * frequency);
-            noiseValue = 1.0f - Math.Abs(noiseValue);
-
-            // Apply a sharpening effect to make ridges more pronounced (optional)
-            noiseValue = noiseValue * noiseValue;
-
-            value += noiseValue * amplitude;
-            maxValue += amplitude;
-
-            amplitude *= _persistence;
-            frequency *= _lacunarity;
-        }
-
-        // Normalize to range [0; 1] (instead of [-1; 1])
-        return value / maxValue;
-    }
-
-    public float Perlin3DRidgeOctaves(float x, float y, float z)
-    {
-        float value = 0.0f;
-        float amplitude = 1.0f;
-        float frequency = 1.0f;
-        float maxValue = 0.0f;
-
-        for (int i = 0; i < _octaves; i++)
-        {
-            // Take the absolute value of the noise and invert it
-            float noiseValue = Perlin3D(x * frequency, y * frequency, z * frequency);
-            noiseValue = 1.0f - Math.Abs(noiseValue);
-
-            // Apply a sharpening effect to make ridges more pronounced (optional)
-            noiseValue = noiseValue * noiseValue;
-
-            value += noiseValue * amplitude;
-            maxValue += amplitude;
-
-            amplitude *= _persistence;
-            frequency *= _lacunarity;
-        }
-
-        // Normalize to range [0; 1]
-        return value / maxValue;
-    }
-
-    // Add a modified GenerateMap method that uses the ridge effect
-    public float[,] GenerateRidgeMap(int mapHeight, int mapWidth)
-    {
-        var map = new float[mapHeight, mapWidth];
-        var wstr = _warpingStrength;
-        var wsize = _warpingSize;
-
-        for (int y = 0; y < mapHeight; y++)
-        {
-            for (int x = 0; x < mapWidth; x++)
-            {
-                float xSample = (x + _offset.X) * _frequency;
-                float ySample = (y + _offset.Y) * _frequency;
-                float height = 0.0f;
-
-                if (_enableWarping)
-                {
-                    height = Perlin3DRidgeOctaves(xSample, ySample, wstr * Perlin2D(xSample * wsize, ySample * wsize));
-                }
-                else
-                {
-                    height = Perlin2DRidgeOctaves(xSample, ySample);
-                }
-
-                // The height is already in range [0; 1] since we're using 1-abs(noise)
-                map[y, x] = height;
-            }
-        }
-        return map;
-    }
-
-
 
     protected float Grad1D(int h, float x)
     {
@@ -465,18 +219,5 @@ public class PerlinNoiseGenerator
             case 0xF: return -y - z;
             default: return 0.0f;
         }
-    }
-
-    protected float Fade(float t)
-    {
-        // Smoothing function. In this case cubic,
-        // to make the transition between values look more natural
-        return t * t * t * (t * (t * 6 - 15) + 10);
-    }
-
-    protected float Lerp(float a, float b, float t)
-    {
-        // Linear interpolation t in range (0; 1.0)
-        return a + t * (b - a);
     }
 }

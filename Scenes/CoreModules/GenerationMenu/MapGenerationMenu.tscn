@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://ckgwmiiux24bu"]
+[gd_scene load_steps=14 format=3 uid="uid://ckgwmiiux24bu"]
 
 [ext_resource type="Script" uid="uid://c8djttepxw168" path="res://Scenes/CoreModules/GenerationMenu/MapGenerationMenu.cs" id="1_5x4vo"]
 [ext_resource type="Script" uid="uid://dnsj27ohnr26u" path="res://Scenes/GeneratorOptions/DiamondSquareOptions.cs" id="3_m3gtq"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://cs3qk4i5r62mw" path="res://Scenes/FeatureOptions/Island/IslandOptions.tscn" id="6_mscmd"]
 [ext_resource type="Script" uid="uid://cps8x3wxwyp6e" path="res://Scenes/GeneratorOptions/ValueNoiseOptions.cs" id="7_e0j43"]
 [ext_resource type="PackedScene" uid="uid://c111y36ggt3us" path="res://Scenes/FeatureOptions/TreePlacement/TreePlacementOptions.tscn" id="7_oqg8v"]
+[ext_resource type="PackedScene" uid="uid://kpq0ccwj7sy7" path="res://Scenes/FeatureOptions/Moisture/MoistureOptions.tscn" id="8_e0j43"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jixox"]
 bg_color = Color(0.187176, 0.187176, 0.187176, 1)
@@ -92,105 +93,131 @@ theme_override_constants/margin_bottom = 5
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="Label3" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="GeneratorsControl" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Label3" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl"]
 layout_mode = 2
 text = "Parameters:"
 label_settings = SubResource("LabelSettings_l3s0y")
 
-[node name="GeneratorContainer" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="GeneratorContainer" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl"]
 layout_mode = 2
 
-[node name="DiamondSquareOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorContainer"]
+[node name="DiamondSquareOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl/GeneratorContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("3_m3gtq")
 
-[node name="WorleyOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorContainer"]
+[node name="WorleyOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl/GeneratorContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("5_e0j43")
 
-[node name="PerlinOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorContainer"]
+[node name="PerlinOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl/GeneratorContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("5_m3gtq")
 
-[node name="SimplexOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorContainer"]
+[node name="SimplexOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl/GeneratorContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("6_m3gtq")
 
-[node name="ValueNoiseOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorContainer"]
+[node name="ValueNoiseOptions" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl/GeneratorContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("7_e0j43")
 
-[node name="AdjustmentsMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="AdjustmentsControl" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="AdjustmentsMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/AdjustmentsControl"]
 layout_mode = 2
 theme_override_constants/margin_top = 10
 
-[node name="Label" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/AdjustmentsMargin"]
+[node name="Label" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/AdjustmentsControl/AdjustmentsMargin"]
 layout_mode = 2
 text = "Adjustments:"
 label_settings = SubResource("LabelSettings_l3s0y")
 
-[node name="AdjustmentsContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("5_odnn8")]
+[node name="AdjustmentsContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/AdjustmentsControl" instance=ExtResource("5_odnn8")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="FeaturesMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="FeaturesControl" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="FeaturesMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 layout_mode = 2
 theme_override_constants/margin_top = 10
 
-[node name="Label" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesMargin"]
+[node name="Label" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl/FeaturesMargin"]
 layout_mode = 2
 text = "Features:"
 label_settings = SubResource("LabelSettings_l3s0y")
 
-[node name="IslandOptionsCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="MoistureCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "💧 Moisture"
+
+[node name="MoistureMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
+layout_mode = 2
+theme_override_constants/margin_left = 25
+
+[node name="MoistureOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl/MoistureMargin" instance=ExtResource("8_e0j43")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="IslandOptionsCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "🏝️Islands"
 
-[node name="IsalndOptionsMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="IsalndOptionsMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 layout_mode = 2
 theme_override_constants/margin_left = 25
 
-[node name="IslandOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/IsalndOptionsMargin" instance=ExtResource("6_mscmd")]
+[node name="IslandOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl/IsalndOptionsMargin" instance=ExtResource("6_mscmd")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="DomainWarpingCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="DomainWarpingCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "🔄Domain warping"
 
-[node name="DomainWarpingMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="DomainWarpingMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 layout_mode = 2
 theme_override_constants/margin_left = 25
 
-[node name="DomainWarpingOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/DomainWarpingMargin" instance=ExtResource("4_b8rru")]
+[node name="DomainWarpingOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl/DomainWarpingMargin" instance=ExtResource("4_b8rru")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="TreePlacementCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="TreePlacementCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "🌳 Tree placement"
 
-[node name="TreePlacementMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer"]
+[node name="TreePlacementMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/margin_left = 25
 
-[node name="TreePlacementOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/TreePlacementMargin" instance=ExtResource("7_oqg8v")]
+[node name="TreePlacementOptions" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl/TreePlacementMargin" instance=ExtResource("7_oqg8v")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

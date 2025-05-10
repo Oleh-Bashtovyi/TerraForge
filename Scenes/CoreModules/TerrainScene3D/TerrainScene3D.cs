@@ -381,6 +381,10 @@ public partial class TerrainScene3D : Node3D
                         rotation.Y = GD.RandRange(0, 360);
                         treeScene!.RotationDegrees = rotation;
 
+                        var treeScaleValue = 15 + (float)GD.RandRange(0, 4.0);
+                        var treeScale = new Vector3(treeScaleValue, treeScaleValue, treeScaleValue);
+                        treeScene.Scale = treeScale;
+
                         _currentTrees.Add(treeScene);
                         treesCount++;
                     }

@@ -1,5 +1,6 @@
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
+using TerrainGenerationApp.Domain.Enums;
 
 namespace TerrainGenerationApp.Scenes.GeneratorOptions.PerlinNoise;
 
@@ -69,6 +70,21 @@ public partial class PerlinOptions : BaseGeneratorOptions
         }
     }
 
+    [InputLine(Description = "Fractal type:")]
+    [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
+    [InputOption("FBM",    id: (int)FractalType.Fbm)]
+    [InputOption("Ridged", id: (int)FractalType.Ridged)]
+    public FractalType Fractal
+    {
+        get => _generator.Fractal;
+        set
+        {
+            _generator.Fractal = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+
     [InputLine(Description = "Lacunarity:")]
     [InputLineSlider(0.001f, 10f, 0.001f, format: "0.###")]
     public float Lacunarity
@@ -134,7 +150,7 @@ public partial class PerlinOptions : BaseGeneratorOptions
     }
 
     [InputLine(Description = "Warping size:")]
-    [InputLineSlider(0.1f, 2.0f, 0.1f, format: "0.#")]
+    [InputLineSlider(0.1f, 2.0f, 0.01f, format: "0.##")]
     public float WarpingSize
     {
         get => _generator.WarpingSize;
@@ -146,7 +162,7 @@ public partial class PerlinOptions : BaseGeneratorOptions
     }
 
     [InputLine(Description = "Warping strength:")]
-    [InputLineSlider(0.1f, 30.0f, 0.1f, format: "0.#")]
+    [InputLineSlider(0.1f, 5.0f, 0.01f, format: "0.##")]
     public float WarpingStrength
     {
         get => _generator.WarpingStrength;

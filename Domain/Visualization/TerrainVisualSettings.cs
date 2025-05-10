@@ -12,16 +12,17 @@ public class TerrainVisualSettings
     private readonly Gradient _terrainGradient;
     private readonly Gradient _waterGradient;
     private MapDisplayFormat _mapDisplayFormat;
-    private float _slopeThreshold;
+    private float _slopeThreshold = 0.1f;
+    private float _moistureInfluence = 0.8f;
 
     public float SlopeThreshold => _slopeThreshold;
+    public float MoistureInfluence => _moistureInfluence;
     public MapDisplayFormat MapDisplayFormat => _mapDisplayFormat;
 
     public TerrainVisualSettings()
     {
         _terrainGradient = new Gradient();
         _waterGradient = new Gradient();
-        _slopeThreshold = 0.1f;
         ClearTerrainGradient();
         ClearWaterGradient();
         SetMapDisplayFormat(MapDisplayFormat.Colors);
@@ -46,6 +47,11 @@ public class TerrainVisualSettings
     public void SetSlopeThreshold(float slopeThreshold)
     {
         _slopeThreshold = slopeThreshold;
+    }
+
+    public void SetMoistureInfluence(float moistureInfluence)
+    {
+        _moistureInfluence = moistureInfluence;
     }
 
     public Color GetColor(Vector2I pos, IWorldData worldData, bool includeSlope = true)
@@ -74,17 +80,44 @@ public class TerrainVisualSettings
                 }
 
                 var baseColor = _terrainGradient.Sample(h - worldData.SeaLevel);
-                if (!includeSlope)
-                {
-                    return baseColor;
-                }
-                var slope = worldData.TerrainData.SlopeAt(row, col);
-                var slopeColor = GetSlopeColor(baseColor, slope, h);
-                return slopeColor;
+                var moisture = worldData.TerrainData.MoistureAt(row, col);
+                return ApplyMoisture(baseColor, moisture, h - worldData.SeaLevel);
+
             default:
                 throw new NotImplementedException("Can not handle color get operation idk");
         }
     }
+
+    private Color ApplyMoisture(Color baseColor, float moisture, float elevation)
+    {
+        if (moisture < 0.1f)
+            return baseColor;
+
+        float closestKey = 0f;
+        float minDiff = float.MaxValue;
+
+        foreach (var key in ColorPallets.MoistTerrainColors.Keys)
+        {
+            float diff = Math.Abs(key - elevation);
+            if (diff < minDiff)
+            {
+                minDiff = diff;
+                closestKey = key;
+            }
+        }
+
+        var moistColor = ColorPallets.MoistTerrainColors[closestKey];
+        float blendFactor = moisture * _moistureInfluence;
+
+        float r = Mathf.Lerp(baseColor.R, moistColor.R, blendFactor);
+        float g = Mathf.Lerp(baseColor.G, moistColor.G, blendFactor);
+        float b = Mathf.Lerp(baseColor.B, moistColor.B, blendFactor);
+
+        return new Color(r, g, b);
+    }
+
+
+
 
 
     public void ClearTerrainGradient()
@@ -139,27 +172,5 @@ public class TerrainVisualSettings
                 image.SetPixel(x, y, GetColor(y, x, worldData));
             }
         }
-    }
-
-
-
-
-    private Color GetSlopeColor(Color baseColor, float slope, float elevation)
-    {
-        // Normalize slope value (to fit within 0-1 range)
-        float slopeFactor = MathF.Min(slope * SlopeThreshold, 1.0f);
-
-        // Darken based on steepness
-        float r = baseColor.R * (1.0f - slopeFactor);
-        float g = baseColor.G * (1.0f - slopeFactor);
-        float b = baseColor.B * (1.0f - slopeFactor);
-
-        // Brightness correction (slightly brighten at higher elevations)
-        float brightnessFactor = 1.0f + elevation * 0.2f;
-        r = Math.Clamp(r * brightnessFactor, 0, 1.0f);
-        g = Math.Clamp(g * brightnessFactor, 0, 1.0f);
-        b = Math.Clamp(b * brightnessFactor, 0, 1.0f);
-
-        return new Color(r, g, b);
     }
 }

@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using TerrainGenerationApp.Domain.Core;
 using TerrainGenerationApp.Domain.Enums;
@@ -10,7 +9,6 @@ using TerrainGenerationApp.Domain.Visualization;
 using TerrainGenerationApp.Scenes.CoreModules.DisplayOptions;
 using TerrainGenerationApp.Scenes.CoreModules.GenerationMenu;
 using TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
-using TerrainGenerationApp.Scenes.GeneratorOptions;
 
 namespace TerrainGenerationApp.Scenes.CoreModules.Game;
 
@@ -128,7 +126,6 @@ public partial class Game : Node3D
         MapHelpers.MultiplyHeight(map, _mapGenerationMenu.CurNoiseInfluence);
         map = MapHelpers.SmoothMap(map);
 
-        
 
         if (_mapGenerationMenu.EnableIslands)
             map = _mapGenerationMenu.IslandsApplier.ApplyIslands(map);
@@ -137,6 +134,10 @@ public partial class Game : Node3D
             map = _mapGenerationMenu.DomainWarpingApplier.ApplyWarping(map);
 
         WorldData.TerrainData.SetTerrain(map);
+        
+        if (_mapGenerationMenu.EnableMoisture)
+            _worldData.TerrainData.SetMoistureMap(_mapGenerationMenu.MoistureOptions.MoistureMap);
+
         _terrainScene2D.RedrawTerrainImage();
         _terrainScene2D.UpdateTerrainTexture();
     }
@@ -283,6 +284,9 @@ public partial class Game : Node3D
             await ApplyInfluenceAsync();
             await ApplyTerrainSmoothingAsync();
 
+            if (_mapGenerationMenu.EnableMoisture)
+                await ApplyMoistureAsync();
+
             if (_mapGenerationMenu.EnableIslands)
                 await ApplyIslandsAsync();
 
@@ -307,6 +311,15 @@ public partial class Game : Node3D
             _logger.LogMethodEnd();
             GD.Print("==============================================================");
         }
+    }
+
+    private async Task ApplyMoistureAsync()
+    {
+        _logger.Log("Generating moisture...");
+        await SetGenerationTitleTipAsync("Generating moisture...");
+        var moistureMap = _mapGenerationMenu.MoistureOptions.MoistureMap;
+        _worldData.TerrainData.SetMoistureMap(moistureMap);
+        await RedrawTerrainAsync();
     }
 
     private async Task GenerateTerrainAsync()
@@ -458,6 +471,13 @@ public partial class Game : Node3D
     private async Task SetAndRedrawTerrainAsync(float[,] terrain)
     {
         _worldData.TerrainData.SetTerrain(terrain);
+        _terrainScene2D.RedrawTerrainImage();
+        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _terrainScene2D.UpdateTerrainTexture();
+    }
+
+    private async Task RedrawTerrainAsync()
+    {
         _terrainScene2D.RedrawTerrainImage();
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _terrainScene2D.UpdateTerrainTexture();

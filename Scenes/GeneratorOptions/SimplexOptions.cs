@@ -1,3 +1,4 @@
+using TerrainGenerationApp.Domain.Enums;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
@@ -69,6 +70,20 @@ public partial class SimplexOptions : BaseGeneratorOptions
         }
     }
 
+    [InputLine(Description = "Fractal type:")]
+    [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
+    [InputOption("FBM", id: (int)FractalType.Fbm)]
+    [InputOption("Ridged", id: (int)FractalType.Ridged)]
+    public FractalType Fractal
+    {
+        get => _generator.Fractal;
+        set
+        {
+            _generator.Fractal = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
     [InputLine(Description = "Lacunarity:")]
     [InputLineSlider(0.001f, 10f, 0.001f, format: "0.###")]
     public float Lacunarity
@@ -117,6 +132,42 @@ public partial class SimplexOptions : BaseGeneratorOptions
             var offset = _generator.Offset;
             offset.Y = value;
             _generator.Offset = offset;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [InputLine(Description = "Use domain warping")]
+    [InputLineCheckBox]
+    public bool UseDomainWarping
+    {
+        get => _generator.EnableWarping;
+        set
+        {
+            _generator.EnableWarping = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [InputLine(Description = "Warping size:")]
+    [InputLineSlider(0.1f, 2.0f, 0.01f, format: "0.##")]
+    public float WarpingSize
+    {
+        get => _generator.WarpingSize;
+        set
+        {
+            _generator.WarpingSize = value;
+            InvokeParametersChangedEvent();
+        }
+    }
+
+    [InputLine(Description = "Warping strength:")]
+    [InputLineSlider(0.1f, 5.0f, 0.01f, format: "0.##")]
+    public float WarpingStrength
+    {
+        get => _generator.WarpingStrength;
+        set
+        {
+            _generator.WarpingStrength = value;
             InvokeParametersChangedEvent();
         }
     }

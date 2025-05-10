@@ -94,13 +94,11 @@ public static class MapExtensions
         return map.GetValueAt(row, col, mapInterpolation);
     }
 
-    public static float GetValueAtCenter(this float[,] map,
-        Vector2I position) => map.GetValueAtCenter(position.Y, position.X);
+    public static float GetValueAtCenter(this float[,] map, Vector2I position) 
+        => map.GetValueAtCenter(position.Y, position.X);
 
-    public static float GetValueAtCenter(this float[,] map, 
-        int row, 
-        int col, 
-        MapInterpolation mapInterpolation = MapInterpolation.Bilinear) => map.GetValueAt(row + 0.5f, col + 0.5f, mapInterpolation);
+    public static float GetValueAtCenter(this float[,] map, int row, int col, MapInterpolation mapInterpolation = MapInterpolation.Bilinear)
+        => map.GetValueAt(row + 0.5f, col + 0.5f, mapInterpolation);
 
     public static void SetValueAt<T>(this T[,] map, Vector2I position, T value) => map.SetValueAt(position.Y, position.X, value);
 
@@ -199,5 +197,112 @@ public static class MapExtensions
         }
 
         return result;
+    }
+
+    public static float[,] ScaleTo(this float[,] sourceMap, float[,] targetMap, MapInterpolation interpolation = MapInterpolation.Bilinear)
+    {
+        return sourceMap.ScaleTo(targetMap.Width(), targetMap.Height(), interpolation);
+    }
+
+    public static float[,] ScaleTo(this float[,] sourceMap, int targetWidth, int targetHeight, MapInterpolation interpolation = MapInterpolation.Bilinear)
+    {
+        var scaledMap = new float[targetHeight, targetWidth];
+        var widthRatio = (sourceMap.Width() - 1) / (float)(targetWidth - 1);
+        var heightRatio = (sourceMap.Height() - 1) / (float)(targetHeight - 1);
+
+        for (int y = 0; y < targetHeight; y++)
+        {
+            for (int x = 0; x < targetWidth; x++)
+            {
+                var sourceY = y * heightRatio;
+                var sourceX = x * widthRatio;
+                scaledMap[y, x] = sourceMap.GetValueAt(sourceY, sourceX, interpolation);
+            }
+        }
+
+        return scaledMap;
+    }
+
+    public static T[,] EmptyCopy<T>(this T[,] map)
+    {
+        var h = map.Height();
+        var w = map.Width();
+        var copy = new T[h, w];
+
+        for (int i = 0; i < h; i++)
+        {
+            for (int j = 0; j < w; j++)
+            {
+                copy[i, j] = default;
+            }
+        }
+
+        return copy;
+    }
+
+    public static bool AllInRange(this float[,] map, float min, float max)
+    {
+        for (int i = 0; i < map.Height(); i++)
+        {
+            for (int j = 0; j < map.Width(); j++)
+            {
+                if (map[i, j] < min || map[i, j] > max)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static float[,] CopyAndClampValues(this float[,] map, float min, float max)
+    {
+        var result = new float[map.Height(), map.Width()];
+
+        for (int i = 0; i < map.Height(); i++)
+        {
+            for (int j = 0; j < map.Width(); j++)
+            {
+                result[i, j] = Mathf.Clamp(map[i, j], min, max);
+            }
+        }
+        return result;
+    }
+
+    public static float[,] ClampValues(this float[,] map, float min, float max)
+    {
+        for (int i = 0; i < map.Height(); i++)
+        {
+            for (int j = 0; j < map.Width(); j++)
+            {
+                map[i, j] = Mathf.Clamp(map[i, j], min, max);
+            }
+        }
+        return map;
+    }
+
+    public static bool HasSameSizeAs<T, TOther>(this T[,] map, TOther[,] otherMap)
+    {
+        return map.Height() == otherMap.Height() && map.Width() == otherMap.Width();
+    }
+
+    public static T[,] SetElementsFrom<T>(this T[,] map, T[,] otherMap)
+    {
+        if (!map.HasSameSizeAs(otherMap))
+        {
+            throw new ArgumentException($"Map should have same size. " +
+                                        $"Source map size: [{map.Height()}; {map.Width()}], " +
+                                        $"Other map size: [{otherMap.Height()}; {otherMap.Width()}]");
+        }
+
+        for (int i = 0; i < map.Height(); i++)
+        {
+            for (int j = 0; j < map.Width(); j++)
+            {
+                map[i, j] = otherMap[i, j];
+            }
+        }
+
+        return map;
     }
 }

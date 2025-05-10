@@ -2,5 +2,8 @@
 
 public enum LogMark
 {
-    Default, Start, End, Error
+    Default, 
+    Start, 
+    End, 
+    Error
 }

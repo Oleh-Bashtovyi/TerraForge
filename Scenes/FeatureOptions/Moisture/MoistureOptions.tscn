@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://kpq0ccwj7sy7"]
+
+[ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/BuildingBlocks/Containers/OptionsContainer.tscn" id="1_hwqg2"]
+[ext_resource type="Script" uid="uid://c6n2xb2sneils" path="res://Scenes/FeatureOptions/Moisture/MoistureOptions.cs" id="1_nm8gg"]
+[ext_resource type="PackedScene" uid="uid://dibwtw2cnl4pf" path="res://Scenes/GeneratorOptions/PerlinNoise/PerlinOptions.tscn" id="2_nm8gg"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_u32tm"]
+
+[node name="MoistureOptions" type="VBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+script = ExtResource("1_nm8gg")
+
+[node name="NoiseTextureRect" type="TextureRect" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = SubResource("CanvasTexture_u32tm")
+expand_mode = 1
+
+[node name="OptionsContainer" parent="." instance=ExtResource("1_hwqg2")]
+unique_name_in_owner = true
+layout_mode = 2
+OptionsFontSize = 12
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_top = 4
+
+[node name="Label" type="Label" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Noise map options"
+horizontal_alignment = 1
+
+[node name="PerlinOptions" parent="." instance=ExtResource("2_nm8gg")]
+unique_name_in_owner = true
+layout_mode = 2
+OptionsFontSize = 12

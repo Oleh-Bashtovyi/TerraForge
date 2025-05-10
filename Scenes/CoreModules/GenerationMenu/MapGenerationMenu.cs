@@ -11,6 +11,7 @@ using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 using TerrainGenerationApp.Scenes.FeatureOptions.DomainWarping;
 using TerrainGenerationApp.Scenes.FeatureOptions.Island;
+using TerrainGenerationApp.Scenes.FeatureOptions.Moisture;
 using TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
 using TerrainGenerationApp.Scenes.GeneratorOptions;
 
@@ -40,9 +41,11 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private CheckBox _domainWarpingCheckBox;
     private CheckBox _islandsOptionsCheckbox;
     private CheckBox _treeOptionsCheckbox;
+    private CheckBox _moistureCheckBox;
     private IslandOptions _islandOptions;
     private DomainWarpingOptions _domainWarpingOptions;
     private TreePlacementOptions _treePlacementOptions;
+    private MoistureOptions _moistureOptions;
 
     private int _discreteSteps = 10;
     private int _curSmoothCycles = 2;
@@ -51,12 +54,14 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 	private bool _enableDomainWarping;
 	private bool _enableIslands;
 	private bool _enableTrees;
+	private bool _enableMoisture;
     private MapInterpolationType _mapInterpolationType;
 	private BaseGeneratorOptions _selectedGenerator;
 	private DomainWarpingApplier _domainWarpingApplier;
 	private IslandApplier _islandApplier;
     private TreesApplier _treesApplier;
 
+    public event Action<bool> OnMoistureToggleOn;
     public event EventHandler OnWaterLevelChanged;
     public event EventHandler GenerationParametersChanged;
 
@@ -90,6 +95,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         }
     }
 
+
     [InputLine(Description = "Map interpolation:", Category = "Adjustments", Id = "MapInterpolation")]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
     [InputOption("Linear",               id: (int)MapInterpolationType.Linear)]
@@ -106,6 +112,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
             HandleParametersChanged();
         }
     }
+
 
     [InputLine(Description = "Discrete steps:", Category = "Adjustments")]
     [InputLineSlider(1, 100)]
@@ -182,9 +189,20 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 			HandleParametersChanged();
 		}
 	}
+
+    public bool EnableMoisture
+    {
+        get => _enableMoisture;
+        set
+        {
+            _enableMoisture = value;
+            HandleParametersChanged();
+        }
+    }
     public BaseGeneratorOptions SelectedGenerator => _selectedGenerator;
     public IDomainWarpingApplier DomainWarpingApplier => _domainWarpingApplier;
     public IIslandsApplier IslandsApplier => _islandApplier;
+    public MoistureOptions MoistureOptions => _moistureOptions;
     public ITreesApplier TreesApplier => _treesApplier;
 	public TreePlacementOptions TreePlacementOptions => _treePlacementOptions;
 
@@ -211,20 +229,26 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
         _islandsOptionsCheckbox = GetNode<CheckBox>("%IslandOptionsCheckBox");
         _treeOptionsCheckbox = GetNode<CheckBox>("%TreePlacementCheckBox");
+        _moistureCheckBox = GetNode<CheckBox>("%MoistureCheckBox");
         _domainWarpingCheckBox.Toggled += OnDomainWarpingCheckBoxToggled;
         _islandsOptionsCheckbox.Toggled += OnIslandOptionsCheckBoxToggled;
         _treeOptionsCheckbox.Toggled += OnTreeOptionsCheckboxOnToggled;
+        _moistureCheckBox.Toggled += OnMoistureCheckBoxOnToggled;
 
         // Features
         _treePlacementOptions = GetNode<TreePlacementOptions>("%TreePlacementOptions");
         _domainWarpingOptions = GetNode<DomainWarpingOptions>("%DomainWarpingOptions");
         _islandOptions = GetNode<IslandOptions>("%IslandOptions");
+        _moistureOptions = GetNode<MoistureOptions>("%MoistureOptions");
         _domainWarpingOptions.ParametersChanged += HandleParametersChanged;
         _islandOptions.ParametersChanged += HandleParametersChanged;
+        _moistureOptions.ParametersChanged += HandleParametersChanged;
         _domainWarpingApplier = _domainWarpingOptions.DomainWarpingApplier;
         _islandApplier = _islandOptions.IslandApplier;
         _treesApplier = _treePlacementOptions.TreesApplier;
     }
+
+
 
     public void ApplySelectedInterpolation(float[,] map)
     {
@@ -369,5 +393,11 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     {
         _treePlacementOptions.Visible = toggledOn;
         EnableTrees = toggledOn;
+    }
+
+    private void OnMoistureCheckBoxOnToggled(bool toggledOn)
+    {
+        _moistureOptions.Visible = toggledOn;
+        EnableMoisture = toggledOn;
     }
 }
