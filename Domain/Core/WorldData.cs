@@ -8,23 +8,27 @@ namespace TerrainGenerationApp.Domain.Core;
 
 public class WorldData : IWorldData
 {
-	public TerrainData TerrainData { get; }
-	public TreesData TreesData { get; }
-	public float SeaLevel { get; private set; }
+	public TerrainData TerrainData { get; } = new();
+    public TreesData TreesData { get; } = new();
+    public float SeaLevel { get; private set; } = 0.3f;
 
-	public WorldData()
-	{
-		TerrainData = new TerrainData();
-		TreesData = new TreesData();
-		SeaLevel = 0.3f;
-	}
-
-	public void SetSeaLevel(float value)
+    public void SetSeaLevel(float value)
 	{
 		SeaLevel = (float)Mathf.Clamp(value, 0.0, 1.0);
 	}
 
-	public string ToJson(Dictionary<string, object> generationConfig = null)
+    public float DepthAt(Vector2 pos) => DepthAt(pos.X, pos.Y);
+
+    public float DepthAt(float x, float y)
+    {
+        var height = TerrainData.HeightAt(y, x);
+		var depth = SeaLevel - height;
+        return depth;
+    }
+
+
+
+    public string ToJson(Dictionary<string, object> generationConfig = null)
 	{
 		var terrainHeightMap = TerrainData.GetHeightMapCopy();
 		var treeLayers = TreesData.GetLayers();

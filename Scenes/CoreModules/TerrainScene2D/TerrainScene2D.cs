@@ -10,7 +10,6 @@ namespace TerrainGenerationApp.Scenes.CoreModules.TerrainScene2D;
 public partial class TerrainScene2D : Control
 {
     private Label _cellInfoLabel;
-    private Label _generationStatusLabel;
     private TextureRect _terrainTextureRect;
     private TextureRect _waterTextureRect;
     private TextureRect _treesTextureRect;
@@ -35,7 +34,6 @@ public partial class TerrainScene2D : Control
         _terrainTextureRect = GetNode<TextureRect>("%TerrainTextureRect");
         _waterTextureRect = GetNode<TextureRect>("%WaterTextureRect");
         _treesTextureRect = GetNode<TextureRect>("%TreesTextureRect");
-        _generationStatusLabel = GetNode<Label>("%GenerationStatusLabel");
         _mouseCapturer = GetNode<ColorRect>("%MouseCapturer");
         _cellInfoLabel = GetNode<Label>("%CellInfoLabel");
         _treesVisibilityCheckBox = GetNode<CheckBox>("%TreesVisibilityCheckBox");
@@ -49,13 +47,13 @@ public partial class TerrainScene2D : Control
         _treesImageTexture = ImageTexture.CreateFromImage(_treesImage);
         _terrainTextureRect.Texture = _terrainImageTexture;
         _treesTextureRect.Texture = _treesImageTexture;
+        _cellInfoLabel.Text = "";
     }
 
     public Image GetTerrainImage()
     {
         return _terrainImage;
     }
-
 
     private void TreesVisibilityCheckBoxOnToggled(bool toggledOn)
     {
@@ -80,11 +78,6 @@ public partial class TerrainScene2D : Control
     public void BindVisualSettings(IWorldVisualSettings settings)
     {
         _visualSettings = settings;
-    }
-
-    public void SetTitleTip(string tip)
-    {
-        _generationStatusLabel.Text = tip;
     }
 
     public void ClearAllImages()
@@ -113,6 +106,7 @@ public partial class TerrainScene2D : Control
 
     public void RedrawTerrainImage()
     {
+        _logger.Log("Redrawing terrain image");
         ThrowIfNoWorldDataOrDisplayOptions();
 
         ResizeTerrainImageIfRequired();
@@ -122,6 +116,7 @@ public partial class TerrainScene2D : Control
 
     public void UpdateTerrainTexture()
     {
+        _logger.Log("Updating terrain texture");
         if (_terrainImageTextureResizeRequired)
         {
             _terrainImageTexture.SetImage(_terrainImage);
@@ -147,22 +142,25 @@ public partial class TerrainScene2D : Control
 
     public void RedrawTreesImage()
     {
+        _logger.Log("Redrawing trees image");
         ThrowIfNoWorldDataOrDisplayOptions();
+
+        ClearTreesImage();
 
         if (!_worldData.TreesData.HasLayers())
         {
+            _logger.Log("NO TREES TO REDRAW");
             return;
         }
 
         ResizeTreesImageIfRequired();
-
-        ClearTreesImage();
 
         _visualSettings.TreeSettings.RedrawTreesImage(_treesImage, _worldData);
     }
 
     public void UpdateTreesTexture()
     {
+        _logger.Log("Updating trees texture");
         if (_treesImageTextureResizeRequired)
         {
             _treesImageTexture.SetImage(_treesImage);

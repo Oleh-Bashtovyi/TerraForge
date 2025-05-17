@@ -8,7 +8,7 @@ namespace TerrainGenerationApp.Domain.Core;
 
 public class TreesData
 {
-    private Dictionary<string, bool[,]> _layers = new();
+    private Dictionary<string, TreesLayer> _layers = new();
 
     public int LayersHeight
     {
@@ -16,7 +16,7 @@ public class TreesData
         {
             if (_layers.Count == 0)
                 return 0;
-            return _layers.First().Value.Height();
+            return _layers.First().Value.TreesMap.Height();
         }
     }
 
@@ -26,9 +26,11 @@ public class TreesData
         {
             if (_layers.Count == 0)
                 return 0;
-            return _layers.First().Value.Width();
+            return _layers.First().Value.TreesMap.Width();
         }
     }
+
+    public float PlacementFrequency { get; private set; }
 
     public TreesData(Dictionary<string, bool[,]> layers)
     {
@@ -37,7 +39,6 @@ public class TreesData
 
     public TreesData()
     {
-        _layers = new Dictionary<string, bool[,]>();
     }
 
     public Vector2I GetLayersSize()
@@ -45,6 +46,10 @@ public class TreesData
         return new Vector2I(LayersWidth, LayersHeight);
     }
 
+    public void SetPlacementFrequency(float value)
+    {
+        PlacementFrequency = value;
+    }
 
     public void SetLayers(Dictionary<string, bool[,]> layers)
     {
@@ -56,16 +61,17 @@ public class TreesData
 
         var height = layers.First().Value.Height();
         var width = layers.First().Value.Width();
-        var newDict = new Dictionary<string, bool[,]>();
+        var newDict = new Dictionary<string, TreesLayer>();
 
-        foreach (var layer in layers)
+        foreach (var dictLayer in layers)
         {
-            if (layer.Value.Height() != height || layer.Value.Width() != width)
+            if (dictLayer.Value.Height() != height || dictLayer.Value.Width() != width)
             {
                 throw new ArgumentException("All layers must have the same size");
             }
 
-            newDict[layer.Key] = layer.Value;
+            var layer = new TreesLayer(dictLayer.Key, dictLayer.Value);
+            newDict[dictLayer.Key] = layer;
         }
 
         _layers = newDict;
@@ -81,7 +87,7 @@ public class TreesData
 
         var height = layers.First().TreesMap.Height();
         var width = layers.First().TreesMap.Width();
-        var newDict = new Dictionary<string, bool[,]>();
+        var newDict = new Dictionary<string, TreesLayer>();
 
         foreach (var layer in layers)
         {
@@ -89,13 +95,13 @@ public class TreesData
             {
                 throw new ArgumentException("All layers must have the same size");
             }
-            newDict[layer.TreeId] = layer.TreesMap;
+            newDict[layer.TreeId] = layer;
         }
         _layers = newDict;
 
     }
 
-    public void ClearLayers()
+    public void Clear()
     {
         _layers.Clear();
     }
@@ -105,21 +111,26 @@ public class TreesData
         return _layers.Count > 0;
     }
 
-    public bool HasLayer(string layerName)
+    public bool HasLayerWithId(string layerName)
     {
         return _layers.ContainsKey(layerName);
     }
 
-    public void AddLayer(string layerName, bool[,] layer)
+    public bool HasLayerWithName(string layerName)
     {
-        if (_layers.ContainsKey(layerName))
+        return _layers.Any(x => x.Value.LayerName == layerName);
+    }
+
+    public void AddLayer(string layerId, bool[,] layer, string? layerName = null)
+    {
+        if (_layers.ContainsKey(layerId))
         {
-            throw new ArgumentException($"Layer with name {layerName} already exists");
+            throw new ArgumentException($"Layer with id {layerId} already exists");
         }
 
         if (_layers.Count == 0)
         {
-            _layers[layerName] = layer;
+            _layers[layerId] = new TreesLayer(layerId, layer, layerName);
             return;
         }
 
@@ -129,23 +140,29 @@ public class TreesData
                                         $"Expected: {LayersHeight}x{LayersWidth}, Actual: {layer.Height()}x{layer.Width()}");
         }
 
-        _layers[layerName] = layer;
+        _layers[layerId] = new TreesLayer(layerId, layer, layerName);
     }
 
 
-    public bool[,] GetLayerMap(string layerName)
+    public bool[,] GetLayerMapById(string layerId)
     {
-        if (_layers.TryGetValue(layerName, out bool[,] value))
+        if (_layers.TryGetValue(layerId, out TreesLayer value))
         {
-            return value;
+            return value.TreesMap;
         }
 
-        throw new ArgumentException($"Layer with name {layerName} does not exist");
+        throw new ArgumentException($"Layer with id {layerId} does not exist");
+    }
+
+    public bool[,]? GetLayerMapByName(string layerName)
+    {
+        layerName = layerName.ToLower();
+        return _layers.FirstOrDefault(x => x.Value.LayerName?.ToLower() == layerName).Value?.TreesMap;
     }
 
     public IEnumerable<Vector2I> GetPoints(string layerName)
     {
-        var map = GetLayerMap(layerName);
+        var map = GetLayerMapById(layerName);
 
         for (int y = 0; y < map.Height(); y++)
         {
@@ -161,9 +178,7 @@ public class TreesData
 
     public List<TreesLayer> GetLayers()
     {
-        return _layers
-            .Select(kvp => new TreesLayer(kvp.Key, kvp.Value))
-            .ToList();
+        return _layers.Select(x => x.Value).ToList();
     }
 
     public List<string> GetLayersIds()

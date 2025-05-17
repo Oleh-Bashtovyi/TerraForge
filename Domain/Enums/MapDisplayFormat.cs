@@ -2,5 +2,7 @@
 
 public enum MapDisplayFormat
 {
-    Grey, Colors, GradientColors
+    Grey, 
+    Colors, 
+    GradientColors
 }

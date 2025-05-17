@@ -22,11 +22,13 @@ public static class DiamondSquare
         var map = new float[mapSize, mapSize];
         var rng = new RandomNumberGenerator();
         rng.Seed = (ulong)seed;
+
         // RANDOM CORNERS
         map[0, 0] = rng.Randf();
         map[0, mapSize - 1] = rng.Randf();
         map[mapSize - 1, 0] = rng.Randf();
         map[mapSize - 1, mapSize - 1] = rng.Randf();
+
         var chunkSize = mapSize - 1;
         var curRoughness = roughness;
         while (chunkSize > 1)

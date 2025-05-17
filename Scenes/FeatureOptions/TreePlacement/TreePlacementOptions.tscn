@@ -20,6 +20,7 @@ horizontal_alignment = 1
 [node name="OptionsContainer" parent="." instance=ExtResource("2_8l3t1")]
 unique_name_in_owner = true
 layout_mode = 2
+OptionsFontSize = 12
 
 [node name="Label2" type="Label" parent="."]
 layout_mode = 2

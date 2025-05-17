@@ -14,8 +14,10 @@ public partial class TerrainVisualOptions : OptionsContainer
 
 	private MapDisplayFormat _curDisplayFormat = MapDisplayFormat.Grey;
 	private float _curSlopeThreshold = 0.2f;
+    private float _moistureInfluence = 0.8f;
+    private bool _includeMoisture = false;
 
-	public event Action OnDisplayOptionsChanged;
+    public event Action OnDisplayOptionsChanged;
 
 	[InputLine(Description = "Display format:")]
 	[InputLineCombobox(selected: 1, bind: ComboboxBind.Id)]
@@ -47,7 +49,34 @@ public partial class TerrainVisualOptions : OptionsContainer
 		}
 	}
 
-	public override void _Ready()
+    [InputLine(Description = "Moisture influence:")]
+    [InputLineSlider(0.0f, 1.0f, 0.01f)]
+    public float MoistureInfluence
+    {
+        get => _moistureInfluence;
+        set
+        {
+            value = Mathf.Clamp(value, 0.0f, 1.0f);
+            _moistureInfluence = value;
+            _settings.SetMoistureInfluence(value);
+            OnDisplayOptionsChanged?.Invoke();
+        }
+    }
+
+    [InputLine(Description = "Include moisture:")]
+    [InputLineCheckBox(checkboxType: CheckboxType.CheckButton)]
+    public bool IncludeMoisture
+    {
+        get => _includeMoisture;
+        set
+        {
+            _includeMoisture = value;
+            _settings.SetIncludeMoisture(value);
+            OnDisplayOptionsChanged?.Invoke();
+        }
+    }
+
+    public override void _Ready()
 	{
         base._Ready();
         InputLineManager.CreateInputLinesForObject(this, this);
@@ -72,7 +101,11 @@ public partial class TerrainVisualOptions : OptionsContainer
     {
         _curDisplayFormat = _settings.MapDisplayFormat;
         _curSlopeThreshold = _settings.SlopeThreshold;
+        _moistureInfluence = _settings.MoistureInfluence;
+        _includeMoisture = _settings.IncludeMoisture;
+        FindInputLine<InputLineCheckbox>(nameof(IncludeMoisture))?.SetValue(_includeMoisture, invokeEvent: false);
         FindInputLine<InputLineSlider>(nameof(CurSlopeThreshold))?.SetValue(_curSlopeThreshold, invokeEvent:false);
+        FindInputLine<InputLineSlider>(nameof(MoistureInfluence))?.SetValue(_moistureInfluence, invokeEvent: false);
         FindInputLine<InputLineCombobox>(nameof(CurDisplayFormat))?.SetSelectedById((int)_curDisplayFormat);
     }
 }

@@ -68,30 +68,6 @@ public partial class TerrainScene3D : Node3D
         _visualSettings = settings;
     }
 
-    public void ClearWorld()
-    {
-        _logger.Log("Clearing world...");
-
-        foreach (var child in _chunksContainer.GetChildren())
-            _chunksContainer.RemoveChild(child);
-        _chunkPool.Reset();
-
-        foreach (var child in _treesContainer.GetChildren())
-            _treesContainer.RemoveChild(child);
-        
-        foreach (var pool in _treePools.Values)
-            pool.Reset();
-        
-        _heightMap = null;
-        _curTerrainGridRow = 0;
-        _curTerrainGridCol = 0;
-        _curTreeGridRow = 0;
-        _curTreeGridCol = 0;
-        _isTerrainGenerated = false;
-        _areTreesGenerated = false;
-        _currentTerrainChunk = null;
-        _currentTrees.Clear();
-    }
 
 
     public bool IsTerrainChunksGenerating()
@@ -102,37 +78,6 @@ public partial class TerrainScene3D : Node3D
     public bool IsTreeChunksGenerating()
     {
         return !_areTreesGenerated;
-    }
-
-    public async Task InitWater()
-    {
-/*        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        var meshSizeX = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapWidth - 1);
-        var meshSizeZ = TerrainGridCellSize * (_worldData.TerrainData.TerrainMapHeight - 1);
-        _waterMesh.Position = new Vector3(
-            meshSizeX / 2.0f,
-            _worldData.SeaLevel * TerrainHeightScale,
-            meshSizeZ / 2.0f);
-        ((PlaneMesh)_waterMesh.Mesh).Size = new Vector2(meshSizeX, meshSizeZ);*/
-
-
-/*        // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
-        // Init camera limits
-        var minX = -CameraMovementBoundsThreshold;
-        var maxX = meshSizeX + CameraMovementBoundsThreshold;
-        var minZ = -CameraMovementBoundsThreshold;
-        var maxZ = meshSizeZ + CameraMovementBoundsThreshold;
-        var minY = -CameraMovementBoundsThreshold;
-        var maxY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + CameraMovementBoundsThreshold;
-        _movableCamera.SetMovementLimits(minX, maxX, minY, maxY, minZ, maxZ);*/
-
-
-        // TODO: MOVE NEXT CODE TO OTHER FUNCTION. CURRENTLY, IT IS A TEMPORARY WORKAROUND
-        // Set direction light position
-/*        var lightPosX = meshSizeX / 2.0f;
-        var lightPosY = TerrainHeightScale + Math.Max(meshSizeX, meshSizeZ) + 20;
-        var lightPosZ = meshSizeZ / 2.0f;
-        _directionalLight.Position = new Vector3(lightPosX, lightPosY, lightPosZ);*/
     }
 
 
@@ -381,15 +326,53 @@ public partial class TerrainScene3D : Node3D
                         rotation.Y = GD.RandRange(0, 360);
                         treeScene!.RotationDegrees = rotation;
 
+                        var treeScaleValue = 15 + (float)GD.RandRange(0, 4.0);
+                        var treeScale = new Vector3(treeScaleValue, treeScaleValue, treeScaleValue);
+                        treeScene.Scale = treeScale;
+
                         _currentTrees.Add(treeScene);
                         treesCount++;
                     }
                 }
             }
 
-            _logger.Log($"Tree layer: {item.TreeId}, Trees count: {treesCount} Row range: [{rowStart}; {rowEnd}), Col range: [{colStart}; {colEnd})");
+            //_logger.Log($"Tree layer: {item.TreeId}, Trees count: {treesCount} Row range: [{rowStart}; {rowEnd}), Col range: [{colStart}; {colEnd})");
         }
     }
+
+    public void ClearWorld()
+    {
+        _logger.Log("Clearing world...");
+        ClearTerrain();
+        ClearTrees();
+    }
+
+    public void ClearTerrain()
+    {
+        foreach (var child in _chunksContainer.GetChildren())
+            _chunksContainer.RemoveChild(child);
+        _chunkPool.Reset();
+        _heightMap = null;
+        _curTerrainGridRow = 0;
+        _curTerrainGridCol = 0;
+        _isTerrainGenerated = false;
+        _currentTerrainChunk = null;
+    }
+
+    public void ClearTrees()
+    {
+        foreach (var child in _treesContainer.GetChildren())
+            _treesContainer.RemoveChild(child);
+
+        foreach (var pool in _treePools.Values)
+            pool.Reset();
+
+        _curTreeGridRow = 0;
+        _curTreeGridCol = 0;
+        _areTreesGenerated = false;
+        _currentTrees.Clear();
+    }
+
 
     /// <summary>
     /// Binds the mesh settings to the terrain chunk. Note that direct object changes will not be reflected on the generated chunks.

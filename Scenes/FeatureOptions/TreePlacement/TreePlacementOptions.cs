@@ -72,7 +72,14 @@ public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, I
 
     private string GetNextTreeLayerId()
     {
-        return (_idCounter++).ToString();
+        var id = (_idCounter++).ToString();
+
+        while (_treePlacementRules.Any(x => x.LayerId == id))
+        {
+            id = (_idCounter++).ToString();
+        }
+
+        return id;
     }
 
     public List<TreePlacementRule> GetRules()
@@ -96,10 +103,10 @@ public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, I
         return _treePlacementRules.ToDictionary(x => x.LayerId, x => x.GetModel());
     }
 
-    public List<TreesLayer> GenerateTrees(IWorldData worldData)
+    public void GenerateTrees(IWorldData worldData)
     {
         var rules = GetRules().ToArray();
-        return TreesApplier.GenerateTreesLayers(worldData, rules, _frequency);
+        TreesApplier.ApplyTreesLayers(worldData, rules, _frequency);
     }
 
     private void TreePlacementRuleItemOnRulesChanged(object sender, EventArgs e)
@@ -268,10 +275,11 @@ public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, I
 
     private void InvokeTreePlacementRuleAdded(TreePlacementRuleItem item)
     {
-        if (!IsLoading)
-        {
-            OnTreePlacementRuleItemAdded?.Invoke(this, item);
-        }
+        OnTreePlacementRuleItemAdded?.Invoke(this, item);
+        /*        if (!IsLoading)
+                {
+                    OnTreePlacementRuleItemAdded?.Invoke(this, item);
+                }*/
     }
 
     private void InvokeTreePlacementRuleRemoved(TreePlacementRuleItem item)

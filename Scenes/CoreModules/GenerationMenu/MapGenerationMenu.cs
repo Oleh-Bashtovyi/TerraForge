@@ -5,12 +5,14 @@ using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Generators.DomainWarping;
 using TerrainGenerationApp.Domain.Generators.Islands;
 using TerrainGenerationApp.Domain.Generators.Trees;
+using TerrainGenerationApp.Domain.Utils;
 using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 using TerrainGenerationApp.Scenes.FeatureOptions.DomainWarping;
 using TerrainGenerationApp.Scenes.FeatureOptions.Island;
+using TerrainGenerationApp.Scenes.FeatureOptions.Moisture;
 using TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
 using TerrainGenerationApp.Scenes.GeneratorOptions;
 
@@ -19,6 +21,19 @@ namespace TerrainGenerationApp.Scenes.CoreModules.GenerationMenu;
 
 public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedConfigProvider
 {
+    private const string SELECTED_GENERATOR_TOOLTIP = "The selected generator for base height map generation.";
+    private const string MAP_INTERPOLATION_TOOLTIP = "The selected interpolation method for the generated map.";
+    private const string DISCRETE_STEPS_TOOLTIP = "The number of discrete steps for the discrete interpolation method.";
+    private const string NOISE_INFLUENCE_TOOLTIP = "The influence of the noise on the generated map.";
+    private const string SMOOTH_CYCLES_TOOLTIP = "The number of smoothing cycles to apply to the generated map.";
+    private const string SEA_LEVEL_TOOLTIP = "The sea level for the generated map. Values below this level are considered water.";
+    private const string DOMAIN_WARPING_TOOLTIP = "Enable or disable domain warping for the generated map.";
+    private const string ISLANDS_TOOLTIP = "Enable or disable islands for the generated map.";
+    private const string TREES_TOOLTIP = "Enable or disable trees generation for the generated map.";
+    private const string MOISTURE_TOOLTIP = "Enable or disable moisture generation for the generated map.";
+
+
+
     public enum MapInterpolationType
     {
         Linear,
@@ -40,10 +55,13 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private CheckBox _domainWarpingCheckBox;
     private CheckBox _islandsOptionsCheckbox;
     private CheckBox _treeOptionsCheckbox;
+    private CheckBox _moistureCheckBox;
     private IslandOptions _islandOptions;
     private DomainWarpingOptions _domainWarpingOptions;
     private TreePlacementOptions _treePlacementOptions;
+    private MoistureOptions _moistureOptions;
 
+    private readonly Logger<MapGenerationMenu> _logger = new();
     private int _discreteSteps = 10;
     private int _curSmoothCycles = 2;
     private float _curNoiseInfluence = 1.0f;
@@ -51,16 +69,18 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 	private bool _enableDomainWarping;
 	private bool _enableIslands;
 	private bool _enableTrees;
+	private bool _enableMoisture;
     private MapInterpolationType _mapInterpolationType;
 	private BaseGeneratorOptions _selectedGenerator;
 	private DomainWarpingApplier _domainWarpingApplier;
 	private IslandApplier _islandApplier;
     private TreesApplier _treesApplier;
 
-    public event EventHandler OnWaterLevelChanged;
-    public event EventHandler GenerationParametersChanged;
+    public event Action<float> OnWaterLevelChanged;
+    public event Action<bool> TreesGenerationEnabledChanged;
+    public event Action GenerationParametersChanged;
 
-    [InputLine(Description = "Generator:", Category = "Generator selection", Id = "GeneratorOptions")]
+    [InputLine(Description = "Generator:", Category = "Generator selection", Id = "GeneratorOptions", Tooltip = SELECTED_GENERATOR_TOOLTIP)]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
     [InputOption("Diamond square", id: 1)]
     [InputOption("Perlin noise",   id: 2)]
@@ -90,7 +110,8 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         }
     }
 
-    [InputLine(Description = "Map interpolation:", Category = "Adjustments", Id = "MapInterpolation")]
+
+    [InputLine(Description = "Map interpolation:", Category = "Adjustments", Id = "MapInterpolation", Tooltip = MAP_INTERPOLATION_TOOLTIP)]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
     [InputOption("Linear",               id: (int)MapInterpolationType.Linear)]
     [InputOption("Highlight high areas", id: (int)MapInterpolationType.HighlightHighValues)]
@@ -107,7 +128,8 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         }
     }
 
-    [InputLine(Description = "Discrete steps:", Category = "Adjustments")]
+
+    [InputLine(Description = "Discrete steps:", Category = "Adjustments", Tooltip = DISCRETE_STEPS_TOOLTIP)]
     [InputLineSlider(1, 100)]
     public int DiscreteSteps
     {
@@ -119,7 +141,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         }
     }
 
-    [InputLine(Description = "Noise influence:", Category = "Adjustments")]
+    [InputLine(Description = "Noise influence:", Category = "Adjustments", Tooltip = NOISE_INFLUENCE_TOOLTIP)]
     [InputLineSlider(0.01f, 4.0f, 0.01f)]
     public float CurNoiseInfluence
 	{
@@ -131,7 +153,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 		}
 	}
 
-    [InputLine(Description = "Smooth cycles:", Category = "Adjustments")]
+    [InputLine(Description = "Smooth cycles:", Category = "Adjustments", Tooltip = SMOOTH_CYCLES_TOOLTIP)]
     [InputLineSlider(0, MaxSmoothCycles)]
     public int CurSmoothCycles
 	{
@@ -143,7 +165,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 		}
 	}
 
-    [InputLine(Description = "Sea level:", Category = "Adjustments")]
+    [InputLine(Description = "Sea level:", Category = "Adjustments", Tooltip = SEA_LEVEL_TOOLTIP)]
     [InputLineSlider(0.0f, 1.0f, 0.01f)]
     public float CurSeaLevel
     {
@@ -151,7 +173,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         private set
         {
             _curSeaLevel = (float)Mathf.Clamp(value, 0.0, 1.0);
-            OnWaterLevelChanged?.Invoke(this, EventArgs.Empty);
+            OnWaterLevelChanged?.Invoke(_curSeaLevel);
         }
     }
 
@@ -179,12 +201,25 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 		private set
 		{
             _enableTrees = value;
-			HandleParametersChanged();
+            TreesGenerationEnabledChanged?.Invoke(_enableTrees);
 		}
 	}
+    public bool EnableMoisture
+    {
+        get => _enableMoisture;
+        private set
+        {
+            _enableMoisture = value;
+            HandleParametersChanged();
+        }
+    }
+
+    private bool IsLoading { get; set; }
+
     public BaseGeneratorOptions SelectedGenerator => _selectedGenerator;
     public IDomainWarpingApplier DomainWarpingApplier => _domainWarpingApplier;
     public IIslandsApplier IslandsApplier => _islandApplier;
+    public MoistureOptions MoistureOptions => _moistureOptions;
     public ITreesApplier TreesApplier => _treesApplier;
 	public TreePlacementOptions TreePlacementOptions => _treePlacementOptions;
 
@@ -211,20 +246,26 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         _domainWarpingCheckBox = GetNode<CheckBox>("%DomainWarpingCheckBox");
         _islandsOptionsCheckbox = GetNode<CheckBox>("%IslandOptionsCheckBox");
         _treeOptionsCheckbox = GetNode<CheckBox>("%TreePlacementCheckBox");
+        _moistureCheckBox = GetNode<CheckBox>("%MoistureCheckBox");
         _domainWarpingCheckBox.Toggled += OnDomainWarpingCheckBoxToggled;
         _islandsOptionsCheckbox.Toggled += OnIslandOptionsCheckBoxToggled;
         _treeOptionsCheckbox.Toggled += OnTreeOptionsCheckboxOnToggled;
+        _moistureCheckBox.Toggled += OnMoistureCheckBoxOnToggled;
 
         // Features
         _treePlacementOptions = GetNode<TreePlacementOptions>("%TreePlacementOptions");
         _domainWarpingOptions = GetNode<DomainWarpingOptions>("%DomainWarpingOptions");
         _islandOptions = GetNode<IslandOptions>("%IslandOptions");
+        _moistureOptions = GetNode<MoistureOptions>("%MoistureOptions");
         _domainWarpingOptions.ParametersChanged += HandleParametersChanged;
         _islandOptions.ParametersChanged += HandleParametersChanged;
+        _moistureOptions.ParametersChanged += HandleParametersChanged;
         _domainWarpingApplier = _domainWarpingOptions.DomainWarpingApplier;
         _islandApplier = _islandOptions.IslandApplier;
         _treesApplier = _treePlacementOptions.TreesApplier;
     }
+
+
 
     public void ApplySelectedInterpolation(float[,] map)
     {
@@ -302,29 +343,78 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 
     public void LoadConfigFrom(Dictionary<string, object> config)
     {
-        if (config.GetValueOrDefault("Adjustments") is Dictionary<string, object> adjustmentsConfig)
-            _adjustmentsContainer.LoadConfigFrom(adjustmentsConfig);
+        try
+        {
+            IsLoading = true;
+            _logger.Log("Starting loading generation options from config....");
 
-        if (config.GetValueOrDefault("SelectedGenerator") is Dictionary<string, object> selectedGeneratorConfig)
-            _generatorsContainer.LoadConfigFrom(selectedGeneratorConfig);
+            // ADJUSTMENTS
+            if (config.GetValueOrDefault("Adjustments") is Dictionary<string, object> adjustmentsConfig)
+            {
+                _logger.Log("Loading adjustments...");
+                _adjustmentsContainer.LoadConfigFrom(adjustmentsConfig);
+            }
 
-        if (config.GetValueOrDefault("Generator") is Dictionary<string, object> generatorConfig)
-            _selectedGenerator?.LoadConfigFrom(generatorConfig);
+            // SELECTED GENERATOR
+            if (config.GetValueOrDefault("SelectedGenerator") is Dictionary<string, object> selectedGeneratorConfig)
+            {
+                _logger.Log("Loading selected generator...");
+                _generatorsContainer.LoadConfigFrom(selectedGeneratorConfig);
+            }
 
-        if (config.GetValueOrDefault("WarpingEnabled") is bool warpingEnabled) EnableDomainWarping = warpingEnabled;
-        _domainWarpingCheckBox.ButtonPressed = EnableDomainWarping;
-        if (EnableDomainWarping && config.GetValueOrDefault("Warping") is Dictionary<string, object> warpingConfig)
-            _domainWarpingOptions.LoadConfigFrom(warpingConfig);
+            // GENERATOR OPTIONS
+            if (config.GetValueOrDefault("Generator") is Dictionary<string, object> generatorConfig)
+            {
+                _logger.Log("Loading generator options...");
+                _selectedGenerator?.LoadConfigFrom(generatorConfig);
+            }
 
-        if (config.GetValueOrDefault("IslandsEnabled") is bool islandsEnabled) EnableIslands = islandsEnabled;
-        _islandsOptionsCheckbox.ButtonPressed = EnableIslands;
-        if (EnableIslands && config.GetValueOrDefault("Islands") is Dictionary<string, object> islandsConfig)
-            _islandOptions.LoadConfigFrom(islandsConfig);
+            // DOMAIN WARPING
+            if (config.GetValueOrDefault("WarpingEnabled") is bool warpingEnabled)
+            {
+                _logger.Log("Loading warping enabled (bool value)...");
+                EnableDomainWarping = warpingEnabled;
+                _domainWarpingCheckBox.ButtonPressed = EnableDomainWarping;
+            }
 
-        if (config.GetValueOrDefault("TreesEnabled") is bool treesEnabled) EnableTrees = treesEnabled;
-        _treeOptionsCheckbox.ButtonPressed = EnableTrees;
-        if (EnableTrees && config.GetValueOrDefault("TreesPlacement") is Dictionary<string, object> treesConfig)
-            _treePlacementOptions.LoadConfigFrom(treesConfig);
+            if (EnableDomainWarping && config.GetValueOrDefault("Warping") is Dictionary<string, object> warpingConfig)
+            {
+                _logger.Log("Loading warping feature options...");
+                _domainWarpingOptions.LoadConfigFrom(warpingConfig);
+            }
+
+            // ISLANDS
+            if (config.GetValueOrDefault("IslandsEnabled") is bool islandsEnabled)
+            {
+                _logger.Log("Loading islands enabled (bool value)...");
+                EnableIslands = islandsEnabled;
+                _islandsOptionsCheckbox.ButtonPressed = EnableIslands;
+            }
+
+            if (EnableIslands && config.GetValueOrDefault("Islands") is Dictionary<string, object> islandsConfig)
+            {
+                _logger.Log("Loading islands feature options...");
+                _islandOptions.LoadConfigFrom(islandsConfig);
+            }
+
+            // TREES
+            if (config.GetValueOrDefault("TreesEnabled") is bool treesEnabled)
+            {
+                _logger.Log("Loading trees enabled (bool value)...");
+                EnableTrees = treesEnabled;
+                _treeOptionsCheckbox.ButtonPressed = EnableTrees;
+            }
+
+            if (EnableTrees && config.GetValueOrDefault("TreesPlacement") is Dictionary<string, object> treesConfig)
+            {
+                _logger.Log("Loading trees feature options...");
+                _treePlacementOptions.LoadConfigFrom(treesConfig);
+            }
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
     
     public void DisableOptions()
@@ -351,7 +441,8 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     }
     private void HandleParametersChanged()
     {
-        GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
+        if(!IsLoading)
+            GenerationParametersChanged?.Invoke();
     }
 	
     private void OnDomainWarpingCheckBoxToggled(bool toggledOn)
@@ -369,5 +460,11 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     {
         _treePlacementOptions.Visible = toggledOn;
         EnableTrees = toggledOn;
+    }
+
+    private void OnMoistureCheckBoxOnToggled(bool toggledOn)
+    {
+        _moistureOptions.Visible = toggledOn;
+        EnableMoisture = toggledOn;
     }
 }

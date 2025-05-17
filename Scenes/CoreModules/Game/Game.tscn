@@ -105,7 +105,7 @@ offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/split_bar_background = SubResource("StyleBoxFlat_eqppl")
-split_offset = 60
+split_offset = 170
 drag_area_highlight_in_editor = true
 
 [node name="RightContainer" type="Control" parent="Generation_Layer/HSplitContainer"]
@@ -179,6 +179,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+OptionsFontSize = 12
 
 [node name="Mesh options" type="ScrollContainer" parent="Generation_Layer/HSplitContainer/RightPannel/MarginContainer/TabContainer"]
 visible = false
@@ -201,6 +202,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+OptionsFontSize = 12
 
 [node name="ButtonsContainer" type="MarginContainer" parent="Generation_Layer/HSplitContainer/RightPannel"]
 layout_mode = 1
