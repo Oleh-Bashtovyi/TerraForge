@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://er77kushxfew"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_312ee"]
+noise_type = 3
+fractal_octaves = 1
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_v6ij6"]
+width = 400
+height = 400
+noise = SubResource("FastNoiseLite_312ee")
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("NoiseTexture2D_v6ij6")

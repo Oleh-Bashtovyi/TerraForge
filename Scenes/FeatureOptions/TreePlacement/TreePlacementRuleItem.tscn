@@ -23,6 +23,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
+focus_mode = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_qo2xr")
 script = ExtResource("1_qqfdb")
 

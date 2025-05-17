@@ -95,7 +95,9 @@ public partial class TreePlacementRuleItem : PanelContainer, IOptionsToggleable,
         { 0, typeof(AboveSeaLevelRuleItem) },
         { 1, typeof(SlopeRuleItem) },
         { 2, typeof(NoiseMapRuleItem) },
-        { 3, typeof(NoTreeLayersInRadiusRuleItem)}
+        { 3, typeof(NoTreeLayersInRadiusRuleItem)},
+        { 4, typeof(MoistureRuleItem)},
+        { 5, typeof(WaterInRadiusRuleItem) }
     };
 
     private Dictionary<Type, PackedScene> _placementRuleScenes = new()
@@ -103,7 +105,9 @@ public partial class TreePlacementRuleItem : PanelContainer, IOptionsToggleable,
         { typeof(AboveSeaLevelRuleItem), TreePlacementRuleLoadedScenes.ABOVE_SEA_LEVEL_PLACEMENT_RULE_ITEM_SCENE },
         { typeof(SlopeRuleItem), TreePlacementRuleLoadedScenes.SLOPE_PLACEMENT_RULE_ITEM_SCENE },
         { typeof(NoiseMapRuleItem), TreePlacementRuleLoadedScenes.NOISE_MAP_PLACEMENT_RULE_ITEM_SCENE },
-        { typeof(NoTreeLayersInRadiusRuleItem), TreePlacementRuleLoadedScenes.NO_TREE_LAYER_IN_RADIUS_RULE_ITEM_SCENE}
+        { typeof(NoTreeLayersInRadiusRuleItem), TreePlacementRuleLoadedScenes.NO_TREE_LAYER_IN_RADIUS_RULE_ITEM_SCENE},
+        { typeof(MoistureRuleItem), TreePlacementRuleLoadedScenes.MOISTURE_RULE_ITEM_SCENE },
+        { typeof(WaterInRadiusRuleItem), TreePlacementRuleLoadedScenes.WATER_IN_RADIUS_RULE_ITEM_SCENE }
     };
 
     public override void _Ready()
@@ -140,6 +144,8 @@ public partial class TreePlacementRuleItem : PanelContainer, IOptionsToggleable,
         popup.AddItem("Slope rule", 1);
         popup.AddItem("Noise map rule", 2);
         popup.AddItem("No tree layers in radius rule", 3);
+        popup.AddItem("Moisture rule", 4);
+        popup.AddItem("Water in radius rule", 5);
         popup.IdPressed += PlacementRulesPopupMenuOnIdPressed;
     }
 

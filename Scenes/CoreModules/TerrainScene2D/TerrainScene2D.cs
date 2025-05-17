@@ -47,6 +47,7 @@ public partial class TerrainScene2D : Control
         _treesImageTexture = ImageTexture.CreateFromImage(_treesImage);
         _terrainTextureRect.Texture = _terrainImageTexture;
         _treesTextureRect.Texture = _treesImageTexture;
+        _cellInfoLabel.Text = "";
     }
 
     public Image GetTerrainImage()
@@ -144,6 +145,8 @@ public partial class TerrainScene2D : Control
         _logger.Log("Redrawing trees image");
         ThrowIfNoWorldDataOrDisplayOptions();
 
+        ClearTreesImage();
+
         if (!_worldData.TreesData.HasLayers())
         {
             _logger.Log("NO TREES TO REDRAW");
@@ -151,8 +154,6 @@ public partial class TerrainScene2D : Control
         }
 
         ResizeTreesImageIfRequired();
-
-        ClearTreesImage();
 
         _visualSettings.TreeSettings.RedrawTreesImage(_treesImage, _worldData);
     }

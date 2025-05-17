@@ -21,6 +21,19 @@ namespace TerrainGenerationApp.Scenes.CoreModules.GenerationMenu;
 
 public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedConfigProvider
 {
+    private const string SELECTED_GENERATOR_TOOLTIP = "The selected generator for base height map generation.";
+    private const string MAP_INTERPOLATION_TOOLTIP = "The selected interpolation method for the generated map.";
+    private const string DISCRETE_STEPS_TOOLTIP = "The number of discrete steps for the discrete interpolation method.";
+    private const string NOISE_INFLUENCE_TOOLTIP = "The influence of the noise on the generated map.";
+    private const string SMOOTH_CYCLES_TOOLTIP = "The number of smoothing cycles to apply to the generated map.";
+    private const string SEA_LEVEL_TOOLTIP = "The sea level for the generated map. Values below this level are considered water.";
+    private const string DOMAIN_WARPING_TOOLTIP = "Enable or disable domain warping for the generated map.";
+    private const string ISLANDS_TOOLTIP = "Enable or disable islands for the generated map.";
+    private const string TREES_TOOLTIP = "Enable or disable trees generation for the generated map.";
+    private const string MOISTURE_TOOLTIP = "Enable or disable moisture generation for the generated map.";
+
+
+
     public enum MapInterpolationType
     {
         Linear,
@@ -63,11 +76,11 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 	private IslandApplier _islandApplier;
     private TreesApplier _treesApplier;
 
-    public event Action<bool> OnMoistureToggleOn;
-    public event EventHandler OnWaterLevelChanged;
-    public event EventHandler GenerationParametersChanged;
+    public event Action<float> OnWaterLevelChanged;
+    public event Action<bool> TreesGenerationEnabledChanged;
+    public event Action GenerationParametersChanged;
 
-    [InputLine(Description = "Generator:", Category = "Generator selection", Id = "GeneratorOptions")]
+    [InputLine(Description = "Generator:", Category = "Generator selection", Id = "GeneratorOptions", Tooltip = SELECTED_GENERATOR_TOOLTIP)]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
     [InputOption("Diamond square", id: 1)]
     [InputOption("Perlin noise",   id: 2)]
@@ -98,7 +111,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     }
 
 
-    [InputLine(Description = "Map interpolation:", Category = "Adjustments", Id = "MapInterpolation")]
+    [InputLine(Description = "Map interpolation:", Category = "Adjustments", Id = "MapInterpolation", Tooltip = MAP_INTERPOLATION_TOOLTIP)]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
     [InputOption("Linear",               id: (int)MapInterpolationType.Linear)]
     [InputOption("Highlight high areas", id: (int)MapInterpolationType.HighlightHighValues)]
@@ -116,7 +129,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     }
 
 
-    [InputLine(Description = "Discrete steps:", Category = "Adjustments")]
+    [InputLine(Description = "Discrete steps:", Category = "Adjustments", Tooltip = DISCRETE_STEPS_TOOLTIP)]
     [InputLineSlider(1, 100)]
     public int DiscreteSteps
     {
@@ -128,7 +141,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         }
     }
 
-    [InputLine(Description = "Noise influence:", Category = "Adjustments")]
+    [InputLine(Description = "Noise influence:", Category = "Adjustments", Tooltip = NOISE_INFLUENCE_TOOLTIP)]
     [InputLineSlider(0.01f, 4.0f, 0.01f)]
     public float CurNoiseInfluence
 	{
@@ -140,7 +153,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 		}
 	}
 
-    [InputLine(Description = "Smooth cycles:", Category = "Adjustments")]
+    [InputLine(Description = "Smooth cycles:", Category = "Adjustments", Tooltip = SMOOTH_CYCLES_TOOLTIP)]
     [InputLineSlider(0, MaxSmoothCycles)]
     public int CurSmoothCycles
 	{
@@ -152,7 +165,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 		}
 	}
 
-    [InputLine(Description = "Sea level:", Category = "Adjustments")]
+    [InputLine(Description = "Sea level:", Category = "Adjustments", Tooltip = SEA_LEVEL_TOOLTIP)]
     [InputLineSlider(0.0f, 1.0f, 0.01f)]
     public float CurSeaLevel
     {
@@ -160,7 +173,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         private set
         {
             _curSeaLevel = (float)Mathf.Clamp(value, 0.0, 1.0);
-            OnWaterLevelChanged?.Invoke(this, EventArgs.Empty);
+            OnWaterLevelChanged?.Invoke(_curSeaLevel);
         }
     }
 
@@ -188,14 +201,13 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 		private set
 		{
             _enableTrees = value;
-			HandleParametersChanged();
+            TreesGenerationEnabledChanged?.Invoke(_enableTrees);
 		}
 	}
-
     public bool EnableMoisture
     {
         get => _enableMoisture;
-        set
+        private set
         {
             _enableMoisture = value;
             HandleParametersChanged();
@@ -430,7 +442,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private void HandleParametersChanged()
     {
         if(!IsLoading)
-            GenerationParametersChanged?.Invoke(this, EventArgs.Empty);
+            GenerationParametersChanged?.Invoke();
     }
 	
     private void OnDomainWarpingCheckBoxToggled(bool toggledOn)

@@ -9,20 +9,25 @@ namespace TerrainGenerationApp.Domain.Visualization;
 public class TerrainVisualSettings
 {
     private readonly Logger<TerrainVisualSettings> _logger = new();
+    private readonly Gradient _dryTerrainGradient;
     private readonly Gradient _terrainGradient;
     private readonly Gradient _waterGradient;
     private MapDisplayFormat _mapDisplayFormat;
     private float _slopeThreshold = 0.1f;
     private float _moistureInfluence = 0.8f;
+    private bool _includeMoisture = false;
 
     public float SlopeThreshold => _slopeThreshold;
     public float MoistureInfluence => _moistureInfluence;
+    public bool IncludeMoisture => _includeMoisture;
     public MapDisplayFormat MapDisplayFormat => _mapDisplayFormat;
 
     public TerrainVisualSettings()
     {
+        _dryTerrainGradient = new Gradient();
         _terrainGradient = new Gradient();
         _waterGradient = new Gradient();
+        ClearDryTerrainGradient();
         ClearTerrainGradient();
         ClearWaterGradient();
         SetMapDisplayFormat(MapDisplayFormat.Colors);
@@ -42,6 +47,11 @@ public class TerrainVisualSettings
             _terrainGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
             _waterGradient.InterpolationMode = Gradient.InterpolationModeEnum.Linear;
         }
+    }
+
+    public void SetIncludeMoisture(bool includeMoisture)
+    {
+        _includeMoisture = includeMoisture;
     }
 
     public void SetSlopeThreshold(float slopeThreshold)
@@ -80,8 +90,13 @@ public class TerrainVisualSettings
                 }
 
                 var baseColor = _terrainGradient.Sample(h - worldData.SeaLevel);
-                var moisture = worldData.TerrainData.MoistureAt(row, col);
-                return ApplyMoisture(baseColor, moisture, h - worldData.SeaLevel);
+
+                if (_includeMoisture)
+                {
+                    var moisture = worldData.TerrainData.MoistureAt(row, col);
+                    return ApplyMoisture(baseColor, 1.0f - moisture, h - worldData.SeaLevel);
+                }
+                return baseColor;
 
             default:
                 throw new NotImplementedException("Can not handle color get operation idk");
@@ -93,20 +108,21 @@ public class TerrainVisualSettings
         if (moisture < 0.1f)
             return baseColor;
 
-        float closestKey = 0f;
-        float minDiff = float.MaxValue;
+        /*        float closestKey = 0f;
+                float minDiff = float.MaxValue;
 
-        foreach (var key in ColorPallets.MoistTerrainColors.Keys)
-        {
-            float diff = Math.Abs(key - elevation);
-            if (diff < minDiff)
-            {
-                minDiff = diff;
-                closestKey = key;
-            }
-        }
+                foreach (var key in ColorPallets.MoistTerrainColors.Keys)
+                {
+                    float diff = Math.Abs(key - elevation);
+                    if (diff < minDiff)
+                    {
+                        minDiff = diff;
+                        closestKey = key;
+                    }
+                }
 
-        var moistColor = ColorPallets.MoistTerrainColors[closestKey];
+                var moistColor = ColorPallets.MoistTerrainColors[closestKey];*/
+        var moistColor = _dryTerrainGradient.Sample(elevation);
         float blendFactor = moisture * _moistureInfluence;
 
         float r = Mathf.Lerp(baseColor.R, moistColor.R, blendFactor);
@@ -123,7 +139,6 @@ public class TerrainVisualSettings
     public void ClearTerrainGradient()
     {
         var pointCount = _terrainGradient.GetPointCount();
-
         for (int i = 0; i < pointCount - 1; i++)
         {
             _terrainGradient.RemovePoint(0);
@@ -133,10 +148,18 @@ public class TerrainVisualSettings
     public void ClearWaterGradient()
     {
         var pointCount = _waterGradient.GetPointCount();
-
         for (int i = 0; i < pointCount - 1; i++)
         {
             _waterGradient.RemovePoint(0);
+        }
+    }
+
+    public void ClearDryTerrainGradient()
+    {
+        var pointCount = _dryTerrainGradient.GetPointCount();
+        for (int i = 0; i < pointCount - 1; i++)
+        {
+            _dryTerrainGradient.RemovePoint(0);
         }
     }
 
@@ -148,6 +171,11 @@ public class TerrainVisualSettings
     public void AddWaterGradientPoint(float offset, Color color)
     {
         _waterGradient.AddPoint(offset, color);
+    }
+
+    public void AddDryTerrainGradientPoint(float offset, Color color)
+    {
+        _dryTerrainGradient.AddPoint(offset, color);
     }
 
 

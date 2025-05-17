@@ -12,12 +12,7 @@ public class ValueNoiseGenerator : NoiseMapGenerator
     public int Seed
     {
         get => _seed;
-        set
-        {
-            _seed = value;
-            _random = new Random(_seed);
-            GenerateNoiseMap();
-        }
+        set => SetSeed(value);
     }
 
     public ValueNoiseGenerator()
@@ -42,6 +37,14 @@ public class ValueNoiseGenerator : NoiseMapGenerator
             }
         }
     }
+
+    public override void SetSeed(int value)
+    {
+        _seed = value;
+        _random = new Random(_seed);
+        GenerateNoiseMap();
+    }
+
     public override float Noise1D(float x)
     {
         // Determine integer coordinates for interpolation  

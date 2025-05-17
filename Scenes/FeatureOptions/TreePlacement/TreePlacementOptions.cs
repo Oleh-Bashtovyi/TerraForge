@@ -72,7 +72,14 @@ public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, I
 
     private string GetNextTreeLayerId()
     {
-        return (_idCounter++).ToString();
+        var id = (_idCounter++).ToString();
+
+        while (_treePlacementRules.Any(x => x.LayerId == id))
+        {
+            id = (_idCounter++).ToString();
+        }
+
+        return id;
     }
 
     public List<TreePlacementRule> GetRules()

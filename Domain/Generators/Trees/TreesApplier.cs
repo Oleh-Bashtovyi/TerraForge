@@ -22,7 +22,8 @@ public class TreesApplier : ITreesApplier
         var w = Mathf.RoundToInt(terrDataMapWidth * frequency);
         var placedTrees = new bool[h, w];
 
-        worldData.TreesData.ClearLayers();
+        worldData.TreesData.Clear();
+        worldData.TreesData.SetPlacementFrequency(frequency);
 
         foreach (var rule in rules)
         {

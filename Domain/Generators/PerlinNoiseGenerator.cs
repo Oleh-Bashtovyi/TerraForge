@@ -45,28 +45,6 @@ public class PerlinNoiseGenerator : NoiseMapGenerator
 
 
     private byte[] _perm;
-    private int _seed;
-
-    public int Seed
-    {
-        get => _seed;
-        set
-        {
-            if (value == 0)
-            {
-                _perm = new byte[PermOriginal.Length];
-                PermOriginal.CopyTo(_perm, 0);
-            }
-            else
-            {
-                _perm = new byte[512];
-                var random = new Random(value);
-                random.NextBytes(_perm);
-            }
-
-            _seed = value;
-        }
-    }
 
     // Algorithm:
     // 1) Determine the coordinates of the grid cell. To limit the input 
@@ -83,6 +61,23 @@ public class PerlinNoiseGenerator : NoiseMapGenerator
     {
         _perm = new byte[PermOriginal.Length];
         PermOriginal.CopyTo(_perm, 0);
+    }
+
+    public override void SetSeed(int value)
+    {
+        if (value == 0)
+        {
+            _perm = new byte[PermOriginal.Length];
+            PermOriginal.CopyTo(_perm, 0);
+        }
+        else
+        {
+            _perm = new byte[512];
+            var random = new Random(value);
+            random.NextBytes(_perm);
+        }
+
+        _seed = value;
     }
 
     public override float Noise1D(float x)

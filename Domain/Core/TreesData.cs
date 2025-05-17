@@ -30,6 +30,8 @@ public class TreesData
         }
     }
 
+    public float PlacementFrequency { get; private set; }
+
     public TreesData(Dictionary<string, bool[,]> layers)
     {
         SetLayers(layers);
@@ -42,6 +44,11 @@ public class TreesData
     public Vector2I GetLayersSize()
     {
         return new Vector2I(LayersWidth, LayersHeight);
+    }
+
+    public void SetPlacementFrequency(float value)
+    {
+        PlacementFrequency = value;
     }
 
     public void SetLayers(Dictionary<string, bool[,]> layers)
@@ -94,7 +101,7 @@ public class TreesData
 
     }
 
-    public void ClearLayers()
+    public void Clear()
     {
         _layers.Clear();
     }

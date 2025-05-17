@@ -54,12 +54,12 @@ layout_mode = 2
 [node name="OptionsContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_kqjjq")]
 unique_name_in_owner = true
 layout_mode = 2
-OptionsFontSize = 12
+OptionsFontSize = 10
 
 [node name="LayerNamesContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_kqjjq")]
 unique_name_in_owner = true
 layout_mode = 2
-OptionsFontSize = 12
+OptionsFontSize = 10
 
 [node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
