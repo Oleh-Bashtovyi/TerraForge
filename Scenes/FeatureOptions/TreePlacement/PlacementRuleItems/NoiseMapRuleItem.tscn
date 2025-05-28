@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bwb0up3nuvay2"]
+[gd_scene load_steps=7 format=3 uid="uid://bwb0up3nuvay2"]
 
 [ext_resource type="Script" uid="uid://ddfb4m5xdjaa0" path="res://Scenes/FeatureOptions/TreePlacement/PlacementRuleItems/NoiseMapRuleItem.cs" id="1_gjdrv"]
 [ext_resource type="PackedScene" uid="uid://dibwtw2cnl4pf" path="res://Scenes/GeneratorOptions/PerlinNoise/PerlinOptions.tscn" id="2_fgcox"]
 [ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/BuildingBlocks/Containers/OptionsContainer.tscn" id="2_psq66"]
+[ext_resource type="StyleBox" uid="uid://b3to1wxrqyakj" path="res://Resources/StandartPanel.tres" id="3_2gcfq"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0bdya"]
 content_margin_left = 5.0
@@ -38,17 +39,29 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 
-[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "Noise rule"
 horizontal_alignment = 1
 
-[node name="MarginContainer2" type="MarginContainer" parent="HBoxContainer/VBoxContainer"]
+[node name="Control" type="Control" parent="HBoxContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
+
+[node name="DeleteButton" type="Button" parent="HBoxContainer/VBoxContainer/HBoxContainer/Control"]
+unique_name_in_owner = true
+layout_mode = 2
+offset_left = -29.0
+offset_right = -4.0
+offset_bottom = 25.0
+size_flags_horizontal = 8
+size_flags_vertical = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 12
+text = "🗑"
 
 [node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -75,6 +88,7 @@ layout_mode = 2
 OptionsFontSize = 10
 
 [node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme_override_constants/margin_top = 4
 
@@ -84,13 +98,22 @@ size_flags_horizontal = 4
 text = "Noise map options"
 horizontal_alignment = 1
 
-[node name="PerlinOptions" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer" instance=ExtResource("2_fgcox")]
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = ExtResource("3_2gcfq")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_right = 5
+
+[node name="PerlinOptions" parent="HBoxContainer/VBoxContainer/MarginContainer/VBoxContainer/PanelContainer/ScrollContainer/MarginContainer" instance=ExtResource("2_fgcox")]
 unique_name_in_owner = true
 layout_mode = 2
 OptionsFontSize = 10
-
-[node name="DeleteButton" type="Button" parent="HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 4
-text = "🗑"

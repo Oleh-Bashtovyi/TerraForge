@@ -22,11 +22,11 @@ public partial class NoiseGeneratorOptionsBase : BaseGeneratorOptions
     private const string WARPING_STRENGTH_TOOLTIP = "The strength of the warping effect.";
 
     protected readonly NoiseMapGenerator Generator;
-    private int _mapHeight = 100;
-    private int _mapWidth = 100;
+    private int _mapHeight = 150;
+    private int _mapWidth = 150;
 
     [InputLine(Description = "Map height:", Tooltip = MAP_HEIGHT_TOOLTIP)]
-    [InputLineSlider(2, 400)]
+    [InputLineSlider(2, 512)]
     public int MapHeight
     {
         get => _mapHeight;
@@ -38,7 +38,7 @@ public partial class NoiseGeneratorOptionsBase : BaseGeneratorOptions
     }
 
     [InputLine(Description = "Map width:", Tooltip = MAP_WIDTH_TOOLTIP)]
-    [InputLineSlider(2, 400)]
+    [InputLineSlider(2, 512)]
     public int MapWidth
     {
         get => _mapWidth;
@@ -62,7 +62,7 @@ public partial class NoiseGeneratorOptionsBase : BaseGeneratorOptions
     }
 
     [InputLine(Description = "Octaves:", Tooltip = OCTAVES_TOOLTIP)]
-    [InputLineSlider(0, 10)]
+    [InputLineSlider(1, 10)]
     public int Octaves
     {
         get => Generator.Octaves;
@@ -85,7 +85,7 @@ public partial class NoiseGeneratorOptionsBase : BaseGeneratorOptions
         }
     }
 
-    [InputLine(Description = "Fractal type:", Tooltip = FRACTAL_TYPE_TOOLTIP)]
+    [InputLine(Description = "Fractal type:", Tooltip = FRACTAL_TYPE_TOOLTIP, IsVisible = false)]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
     [InputOption("FBM", id: (int)FractalType.Fbm)]
     [InputOption("Ridged", id: (int)FractalType.Ridged)]

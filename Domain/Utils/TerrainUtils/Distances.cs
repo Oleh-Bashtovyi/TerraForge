@@ -1,13 +1,36 @@
 ﻿using Godot;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace TerrainGenerationApp.Domain.Utils.TerrainUtils;
+
+public enum DistanceType
+{
+    Euclidean,
+    EuclideanSquared,
+    Manhattan,
+    Diagonal,
+    Hyperboloid,
+}
 
 /// <summary>
 /// Provides various distance calculation methods.
 /// </summary>
 public static class Distances
 {
+    public static float CalculateDistance(float x1, float y1, float x2, float y2, DistanceType distanceType)
+    {
+        return distanceType switch
+        {
+            DistanceType.Euclidean => Euclidean(x1, y1, x2, y2),
+            DistanceType.EuclideanSquared => EuclideanSquared(x1, y1, x2, y2),
+            DistanceType.Manhattan => Manhattan(x1, y1, x2, y2),
+            DistanceType.Diagonal => Diagonal(x1, y1, x2, y2),
+            DistanceType.Hyperboloid => Hyperboloid(x1, y1, x2, y2),
+            _ => throw new ArgumentOutOfRangeException(nameof(distanceType), distanceType, null)
+        };
+    }
+
     /// <summary>
     /// Calculates the squared Euclidean distance between two points.
     /// </summary>
@@ -21,6 +44,7 @@ public static class Distances
     /// <summary>
     /// Calculates the diagonal distance (Chebyshev distance) between two points.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Diagonal(float x1, float y1, float x2, float y2)
     {
         return Math.Max(Math.Abs(x2 - x1), Math.Abs(y2 - y1));
@@ -29,6 +53,7 @@ public static class Distances
     /// <summary>
     /// Calculates the Manhattan distance between two points.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Manhattan(float x1, float y1, float x2, float y2)
     {
         return Math.Abs(x2 - x1) + Math.Abs(y2 - y1);

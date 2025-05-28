@@ -10,7 +10,16 @@ namespace TerrainGenerationApp.Scenes.CoreModules.DisplayOptions;
 
 public partial class TerrainVisualOptions : OptionsContainer
 {
-	private TerrainVisualSettings _settings = new();
+    private const string SLOPE_THRESHOLD_TOOLTIP = "The slope threshold for terrain visualization. " +
+                                                   "Values above this threshold will be highlighted.";
+    private const string MOISTURE_INFLUENCE_TOOLTIP = "The influence of moisture on terrain visualization. " +
+                                                      "Higher values will make moisture more prominent in the visualization.";
+    private const string INCLUDE_MOISTURE_TOOLTIP = "Whether to include moisture in the terrain visualization. " +
+                                                    "If true, moisture will affect the color and appearance of the terrain.";
+    private const string DISPLAY_FORMAT_TOOLTIP = "The format of the terrain display. " +
+                                                   "Options include Grey, Colors, and Gradient Colors.";
+
+    private TerrainVisualSettings _settings = new();
 
 	private MapDisplayFormat _curDisplayFormat = MapDisplayFormat.Grey;
 	private float _curSlopeThreshold = 0.2f;
@@ -19,7 +28,7 @@ public partial class TerrainVisualOptions : OptionsContainer
 
     public event Action OnDisplayOptionsChanged;
 
-	[InputLine(Description = "Display format:")]
+	[InputLine(Description = "Display format:", Tooltip = DISPLAY_FORMAT_TOOLTIP)]
 	[InputLineCombobox(selected: 1, bind: ComboboxBind.Id)]
 	[InputOption("Grey",            id: (int)MapDisplayFormat.Grey)]
 	[InputOption("Colors",          id: (int)MapDisplayFormat.Colors)]
@@ -35,9 +44,9 @@ public partial class TerrainVisualOptions : OptionsContainer
 		}
 	}
 
-	[InputLine(Description = "Slope threshold:")]
-	[InputLineSlider(0.0f, 1.0f, 0.01f)]
-	public float CurSlopeThreshold
+    [InputLine(Description = "Slope threshold:", Tooltip = SLOPE_THRESHOLD_TOOLTIP, IsVisible = false)]
+    [InputLineSlider(0.0f, 1.0f, 0.01f)]
+    public float CurSlopeThreshold
 	{
 		get => _curSlopeThreshold;
 		set
@@ -45,11 +54,11 @@ public partial class TerrainVisualOptions : OptionsContainer
 			value = Mathf.Clamp(value, 0.0f, 1.0f);
 			_curSlopeThreshold = value;
 			_settings.SetSlopeThreshold(value);
-			OnDisplayOptionsChanged?.Invoke();
+			//OnDisplayOptionsChanged?.Invoke();
 		}
 	}
 
-    [InputLine(Description = "Moisture influence:")]
+    [InputLine(Description = "Moisture influence:", Tooltip = MOISTURE_INFLUENCE_TOOLTIP)]
     [InputLineSlider(0.0f, 1.0f, 0.01f)]
     public float MoistureInfluence
     {
@@ -63,7 +72,7 @@ public partial class TerrainVisualOptions : OptionsContainer
         }
     }
 
-    [InputLine(Description = "Include moisture:")]
+    [InputLine(Description = "Include moisture:", Tooltip = INCLUDE_MOISTURE_TOOLTIP)]
     [InputLineCheckBox(checkboxType: CheckboxType.CheckButton)]
     public bool IncludeMoisture
     {

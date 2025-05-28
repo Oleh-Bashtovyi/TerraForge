@@ -3,7 +3,7 @@ using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
 
 namespace TerrainGenerationApp.Scenes.GeneratorOptions;
 
-public partial class ValueNoiseOptions() : NoiseGeneratorOptionsBase(new PerlinNoiseGenerator())
+public partial class ValueNoiseOptions() : NoiseGeneratorOptionsBase(new ValueNoiseGenerator())
 {
     public override void _Ready()
     {

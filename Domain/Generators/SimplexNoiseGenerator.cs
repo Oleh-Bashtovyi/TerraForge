@@ -126,8 +126,8 @@ public class SimplexNoiseGenerator : NoiseMapGenerator
         var y2 = y0 - 1.0f + 2.0f * G2;
 
         // Wrap the integer indices at 256, to avoid indexing perm[] out of bounds
-        var ii = Mod(i, 256);
-        var jj = Mod(j, 256);
+        var ii = FastMod(i, 256);
+        var jj = FastMod(j, 256);
 
         // Calculate the contribution from the three corners
         var t0 = 0.5f - x0 * x0 - y0 * y0;
@@ -221,9 +221,9 @@ public class SimplexNoiseGenerator : NoiseMapGenerator
         var z3 = z0 - 1.0f + 3.0f * G3;
 
         // Wrap the integer indices at 256, to avoid indexing perm[] out of bounds
-        var ii = Mod(i, 256);
-        var jj = Mod(j, 256);
-        var kk = Mod(k, 256);
+        var ii = FastMod(i, 256);
+        var jj = FastMod(j, 256);
+        var kk = FastMod(k, 256);
 
         // Calculate the contribution from the four corners
         var t0 = 0.6f - x0 * x0 - y0 * y0 - z0 * z0;
@@ -261,12 +261,6 @@ public class SimplexNoiseGenerator : NoiseMapGenerator
         // Add contributions from each corner to get the final noise value.
         // The result is scaled to stay just inside [-1,1]
         return 32.0f * (n0 + n1 + n2 + n3); // TODO: The scale factor is preliminary!
-    }
-
-    private static int Mod(int x, int m)
-    {
-        var a = x % m;
-        return a < 0 ? a + m : a;
     }
 
     private static float Grad(int hash, float x)

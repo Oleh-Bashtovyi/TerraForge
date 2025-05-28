@@ -78,7 +78,7 @@ public partial class TreePlacementRuleItem : PanelContainer, IOptionsToggleable,
         set => _selected3DModelItem = value;
     }
 
-    [InputLine(Description = "Overwrite layers:")]
+    [InputLine(Description = "Overwrite previous layers:")]
     [InputLineCheckBox(CheckboxType.CheckButton)]
     public bool OverwriteLayers
     {

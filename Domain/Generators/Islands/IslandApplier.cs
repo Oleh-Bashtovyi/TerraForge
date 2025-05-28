@@ -27,7 +27,7 @@ public class IslandApplier : IIslandsApplier
 
     public IslandType ApplierType { get; set; } = IslandType.SingleAtCenter;
     public DistanceType DistanceFunction { get; set; } = DistanceType.Euclidean;
-    public float RadiusAroundIslands { get; set; } = 100f;
+    public float RadiusAroundIslands { get; set; } = 55f;
     // Далі радіуса фактор не буде менший за MinDistanceFactor, щоб поза островом не було нульових висот
     public float MinDistanceFactor { get; set; } = 0.2f;
     // For Many islands type

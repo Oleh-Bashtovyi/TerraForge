@@ -1,18 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://oihfvosl22b7"]
 
+[ext_resource type="StyleBox" uid="uid://b3to1wxrqyakj" path="res://Resources/StandartPanel.tres" id="1_7nvp0"]
 [ext_resource type="Script" uid="uid://bp31idpywmwc1" path="res://Scenes/FeatureOptions/TreePlacement/TreePlacementRuleItem.cs" id="1_qqfdb"]
 [ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/BuildingBlocks/Containers/OptionsContainer.tscn" id="2_2nikf"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qo2xr"]
-content_margin_left = 10.0
-content_margin_top = 5.0
-content_margin_right = 10.0
-content_margin_bottom = 5.0
-bg_color = Color(0.2484, 0.2484, 0.2484, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
 
 [sub_resource type="LabelSettings" id="LabelSettings_lse0g"]
 
@@ -24,7 +14,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 focus_mode = 1
-theme_override_styles/panel = SubResource("StyleBoxFlat_qo2xr")
+theme_override_styles/panel = ExtResource("1_7nvp0")
 script = ExtResource("1_qqfdb")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]

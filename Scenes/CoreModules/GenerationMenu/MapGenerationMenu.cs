@@ -24,15 +24,15 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private const string SELECTED_GENERATOR_TOOLTIP = "The selected generator for base height map generation.";
     private const string MAP_INTERPOLATION_TOOLTIP = "The selected interpolation method for the generated map.";
     private const string DISCRETE_STEPS_TOOLTIP = "The number of discrete steps for the discrete interpolation method.";
-    private const string NOISE_INFLUENCE_TOOLTIP = "The influence of the noise on the generated map.";
+    private const string HEIGHT_INFLUENCE_TOOLTIP = "The influence of the height on the generated map.";
     private const string SMOOTH_CYCLES_TOOLTIP = "The number of smoothing cycles to apply to the generated map.";
     private const string SEA_LEVEL_TOOLTIP = "The sea level for the generated map. Values below this level are considered water.";
     private const string DOMAIN_WARPING_TOOLTIP = "Enable or disable domain warping for the generated map.";
     private const string ISLANDS_TOOLTIP = "Enable or disable islands for the generated map.";
     private const string TREES_TOOLTIP = "Enable or disable trees generation for the generated map.";
     private const string MOISTURE_TOOLTIP = "Enable or disable moisture generation for the generated map.";
-
-
+    private const string REDRAW_ON_PARAMETERS_CHANGED_TOOLTIP = "Instantly redraw 2D picture on parameters changed. It does not redraw tree layer!";
+	private const int MaxSmoothCycles = 10;
 
     public enum MapInterpolationType
     {
@@ -42,8 +42,6 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         HighlightExtremes,
         Discrete
     }
-
-	private const int MaxSmoothCycles = 10;
 
     private BaseGeneratorOptions _diamondSquareOptions;
     private BaseGeneratorOptions _worleyOptions;
@@ -62,7 +60,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     private MoistureOptions _moistureOptions;
 
     private readonly Logger<MapGenerationMenu> _logger = new();
-    private int _discreteSteps = 10;
+    private int _discreteSteps = 15;
     private int _curSmoothCycles = 2;
     private float _curNoiseInfluence = 1.0f;
     private float _curSeaLevel = 0.2f;
@@ -70,6 +68,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 	private bool _enableIslands;
 	private bool _enableTrees;
 	private bool _enableMoisture;
+    private bool _redrawOnParametersChanged = true;
     private MapInterpolationType _mapInterpolationType;
 	private BaseGeneratorOptions _selectedGenerator;
 	private DomainWarpingApplier _domainWarpingApplier;
@@ -79,6 +78,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     public event Action<float> OnWaterLevelChanged;
     public event Action<bool> TreesGenerationEnabledChanged;
     public event Action GenerationParametersChanged;
+    public event Action<bool> OnRedrawOnParametersChangedChanged;
 
     [InputLine(Description = "Generator:", Category = "Generator selection", Id = "GeneratorOptions", Tooltip = SELECTED_GENERATOR_TOOLTIP)]
     [InputLineCombobox(selected: 0, bind: ComboboxBind.Id)]
@@ -107,6 +107,8 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
             {
                 _selectedGenerator.Show();
             }
+
+            HandleParametersChanged();
         }
     }
 
@@ -117,7 +119,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     [InputOption("Highlight high areas", id: (int)MapInterpolationType.HighlightHighValues)]
     [InputOption("Highlight low areas",  id: (int)MapInterpolationType.HighlightLowValues)]
     [InputOption("Highlight extremes",   id: (int)MapInterpolationType.HighlightExtremes)]
-    [InputOption("Discrete",             id: (int)MapInterpolationType.Discrete)]
+    //[InputOption("Discrete",             id: (int)MapInterpolationType.Discrete)]
     public MapInterpolationType CurMapInterpolationType
     {
         get => _mapInterpolationType;
@@ -129,7 +131,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
     }
 
 
-    [InputLine(Description = "Discrete steps:", Category = "Adjustments", Tooltip = DISCRETE_STEPS_TOOLTIP)]
+/*    [InputLine(Description = "Discrete steps:", Category = "Adjustments", Tooltip = DISCRETE_STEPS_TOOLTIP)]
     [InputLineSlider(1, 100)]
     public int DiscreteSteps
     {
@@ -139,9 +141,9 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
             _discreteSteps = value;
             HandleParametersChanged();
         }
-    }
+    }*/
 
-    [InputLine(Description = "Noise influence:", Category = "Adjustments", Tooltip = NOISE_INFLUENCE_TOOLTIP)]
+    [InputLine(Description = "Height influence:", Category = "Adjustments", Tooltip = HEIGHT_INFLUENCE_TOOLTIP)]
     [InputLineSlider(0.01f, 4.0f, 0.01f)]
     public float CurNoiseInfluence
 	{
@@ -174,6 +176,23 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         {
             _curSeaLevel = (float)Mathf.Clamp(value, 0.0, 1.0);
             OnWaterLevelChanged?.Invoke(_curSeaLevel);
+        }
+    }
+
+
+    [InputLine(Description = "Redraw on parameter changed:", Category = "Adjustments", Tooltip = REDRAW_ON_PARAMETERS_CHANGED_TOOLTIP)]
+    [InputLineCheckBox(checkboxType: CheckboxType.CheckButton)]
+    public bool RedrawOnParametersChanged
+    {
+        get => _redrawOnParametersChanged;
+        set
+        {
+            if (_redrawOnParametersChanged != value)
+            {
+                _redrawOnParametersChanged = value;
+                OnRedrawOnParametersChangedChanged?.Invoke(value);
+                HandleParametersChanged();
+            }
         }
     }
 
@@ -287,7 +306,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
                         map[y, x] = Interpolations.HighlightExtremes(map[y, x]);
                         break;
                     case MapInterpolationType.Discrete:
-                        map[y, x] = Interpolations.Discrete(map[y, x], DiscreteSteps);
+                        map[y, x] = Interpolations.Discrete(map[y, x], _discreteSteps);
                         break;
                 }
             }
@@ -306,27 +325,27 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
 
         var curGeneratorParameters = _selectedGenerator?.GetLastUsedConfig();
         if (curGeneratorParameters != null)
-        {
             result.Add("Generator", curGeneratorParameters);
-        }
 
+        // Moisture
+        result["MoistureEnabled"] = EnableMoisture;
+        if (EnableMoisture)
+            result["Moisture"] = MoistureOptions.GetLastUsedConfig();
+
+        // Domain warping
         result["WarpingEnabled"] = EnableDomainWarping;
         if (EnableDomainWarping)
-        {
             result["Warping"] = _domainWarpingOptions.GetLastUsedConfig();
-        }
 
+        // Islands
         result["IslandsEnabled"] = EnableIslands;
         if (EnableIslands)
-        {
             result["Islands"] = _islandOptions.GetLastUsedConfig();
-        }
 
+        // Trees
         result["TreesEnabled"] = EnableTrees;
         if (EnableTrees)
-        {
             result["TreesPlacement"] = _treePlacementOptions.GetLastUsedConfig();
-        }
 
         return result;
     }
@@ -338,6 +357,7 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         _selectedGenerator?.UpdateCurrentConfigAsLastUsed();
         _domainWarpingOptions.UpdateCurrentConfigAsLastUsed();
         _islandOptions.UpdateCurrentConfigAsLastUsed();
+        _moistureOptions.UpdateCurrentConfigAsLastUsed();
         _treePlacementOptions.UpdateCurrentConfigAsLastUsed();
     }
 
@@ -367,6 +387,20 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
             {
                 _logger.Log("Loading generator options...");
                 _selectedGenerator?.LoadConfigFrom(generatorConfig);
+            }
+
+            // MOISTURE
+            if (config.GetValueOrDefault("MoistureEnabled") is bool moistureEnabled)
+            {
+                _logger.Log("Loading moisture enabled (bool value)...");
+                EnableMoisture = moistureEnabled;
+                _moistureCheckBox.ButtonPressed = moistureEnabled;
+            }
+
+            if (EnableMoisture && config.GetValueOrDefault("Moisture") is Dictionary<string, object> moistureConfig)
+            {
+                _logger.Log("Loading moisture feature options...");
+                _moistureOptions.LoadConfigFrom(moistureConfig);
             }
 
             // DOMAIN WARPING
@@ -424,10 +458,13 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         _domainWarpingCheckBox.Disabled = true;
         _islandsOptionsCheckbox.Disabled = true;
         _treeOptionsCheckbox.Disabled = true;
-		_domainWarpingOptions.DisableOptions();
-        _islandOptions.DisableOptions();
+        _moistureCheckBox.Disabled = true;
+        _moistureOptions.DisableOptions();
+        _domainWarpingOptions.DisableOptions();
         _treePlacementOptions.DisableOptions();
+        _islandOptions.DisableOptions();
     }
+    
     public void EnableOptions()
     {
         _selectedGenerator?.EnableOptions();
@@ -435,14 +472,16 @@ public partial class MapGenerationMenu : Control, IOptionsToggleable, ILastUsedC
         _domainWarpingCheckBox.Disabled = false;
         _islandsOptionsCheckbox.Disabled = false;
         _treeOptionsCheckbox.Disabled = false;
+        _moistureCheckBox.Disabled = false;
         _domainWarpingOptions.EnableOptions();
-        _islandOptions.EnableOptions();
         _treePlacementOptions.EnableOptions();
+        _moistureOptions.EnableOptions();
+        _islandOptions.EnableOptions();
     }
+
     private void HandleParametersChanged()
     {
-        if(!IsLoading)
-            GenerationParametersChanged?.Invoke();
+        if(!IsLoading) GenerationParametersChanged?.Invoke();
     }
 	
     private void OnDomainWarpingCheckBoxToggled(bool toggledOn)

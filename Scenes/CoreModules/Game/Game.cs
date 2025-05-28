@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using TerrainGenerationApp.Domain.Core;
 using TerrainGenerationApp.Domain.Extensions;
@@ -25,6 +26,7 @@ public partial class Game : Node3D
     private Button _applyWaterErosionButton;
     private Button _showIn2DButton;
     private Button _showIn3DButton;
+    private Button _stopGenerationButton;
     private FileDialog _saveFileDialog;
     private FileDialog _loadFileDialog;
     private MenuButton _fileMenuButton;
@@ -34,6 +36,7 @@ public partial class Game : Node3D
     private readonly WorldData _worldData = new();
     private readonly WorldVisualSettings _worldVisualSettings = new();
     private readonly TerrainMeshSettings _terrainMeshSettings = new();
+    private CancellationTokenSource _cancellationTokenSource = new();
     private float[,] _curHeightMap;
     private bool _terrainRegenerationRequired = true;
     private Task? _generationTask;
@@ -51,6 +54,7 @@ public partial class Game : Node3D
         _InitMapColoring();
         _InitBindModels();
         _InitOptionEvents();
+        OnGenerationParametersChanged();
     }
 
     private void _InitScenesReferences()
@@ -64,6 +68,7 @@ public partial class Game : Node3D
         _fileMenuButton       = GetNode<MenuButton>("%FileMenuButton");
         _showIn2DButton       = GetNode<Button>("%ShowIn2DButton");
         _showIn3DButton       = GetNode<Button>("%ShowIn3DButton");
+        _stopGenerationButton = GetNode<Button>("%StopGenerationMapButton");
         _generationTitleTip   = GetNode<Label>("%GenerationStatusLabel");
         _treePlacementOptions = _mapGenerationMenu.TreePlacementOptions;
     }
@@ -166,8 +171,28 @@ public partial class Game : Node3D
 
     private void _InitButtonEvents()
     {
-        _showIn2DButton.Pressed += ShowMap2D;
-        _showIn3DButton.Pressed += HideMap2D;
+        _showIn2DButton.Pressed += () =>
+        {
+            _showIn3DButton.Show();
+            _showIn2DButton.Hide();
+            ShowMap2D();
+        };
+        _showIn3DButton.Pressed += () =>
+        {
+            _showIn3DButton.Hide();
+            _showIn2DButton.Show();
+            HideMap2D();
+        };
+        _stopGenerationButton.Pressed += () =>
+        {
+            _logger.Log("Stopping generation pipeline...");
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
+            _cancellationTokenSource = new CancellationTokenSource();
+/*            _generationTask?.Wait();
+            _generateMapButton.Disabled = false;
+            _stopGenerationButton.Disabled = true;*/
+        };
         _generateMapButton.Pressed += StartGenerationPipeline;
     }
 
@@ -221,6 +246,11 @@ public partial class Game : Node3D
             _terrainScene2D.RedrawTerrainImage();
             _terrainScene2D.UpdateTerrainTexture();
         };
+
+/*        _mapGenerationMenu.OnRedrawOnParametersChangedChanged += (redraw) =>
+        {
+            OnGenerationParametersChanged();
+        };*/
         
         _terrainVisualOptions.OnDisplayOptionsChanged += () =>
         {
@@ -230,8 +260,14 @@ public partial class Game : Node3D
         };
     }
 
+
     private void OnGenerationParametersChanged()
     {
+        if (!_mapGenerationMenu.RedrawOnParametersChanged)
+        {
+            return;
+        }
+
         _logger.Log("Parameters changed, trying to regenerate");
         _terrainRegenerationRequired = true;
 
@@ -244,8 +280,11 @@ public partial class Game : Node3D
 
         _mapGenerationMenu.ApplySelectedInterpolation(map);
         MapHelpers.MultiplyHeight(map, _mapGenerationMenu.CurNoiseInfluence);
-        map = MapHelpers.SmoothMap(map);
-
+        
+        for (int i = 0; i < _mapGenerationMenu.CurSmoothCycles; i++)
+        {
+            map = MapHelpers.SmoothMap(map);
+        }
 
         if (_mapGenerationMenu.EnableIslands)
             map = _mapGenerationMenu.IslandsApplier.ApplyIslands(map);
@@ -294,15 +333,22 @@ public partial class Game : Node3D
     private void StartGenerationPipeline()
     {
         _generateMapButton.Disabled = true;
-        _generationTask = Task.Run(GenerationPipelineAsync);
+        _stopGenerationButton.Disabled = false;
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
+        _cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = _cancellationTokenSource.Token;
+        //_generationTask = Task.Run(async () => GenerationPipelineAsync(cancellationToken));
+        _generationTask = Task.Run(() => GenerationPipelineAsync(cancellationToken));
         _generationTask.ContinueWith(async t =>
         {
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             _generateMapButton.Disabled = false;
+            _stopGenerationButton.Disabled = true;
         });
     }
 
-    private async Task GenerationPipelineAsync()
+    private async Task GenerationPipelineAsync(CancellationToken cancellationToken)
     {
         try
         {
@@ -324,31 +370,42 @@ public partial class Game : Node3D
                 await GenerateTerrainAsync();
                 await ApplyMapInterpolation();
                 await ApplyInfluenceAsync();
-                await ApplyTerrainSmoothingAsync();
+                cancellationToken.ThrowIfCancellationRequested();
+
+                await ApplyTerrainSmoothingAsync(cancellationToken);
 
                 if (_mapGenerationMenu.EnableMoisture)
                     await ApplyMoistureAsync();
+                cancellationToken.ThrowIfCancellationRequested();
 
                 if (_mapGenerationMenu.EnableIslands)
                     await ApplyIslandsAsync();
+                cancellationToken.ThrowIfCancellationRequested();
 
                 if (_mapGenerationMenu.EnableDomainWarping)
                     await ApplyDomainWarpingAsync();
+                cancellationToken.ThrowIfCancellationRequested();
             }
             else
             {
                 await ClearTress3D();
                 await RedrawTerrainAsync();
             }
+            cancellationToken.ThrowIfCancellationRequested();
 
             if (_mapGenerationMenu.EnableTrees)
-                await GenerateTrees();
+                await GenerateTrees(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
 
             if (_terrainRegenerationRequired)
-                await GenerateTerrain3D();
-            await GenerateTrees3D();
+                await GenerateTerrain3D(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await GenerateTrees3D(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
 
             _mapGenerationMenu.UpdateCurrentConfigAsLastUsed();
+            _terrainRegenerationRequired = false;
         }
         catch (Exception e)
         {
@@ -356,7 +413,6 @@ public partial class Game : Node3D
         }
         finally
         {
-            _terrainRegenerationRequired = false;
             await EnableGenerationOptionsAsync();
             await SetGenerationTitleTipAsync(string.Empty);
             _logger.LogMethodEnd();
@@ -397,25 +453,26 @@ public partial class Game : Node3D
         await SetAndRedrawTerrainAsync(_curHeightMap);
     }
 
-    private async Task ApplyTerrainSmoothingAsync()
+    private async Task ApplyTerrainSmoothingAsync(CancellationToken cancellationToken)
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Smoothing...");
 
         for (int i = 0; i < _mapGenerationMenu.CurSmoothCycles; i++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             _logger.Log($"Smoothing - iteration: {i + 1}/{_mapGenerationMenu.CurSmoothCycles}");
             _curHeightMap = MapHelpers.SmoothMap(_curHeightMap);
             await SetAndRedrawTerrainAsync(_curHeightMap);
         }
     }
 
-    private async Task GenerateTrees()
+    private async Task GenerateTrees(CancellationToken cancellationToken)
     {
         _logger.LogMethodStart();
         await SetGenerationTitleTipAsync("Generating trees...");
         _worldData.TreesData.Clear();
-        _treePlacementOptions.GenerateTrees(_worldData);
+        _treePlacementOptions.GenerateTrees(_worldData, cancellationToken);
 
         var treesColors = _treePlacementOptions.GetTreesColors();
         var treesModels = _treePlacementOptions.GetTreesModels();
@@ -457,7 +514,7 @@ public partial class Game : Node3D
         _generationTitleTip.Text = tip;
     }
 
-    private async Task GenerateTerrain3D()
+    private async Task GenerateTerrain3D(CancellationToken cancellationToken)
     {
         _logger.Log("Generating terrain chunks");
         await SetGenerationTitleTipAsync("Generating terrain chunks...");
@@ -466,18 +523,20 @@ public partial class Game : Node3D
 
         while (_terrainScene3D.IsTerrainChunksGenerating())
         {
+            cancellationToken.ThrowIfCancellationRequested();
             _terrainScene3D.GenerateNextChunk();
             await _terrainScene3D.ApplyCurrentChunkAsync();
         }
     }
 
-    private async Task GenerateTrees3D()
+    private async Task GenerateTrees3D(CancellationToken cancellationToken)
     {
         _logger.Log("Generating tree chunks");
         await SetGenerationTitleTipAsync("Generating tree chunks...");
         
         while (_terrainScene3D.IsTreeChunksGenerating())
         {
+            cancellationToken.ThrowIfCancellationRequested();
             _terrainScene3D.GenerateNextTreeChunk();
             await _terrainScene3D.ApplyCurrentTreeChunkAsync();
         }
@@ -544,6 +603,9 @@ public partial class Game : Node3D
         _logger.Log("Disabling options");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _mapGenerationMenu.DisableOptions();
+        _fileMenuButton.Disabled = true;
+        _saveFileDialog.Hide();
+        _loadFileDialog.Hide();
     }
 
     private async Task EnableGenerationOptionsAsync()
@@ -551,5 +613,6 @@ public partial class Game : Node3D
         _logger.Log("Enabling options");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
         _mapGenerationMenu.EnableOptions();
+        _fileMenuButton.Disabled = false;
     }
 }

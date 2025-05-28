@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using TerrainGenerationApp.Domain.Core;
 using TerrainGenerationApp.Domain.Enums;
 using TerrainGenerationApp.Domain.Generators.Trees;
@@ -36,7 +37,7 @@ public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, I
 
     private bool IsLoading { get; set; }
 
-    [InputLine(Description = "Frequency")]
+    [InputLine(Description = "Frequency:")]
     [InputLineSlider(0.0f, 5.0f, 0.1f)]
     public float Frequency
     {
@@ -103,10 +104,10 @@ public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, I
         return _treePlacementRules.ToDictionary(x => x.LayerId, x => x.GetModel());
     }
 
-    public void GenerateTrees(IWorldData worldData)
+    public void GenerateTrees(IWorldData worldData, CancellationToken cancellationToken = default)
     {
         var rules = GetRules().ToArray();
-        TreesApplier.ApplyTreesLayers(worldData, rules, _frequency);
+        TreesApplier.ApplyTreesLayers(worldData, rules, _frequency, cancellationToken);
     }
 
     private void TreePlacementRuleItemOnRulesChanged(object sender, EventArgs e)

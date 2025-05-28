@@ -11,13 +11,13 @@ public abstract class NoiseMapGenerator
 	private const float InitialAmplitude = 1 / 1.75f;
 
 
-    protected int _seed; 
-    private float _frequency = 0.01f;
+    protected int _seed = 42; 
+    private float _frequency = 0.05f;
 	private int _octaves = 2;
 	private Vector2 _offset = Vector2.Zero;
 	private float _persistence = 0.5f;
 	private float _lacunarity = 2.0f;
-	private float _warpingStrength = 1.0f;
+	private float _warpingStrength = 2.0f;
 	private float _warpingSize = 1.0f;
 	private bool _enableWarping = true;
 
@@ -192,8 +192,8 @@ public abstract class NoiseMapGenerator
 		var maxValue = 0.0f;
 		for (int i = 0; i < _octaves; i++)
 		{
-			float noise = FastAbs(Noise2D(x, y));
-			// noise *= noise;
+			float noise = 1.0f - FastAbs(Noise2D(x, y));
+			noise *= noise;
 			sum += noise * amplitude;
 			x *= _lacunarity;
 			y *= _lacunarity;
@@ -236,6 +236,13 @@ public abstract class NoiseMapGenerator
 	protected static float FastAbs(float f) { return f < 0 ? -f : f; }
 
 	[MethodImpl(INLINE)]
+    protected static int FastMod(int x, int m)
+    {
+        var a = x % m;
+        return a < 0 ? a + m : a;
+    }
+
+    [MethodImpl(INLINE)]
 	protected static int FastFloor(float f) { return f >= 0 ? (int)f : (int)f - 1; }
 
 	[MethodImpl(INLINE)]

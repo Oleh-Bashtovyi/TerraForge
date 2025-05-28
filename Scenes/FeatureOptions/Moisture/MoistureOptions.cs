@@ -56,6 +56,7 @@ public partial class MoistureOptions : VBoxContainer, IOptionsToggleable, ILastU
 		_noiseImage = Image.CreateEmpty(1, 1, false, Image.Format.Rgb8);
 		_noiseTexture = ImageTexture.CreateFromImage(_noiseImage);
 		_noiseTextureRect.Texture = _noiseTexture;
+        _moistureMap = _perlinOptions.GenerateMap();
 		RedrawMap();
 	}
 
@@ -139,7 +140,8 @@ public partial class MoistureOptions : VBoxContainer, IOptionsToggleable, ILastU
 			if (config.GetValueOrDefault("Noise") is Dictionary<string, object> noiseConfig)
 			{
 				PerlineOptions.LoadConfigFrom(noiseConfig);
-				RedrawMap();
+                _moistureMap = PerlineOptions.GenerateMap();
+                RedrawMap();
 			}
 		}
 		catch (Exception e)

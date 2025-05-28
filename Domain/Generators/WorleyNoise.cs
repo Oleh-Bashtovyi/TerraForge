@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 
 namespace TerrainGenerationApp.Domain.Generators;
 
@@ -20,9 +21,10 @@ public static class WorleyNoise
         int mapHeight,
         int mapWidth,
         int dotsCount,
-        float maxIntensity = 100.0f,
+        float maxDistance = 100.0f,
         bool inverse = true,
-        int seed = 0)
+        int seed = 0,
+        DistanceType distanceType = DistanceType.Euclidean)
     {
         var map = new float[mapHeight, mapWidth];
 
@@ -39,10 +41,10 @@ public static class WorleyNoise
                 var cellY = y + 0.5f;
 
                 // Find distance to nearest feature point
-                var minDistance = FindNearestDistance(cellX, cellY, dots, maxIntensity);
+                var minDistance = FindNearestDistance(cellX, cellY, dots, maxDistance, distanceType);
 
                 // Normalize the distance value between 0 and 1
-                map[y, x] = Math.Min(minDistance, maxIntensity) / maxIntensity;
+                map[y, x] = Math.Min(minDistance, maxDistance) / maxDistance;
 
                 // Step 4: Optionally invert the values
                 if (inverse)
@@ -56,15 +58,20 @@ public static class WorleyNoise
     }
 
     // Finds the distance to the nearest feature point from the given coordinates
-    private static float FindNearestDistance(float x, float y, List<(float, float)> dots, float maxIntensity)
+    private static float FindNearestDistance(
+        float x, float y,
+        List<(float, float)> dots, 
+        float maxDistance, 
+        DistanceType distanceType = DistanceType.Euclidean)
     {
-        var minDist = maxIntensity;
+        var minDist = maxDistance;
 
         // Check distance to each feature point
         foreach (var (dotX, dotY) in dots)
         {
             // Calculate Euclidean distance
-            var dist = MathF.Sqrt((x - dotX) * (x - dotX) + (y - dotY) * (y - dotY));
+            //var dist = MathF.Sqrt((x - dotX) * (x - dotX) + (y - dotY) * (y - dotY));
+            var dist = Distances.CalculateDistance(x, y, dotX, dotY, distanceType);
 
             // Keep track of minimum distance found
             if (dist < minDist)

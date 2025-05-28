@@ -16,7 +16,12 @@ public static class DiamondSquare
     //    b) Square step: For each diamond, set the midpoint value to the average of the four adjacent points plus random noise
     // 3) Reduce the roughness value after each iteration to create natural-looking fractal terrain
 
-    public static float[,] GenerateMap(int terrainPower = 5, float roughness = 5.0f, int seed = 0)
+    public static float[,] GenerateMap(
+        int terrainPower = 5, 
+        float roughness = 5.0f, 
+        int seed = 0, 
+        float roughnessDegradation = 0.5f,
+        float minRoughness = 0.1f)
     {
         var mapSize = (1 << terrainPower) + 1;
         var map = new float[mapSize, mapSize];
@@ -105,7 +110,7 @@ public static class DiamondSquare
                 }
             }
             chunkSize /= 2;
-            curRoughness = Mathf.Max(curRoughness / 2.0f, 0.1f);
+            curRoughness = Mathf.Max(curRoughness * roughnessDegradation, minRoughness);
         }
         return map;
     }

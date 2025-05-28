@@ -39,6 +39,7 @@ focus_mode = 1
 color = Color(0.140447, 0.140447, 0.140447, 1)
 
 [node name="Label" type="Label" parent="ColorRect"]
+visible = false
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -52,8 +53,8 @@ horizontal_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 34.0
-offset_bottom = 85.0
+offset_top = 10.0
+offset_bottom = 61.0
 grow_horizontal = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 10
@@ -69,8 +70,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 76.0
-offset_bottom = -6.0
+offset_top = 52.0
+offset_bottom = -18.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 20
@@ -101,7 +102,7 @@ theme_override_constants/separation = 3
 
 [node name="Label3" type="Label" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl"]
 layout_mode = 2
-text = "Parameters:"
+text = "Generator parameters:"
 label_settings = SubResource("LabelSettings_l3s0y")
 
 [node name="GeneratorContainer" type="VBoxContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/GeneratorsControl"]
@@ -191,6 +192,7 @@ theme_override_styles/separator = ExtResource("3_bjb6c")
 [node name="MoistureCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 unique_name_in_owner = true
 layout_mode = 2
+focus_mode = 0
 text = "💧 Moisture"
 
 [node name="MoistureMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
@@ -205,6 +207,7 @@ layout_mode = 2
 [node name="IslandOptionsCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 unique_name_in_owner = true
 layout_mode = 2
+focus_mode = 0
 text = "🏝️Islands"
 
 [node name="IsalndOptionsMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
@@ -220,6 +223,7 @@ OptionsFontSize = 12
 [node name="DomainWarpingCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 unique_name_in_owner = true
 layout_mode = 2
+focus_mode = 0
 text = "🔄Domain warping"
 
 [node name="DomainWarpingMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
@@ -235,6 +239,7 @@ OptionsFontSize = 12
 [node name="TreePlacementCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 unique_name_in_owner = true
 layout_mode = 2
+focus_mode = 0
 text = "🌳 Tree placement"
 
 [node name="TreePlacementMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]

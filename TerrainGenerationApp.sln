@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrainGenerationApp", "TerrainGenerationApp.csproj", "{356AA6B5-2EC0-4AE6-B764-C63E279739D7}"
 EndProject
@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerrainGenerationApp.Benchmark", "..\TerrainGenerationApp.Benchmark\TerrainGenerationApp.Benchmark.csproj", "{1D512E95-48AA-48D0-8799-45C342ACA172}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,6 +26,12 @@ Global
 		{356AA6B5-2EC0-4AE6-B764-C63E279739D7}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
 		{356AA6B5-2EC0-4AE6-B764-C63E279739D7}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
 		{356AA6B5-2EC0-4AE6-B764-C63E279739D7}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{1D512E95-48AA-48D0-8799-45C342ACA172}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D512E95-48AA-48D0-8799-45C342ACA172}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D512E95-48AA-48D0-8799-45C342ACA172}.ExportDebug|Any CPU.ActiveCfg = Release|Any CPU
+		{1D512E95-48AA-48D0-8799-45C342ACA172}.ExportDebug|Any CPU.Build.0 = Release|Any CPU
+		{1D512E95-48AA-48D0-8799-45C342ACA172}.ExportRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{1D512E95-48AA-48D0-8799-45C342ACA172}.ExportRelease|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

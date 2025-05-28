@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TerrainGenerationApp.Domain.Core;
 using TerrainGenerationApp.Domain.Extensions;
 using TerrainGenerationApp.Domain.Rules.RadiusRules;
@@ -12,7 +13,7 @@ namespace TerrainGenerationApp.Domain.Generators.Trees;
 
 public class TreesApplier : ITreesApplier
 {
-    public void ApplyTreesLayers(IWorldData worldData, IEnumerable<TreePlacementRule> rules, float frequency = 1.0f)
+    public void ApplyTreesLayers(IWorldData worldData, IEnumerable<TreePlacementRule> rules, float frequency = 1.0f, CancellationToken cancellationToken = default)
     {
         var layerDict = new Dictionary<string, bool[,]>();
 
@@ -27,6 +28,8 @@ public class TreesApplier : ITreesApplier
 
         foreach (var rule in rules)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (rule.RadiusRule == null || rule.PlacementRule == null)
             {
                 continue;

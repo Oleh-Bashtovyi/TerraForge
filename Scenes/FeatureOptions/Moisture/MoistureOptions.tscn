@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://kpq0ccwj7sy7"]
+[gd_scene load_steps=6 format=3 uid="uid://kpq0ccwj7sy7"]
 
 [ext_resource type="PackedScene" uid="uid://d4atb6swtbrxl" path="res://Scenes/BuildingBlocks/Containers/OptionsContainer.tscn" id="1_hwqg2"]
 [ext_resource type="Script" uid="uid://c6n2xb2sneils" path="res://Scenes/FeatureOptions/Moisture/MoistureOptions.cs" id="1_nm8gg"]
 [ext_resource type="PackedScene" uid="uid://dibwtw2cnl4pf" path="res://Scenes/GeneratorOptions/PerlinNoise/PerlinOptions.tscn" id="2_nm8gg"]
+[ext_resource type="StyleBox" uid="uid://b3to1wxrqyakj" path="res://Resources/StandartPanel.tres" id="3_c5tlt"]
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_u32tm"]
 
@@ -27,16 +28,35 @@ layout_mode = 2
 OptionsFontSize = 12
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
+visible = false
 layout_mode = 2
 theme_override_constants/margin_top = 4
 
 [node name="Label" type="Label" parent="MarginContainer"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Noise map options"
 horizontal_alignment = 1
 
-[node name="PerlinOptions" parent="." instance=ExtResource("2_nm8gg")]
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_styles/panel = ExtResource("3_c5tlt")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_right = 5
+
+[node name="PerlinOptions" parent="PanelContainer/ScrollContainer/MarginContainer" instance=ExtResource("2_nm8gg")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 OptionsFontSize = 12

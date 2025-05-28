@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dhk7rgiforkic"]
+[gd_scene load_steps=14 format=3 uid="uid://dhk7rgiforkic"]
 
 [ext_resource type="Script" uid="uid://bn1xteopq2m60" path="res://Scenes/CoreModules/Game/Game.cs" id="1_ug855"]
 [ext_resource type="PackedScene" uid="uid://djhdbxgy1amyg" path="res://Scenes/CoreModules/TerrainScene3D/TerrainScene3D.tscn" id="2_kmdfo"]
@@ -55,6 +55,17 @@ corner_radius_bottom_left = 5
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a0xit"]
 bg_color = Color(0.862745, 0.556863, 0.337255, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_honrn"]
+bg_color = Color(0.862745, 0.454902, 0.407843, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
@@ -138,7 +149,7 @@ color = Color(0.141176, 0.141176, 0.141176, 1)
 [node name="MapGenerationMenu" parent="Generation_Layer/HSplitContainer/RightPannel" instance=ExtResource("4_2ko6c")]
 unique_name_in_owner = true
 layout_mode = 1
-offset_bottom = -226.0
+offset_bottom = -212.0
 
 [node name="MarginContainer" type="MarginContainer" parent="Generation_Layer/HSplitContainer/RightPannel"]
 layout_mode = 1
@@ -230,15 +241,18 @@ custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_4s4h6")
 text = "Generate"
 
 [node name="ShowIn2DButton" type="Button" parent="Generation_Layer/HSplitContainer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_wap7x")
 text = "Show in 2d"
 
@@ -248,5 +262,16 @@ custom_minimum_size = Vector2(100, 35)
 layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_a0xit")
 text = "Show in 3d"
+
+[node name="StopGenerationMapButton" type="Button" parent="Generation_Layer/HSplitContainer/RightPannel/ButtonsContainer/CenterContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxFlat_honrn")
+disabled = true
+text = "Stop generation"

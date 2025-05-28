@@ -32,7 +32,8 @@ public class ValueNoiseGenerator : NoiseMapGenerator
             {
                 for (int z = 0; z < NoiseMapSize; z++)
                 {
-                    _noiseMap[z, x, y] = (float)_random.NextDouble();
+                    //_noiseMap[z, x, y] = (float)_random.NextDouble();
+                    _noiseMap[z, x, y] = (float)(_random.NextDouble() * 2.0 - 1.0);
                 }
             }
         }

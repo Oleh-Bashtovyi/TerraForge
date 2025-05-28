@@ -40,6 +40,7 @@ This is course project focuses on **procedural terrain generation** for video ga
 - **Repository 1:** [Click](https://github.com/dandrino/terrain-erosion-3-ways/tree/master)
 - **Repository 2:** [Click](https://github.com/patiltanma/15618-FinalProject/tree/master)
 - **Article:** [Click](https://old.cescg.org/CESCG-2011/papers/TUBudapest-Jako-Balazs.pdf)
+- **Article:** [Click](https://web.mit.edu/cesium/Public/terrain.pdf)
 
 ### 🌳Trees placement
 - **Article:** [Click](https://sighack.com/post/poisson-disk-sampling-bridsons-algorithm)

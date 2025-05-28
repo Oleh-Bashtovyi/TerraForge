@@ -67,6 +67,7 @@ public static class InputLineManager
                 {
                     inputLine.SetId(property.Name);
                 }
+                inputLine.Visible = inputLineAttr.IsVisible;
                 container.AddChild(inputLine);
                 inputLines.Add(inputLine);
             }
