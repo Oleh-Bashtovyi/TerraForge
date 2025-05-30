@@ -222,11 +222,13 @@ OptionsFontSize = 12
 
 [node name="DomainWarpingCheckBox" type="CheckBox" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 focus_mode = 0
 text = "🔄Domain warping"
 
 [node name="DomainWarpingMargin" type="MarginContainer" parent="ColorRect/GenerationOptions/ScrollContainer/MarginContainer/VBoxContainer/FeaturesControl"]
+visible = false
 layout_mode = 2
 theme_override_constants/margin_left = 25
 

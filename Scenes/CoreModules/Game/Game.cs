@@ -602,6 +602,8 @@ public partial class Game : Node3D
     {
         _logger.Log("Disabling options");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _terrainVisualOptions.DisableOptions();
+        _terrainMeshOptions.DisableOptions();
         _mapGenerationMenu.DisableOptions();
         _fileMenuButton.Disabled = true;
         _saveFileDialog.Hide();
@@ -612,6 +614,8 @@ public partial class Game : Node3D
     {
         _logger.Log("Enabling options");
         await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        _terrainVisualOptions.EnableOptions();
+        _terrainMeshOptions.EnableOptions();
         _mapGenerationMenu.EnableOptions();
         _fileMenuButton.Disabled = false;
     }

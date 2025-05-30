@@ -22,6 +22,12 @@ public class TreeLayerColorChangedEventArgs(string layerId, Color newColor)
 
 public partial class TreePlacementRuleItem : PanelContainer, IOptionsToggleable, ILastUsedConfigProvider
 {
+    private const string LAYER_NAME_TOOLTIP = "This name is used to identify layer by placement or radius rules.\n" +
+                                              "Layer name is not reuqired in general";
+
+    private const string OVERWRITE_LAYERS_TOOLTIP =
+        "If true, this layer tree will overwrite all trees that was placed by previous layers.";
+
     private ColorPickerButton _treeColorPickerButton;
     private OptionsContainer _optionsContainer;
     private VBoxContainer _placeRulesVBoxContainer;
@@ -57,7 +63,7 @@ public partial class TreePlacementRuleItem : PanelContainer, IOptionsToggleable,
 
     public string LayerId => _layerId;
 
-    [InputLine(Description = "Tree layer name:")]
+    [InputLine(Description = "Tree layer name:", Tooltip = LAYER_NAME_TOOLTIP)]
     [InputLineText(maxLength: 25)]
     public string LayerName
     {
@@ -78,8 +84,8 @@ public partial class TreePlacementRuleItem : PanelContainer, IOptionsToggleable,
         set => _selected3DModelItem = value;
     }
 
-    [InputLine(Description = "Overwrite previous layers:")]
-    [InputLineCheckBox(CheckboxType.CheckButton)]
+    [InputLine(Description = "Overwrite previous layers:", Tooltip = OVERWRITE_LAYERS_TOOLTIP)]
+    [InputLineCheckBox(checkboxType: CheckboxType.CheckButton)]
     public bool OverwriteLayers
     {
         get => _overwriteLayers;

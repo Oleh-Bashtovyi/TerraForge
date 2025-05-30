@@ -18,6 +18,10 @@ namespace TerrainGenerationApp.Scenes.FeatureOptions.TreePlacement;
 
 public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, ILastUsedConfigProvider
 {
+    private const string TREE_MAP_FREQUENCY_TOOLTIP = "Frequency of tree placement on the map.\n" +
+                                                      "Higher values result in more frequent tree placements,\n" +
+                                                      "while lower values reduce the density of trees.\n" +
+                                                      "Greatly affects performance";
     private OptionsContainer _optionsContainer;
     private VBoxContainer _rulesContainer;
 	private Button _addRuleButton;
@@ -37,7 +41,7 @@ public partial class TreePlacementOptions : VBoxContainer, IOptionsToggleable, I
 
     private bool IsLoading { get; set; }
 
-    [InputLine(Description = "Frequency:")]
+    [InputLine(Description = "Tree map frequency:", Tooltip = TREE_MAP_FREQUENCY_TOOLTIP)]
     [InputLineSlider(0.0f, 5.0f, 0.1f)]
     public float Frequency
     {

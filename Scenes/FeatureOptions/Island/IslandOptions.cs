@@ -1,4 +1,5 @@
 using TerrainGenerationApp.Domain.Generators.Islands;
+using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Attributes;
 using TerrainGenerationApp.Scenes.BuildingBlocks.Containers;
 using TerrainGenerationApp.Scenes.BuildingBlocks.InputLine;
@@ -9,12 +10,12 @@ public partial class IslandOptions : OptionsContainer
 {
     private readonly IslandApplier _islandApplier = new();
 
-    [InputLine(Description = "Island type:", Id = "IslandType")]
+    [InputLine(Description = "Center type:", Id = "CenterType")]
     [InputLineCombobox(selected: 0, bind:ComboboxBind.Id)]
-    [InputOption("Single At Center", id: (int)IslandApplier.IslandType.SingleAtCenter)]
-    [InputOption("Single Randomly",  id: (int)IslandApplier.IslandType.SingleRandomly)]
-    [InputOption("Many",             id: (int)IslandApplier.IslandType.Many)]
-    public IslandApplier.IslandType SelectedIslandType
+    [InputOption("Single",          id: (int)IslandApplier.CenterType.Single)]
+    [InputOption("Single random",   id: (int)IslandApplier.CenterType.SingleRandomly)]
+    [InputOption("Many random",     id: (int)IslandApplier.CenterType.Many)]
+    public IslandApplier.CenterType SelectedCenterType
     {
         get => _islandApplier.ApplierType;
         set
@@ -25,15 +26,13 @@ public partial class IslandOptions : OptionsContainer
     }
 
     [InputLine(Description = "Distance function:", Id = "DistanceFunction")]
-    [InputLineCombobox(selected:0, bind:ComboboxBind.Id)]
-    [InputOption("Euclidean",         id: (int)IslandApplier.DistanceType.Euclidean)]
-    [InputOption("Euclidean Squared", id: (int)IslandApplier.DistanceType.EuclideanSquared)]
-    [InputOption("Manhattan",         id: (int)IslandApplier.DistanceType.Manhattan)]
-    [InputOption("Diagonal",          id: (int)IslandApplier.DistanceType.Diagonal)]
-    [InputOption("Hyperboloid",       id: (int)IslandApplier.DistanceType.Hyperboloid)]
-    [InputOption("Blob",              id: (int)IslandApplier.DistanceType.Blob)]
-    [InputOption("Square Bump",       id: (int)IslandApplier.DistanceType.SquareBump)]
-    public IslandApplier.DistanceType SelectedDistanceFunction
+    [InputLineCombobox(selected:0,    bind:ComboboxBind.Id)]
+    [InputOption("Euclidean",         id: (int)DistanceType.Euclidean)]
+    [InputOption("Euclidean Squared", id: (int)DistanceType.EuclideanSquared)]
+    [InputOption("Manhattan",         id: (int)DistanceType.Manhattan)]
+    [InputOption("Diagonal",          id: (int)DistanceType.Diagonal)]
+    [InputOption("Hyperboloid",       id: (int)DistanceType.Hyperboloid)]
+    public DistanceType SelectedDistanceFunction
     {
         get => _islandApplier.DistanceFunction;
         set
@@ -43,8 +42,8 @@ public partial class IslandOptions : OptionsContainer
         }
     }
 
-    [InputLine(Description = "Islands radius:")]
-    [InputLineSlider(1.0f, 200.0f)]
+    [InputLine(Description = "Centers radius:")]
+    [InputLineSlider(1.0f, 250.0f)]
     public float Radius
     {
         get => _islandApplier.RadiusAroundIslands;
@@ -55,14 +54,14 @@ public partial class IslandOptions : OptionsContainer
         }
     }
 
-    [InputLine(Description = "Islands count:")]
+    [InputLine(Description = "Centers count:")]
     [InputLineSlider(1.0f, 8.0f)]
-    public int IslandsCount
+    public int CentersCount
     {
-        get => _islandApplier.IslandsCount;
+        get => _islandApplier.CentersCount;
         set
         {
-            _islandApplier.IslandsCount = value;
+            _islandApplier.CentersCount = value;
             InvokeParametersChangedEvent();
         }
     }
@@ -91,7 +90,7 @@ public partial class IslandOptions : OptionsContainer
         }
     }
 
-    [InputLine(Description = "Min distance factor:")]
+/*    [InputLine(Description = "Min distance factor:")]
     [InputLineSlider(0.0f, 1.0f, 0.01f)]
     public float MinDistanceFactor
     {
@@ -101,7 +100,7 @@ public partial class IslandOptions : OptionsContainer
             _islandApplier.MinDistanceFactor = value;
             InvokeParametersChangedEvent();
         }
-    }
+    }*/
 
     [InputLine(Description = "Horizontal offset:")]
     [InputLineSlider(0.0f, 1.0f, 0.01f)]

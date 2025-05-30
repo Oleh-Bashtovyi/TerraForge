@@ -197,7 +197,7 @@ public partial class TerrainScene2D : Control
             {
                 var height = _worldData.TerrainData.HeightAt(cellY, cellX);
                 var slope = _worldData.TerrainData.SlopeAt(cellY, cellX);
-                _cellInfoLabel.Text = $"Cell: [ {cellX} ; {cellY} ] - Value: {height:F5}; Slope: {slope:F5}";
+                _cellInfoLabel.Text = $"Cell: [ {cellX} ; {cellY} ] - Height: {height:F5}; Slope: {slope:F5}";
             }
         }
     }

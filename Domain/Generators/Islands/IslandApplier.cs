@@ -1,46 +1,37 @@
 ﻿using Godot;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using TerrainGenerationApp.Domain.Utils.TerrainUtils;
 
 namespace TerrainGenerationApp.Domain.Generators.Islands;
 
 public class IslandApplier : IIslandsApplier
 {
-    public enum IslandType
+    public enum CenterType
     {
-        SingleAtCenter,
+        Single,
         SingleRandomly,
         Many
     }
 
-    public enum DistanceType
-    {
-        Euclidean,
-        EuclideanSquared,
-        Manhattan,
-        Diagonal,
-        Hyperboloid,
-        Blob,
-        SquareBump
-    }
-
-    public IslandType ApplierType { get; set; } = IslandType.SingleAtCenter;
+    public CenterType ApplierType { get; set; } = CenterType.Single;
     public DistanceType DistanceFunction { get; set; } = DistanceType.Euclidean;
     public float RadiusAroundIslands { get; set; } = 55f;
-    // Далі радіуса фактор не буде менший за MinDistanceFactor, щоб поза островом не було нульових висот
-    public float MinDistanceFactor { get; set; } = 0.2f;
+    // Мінімальний фактор впливу (на краях острову)
+    public float MinDistanceFactor { get; set; } = 0.0f;
+    // Максимальний фактор впливу (в центрі острову)
+    public float MaxDistanceFactor { get; set; } = 1.0f;
     // For Many islands type
-    public int IslandsCount { get; set; } = 1;
+    public int CentersCount { get; set; } = 1;
     // Щоб острови не знаходились на краях, їх треба здвинути ближче до центра
     // [0; 1] - наприклад, якщо значення буде 0.5, то зліва буде відступ 25% і справа 25%
     public float HorizontalOffsetsToCenter { get; set; } = 0.2f;
     // [0; 1]
     public float VerticalOffsetsToCenter { get; set; } = 0.2f;
     public ulong Seed { get; set; } = 0;
-    // Контроль сили змішування
+    // Контроль сили змішування (0 = оригінальна карта, 1 = повна заміна на острівну форму)
     public float MixStrength { get; set; } = 0.8f;
-
 
     public float[,] ApplyIslands(float[,] map)
     {
@@ -59,14 +50,14 @@ public class IslandApplier : IIslandsApplier
         List<Vector2> islandCenters = new();
         switch (ApplierType)
         {
-            case IslandType.SingleAtCenter:
+            case CenterType.Single:
                 islandCenters = new List<Vector2>() { new(mapCenterX, mapCenterY) };
                 break;
-            case IslandType.SingleRandomly:
+            case CenterType.SingleRandomly:
                 islandCenters = MapHelpers.GenerateDots(1, xMinBound, xMaxBound, yMinBound, yMaxBound, Seed);
                 break;
-            case IslandType.Many:
-                islandCenters = MapHelpers.GenerateDots(IslandsCount, xMinBound, xMaxBound, yMinBound, yMaxBound, Seed);
+            case CenterType.Many:
+                islandCenters = MapHelpers.GenerateDots(CentersCount, xMinBound, xMaxBound, yMinBound, yMaxBound, Seed);
                 break;
         }
 
@@ -78,53 +69,29 @@ public class IslandApplier : IIslandsApplier
                 var nearestPoint = MapHelpers.FindNearestPoint(dotCenter, islandCenters);
 
                 // Розрахунок відстані до найближчого центру острову
-                float distance = CalculateDistance(dotCenter.X, dotCenter.Y, nearestPoint.X, nearestPoint.Y);
+                float distance = Distances.CalculateDistance(dotCenter.X, dotCenter.Y, nearestPoint.X, nearestPoint.Y, DistanceFunction);
 
                 // Нормалізація відстані відносно заданого радіуса
                 float normalizedDistance = Math.Min(1.0f, distance / RadiusAroundIslands);
 
-                /*                // Застосування мінімального фактора на відстані 
-                                float distanceFactor = Math.Max(MinDistanceFactor, normalizedDistance);
+                // Розрахунок фактора впливу острову:
+                // В центрі (distance = 0) -> islandInfluenceFactor = MaxDistanceFactor (висока висота, мало змін)
+                // На краю (distance = RadiusAroundIslands) -> islandInfluenceFactor = MinDistanceFactor (низька висота)
+                // Створюємо цільову висоту для острова (висока в центрі, низька на краях)
+                float targetIslandHeight = Mathf.Lerp(MaxDistanceFactor, MinDistanceFactor, normalizedDistance);
 
-                                // Інвертування фактора для острова (центр = високий, край = низький)
-                                float islandShapeFactor = 1.0f - distanceFactor;*/
-
-
-                // Інвертування фактора для острова (центр = високий, край = низький)
-                float islandShapeFactor = Math.Max(1.0f - normalizedDistance, MinDistanceFactor);
-
-
-
-
-                // Змішування карти з фактором острова
+                // Змішування оригінальної висоти з цільовою висотою острова
                 float originalElevation = map[y, x];
-                float newElevation = LinearInterpolation(originalElevation, islandShapeFactor, MixStrength);
+                float newElevation = LinearInterpolation(originalElevation, targetIslandHeight, MixStrength * normalizedDistance);
 
-                newMap[y, x] = newElevation;
+                // Обмежуємо значення в межах [0, 1]
+                newMap[y, x] = Math.Clamp(newElevation, 0.0f, 1.0f);
             }
         }
 
         return newMap;
     }
 
-    private float CalculateDistance(float x1, float y1, float x2, float y2)
-    {
-        return DistanceFunction switch
-        {
-            DistanceType.Euclidean => Distances.Euclidean(x1, y1, x2, y2),
-            DistanceType.EuclideanSquared => Distances.EuclideanSquared(x1, y1, x2, y2),
-            DistanceType.Manhattan => Distances.Manhattan(x1, y1, x2, y2),
-            DistanceType.Blob => Distances.Blob(x1, y1, x2, y2),
-            DistanceType.Diagonal => Distances.Diagonal(x1, y1, x2, y2),
-            DistanceType.Hyperboloid => Distances.Hyperboloid(x1, y1, x2, y2),
-            DistanceType.SquareBump => Distances.SquareBump(x1, y1, x2, y2),
-            _ => Distances.Euclidean(x1, y1, x2, y2)
-        };
-    }
-
-    private float LinearInterpolation(float a, float b, float t)
-    {
-        return a * (1.0f - t) + b * t;
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private float LinearInterpolation(float a, float b, float t) => a * (1.0f - t) + b * t;
 }
-
