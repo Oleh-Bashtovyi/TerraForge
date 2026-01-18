@@ -2,6 +2,10 @@
 
 This is course project focuses on **procedural terrain generation** for video games. It provides an implementation of various algorithms to create diverse landscapes, allowing users to explore different methods of terrain synthesis. The project was developed on the Godot game engine using the C# programming language.
 
+# Demo
+
+https://github.com/user-attachments/assets/b62b6584-0fe8-47b1-9ef5-cfd39f906be4
+
 ## Great sources:
 - **Terrain erosion 3 ways:** [Repository](https://github.com/dandrino/terrain-erosion-3-ways/tree/master)
 - **Terrain from noise:** [Article](https://www.redblobgames.com/maps/terrain-from-noise/)
@@ -47,5 +51,3 @@ This is course project focuses on **procedural terrain generation** for video ga
 
 ### 3D Generation
 - **Repository 1:** [Click](https://github.com/Chevifier/Inifinte-Terrain-Generation)
-
-## Application screenshots
